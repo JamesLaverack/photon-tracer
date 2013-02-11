@@ -1,6 +1,6 @@
 CXXFLAGS =	-O2 -g -Wall -fmessage-length=0
 
-OBJS =		photon-tracer-cpu.o
+OBJS =		photon-tracer-cpu.o Vector3D.o
 
 LIBS =
 
