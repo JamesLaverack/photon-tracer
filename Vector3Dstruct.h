@@ -14,7 +14,7 @@ typedef struct vec_tag {
     float x;
     float y;
     float z;
-} Vector3D;
+} Vector3Dstruct;
 
 }
 
