@@ -14,13 +14,21 @@ namespace photonCPU {
 
 	class Vector3D {
 	public:
+		// Public members
 		float x;
 		float y;
 		float z;
+		// Constructors & Deconstructors
 		Vector3D();
 		Vector3D(float xi, float yi, float zi);
 		virtual ~Vector3D();
-		float dotProduct(Vector3D b);
+		// Operators
+		Vector3D & operator+=(const Vector3D &rhs);
+		const Vector3D operator+(const Vector3D &other) const;
+		Vector3D & operator-=(const Vector3D &rhs);
+		const Vector3D operator-(const Vector3D &other) const;
+		// Methods
+		float dotProduct(Vector3D* b);
 		void normaliseSelf();
 		void setTo(Vector3D* v);
 		void setTo(float xi, float yi, float zi);
