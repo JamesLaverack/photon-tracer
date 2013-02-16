@@ -34,7 +34,7 @@ void PlaneObject::setNormal(float x, float y, float z){
 	normal->normaliseSelf();
 }
 
-bool PlaneObject::intersects(photonCPU::Ray r) {
+bool PlaneObject::intersects(photonCPU::Ray* r) {
 	return false;
 }
 

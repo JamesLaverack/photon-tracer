@@ -16,7 +16,7 @@ class RenderObject {
 public:
 	RenderObject();
 	virtual ~RenderObject();
-	virtual bool intersects(photonCPU::Ray r) = 0;
+	virtual bool intersects(photonCPU::Ray* r) = 0;
 };
 
 } /* namespace photonCPU */
