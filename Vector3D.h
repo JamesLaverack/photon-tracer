@@ -23,10 +23,22 @@ namespace photonCPU {
 		Vector3D(float xi, float yi, float zi);
 		virtual ~Vector3D();
 		// Operators
+
+		// Vector/Vector ops
 		Vector3D & operator+=(const Vector3D &rhs);
 		const Vector3D operator+(const Vector3D &other) const;
 		Vector3D & operator-=(const Vector3D &rhs);
 		const Vector3D operator-(const Vector3D &other) const;
+		Vector3D & operator*=(const Vector3D &rhs);
+		const Vector3D operator*(const Vector3D &other) const;
+
+		// Vector/float ops
+		Vector3D & operator+=(const float &rhs);
+		const Vector3D operator+(const float &other) const;
+		Vector3D & operator-=(const float &rhs);
+		const Vector3D operator-(const float &other) const;
+		Vector3D & operator*=(const float &rhs);
+		const Vector3D operator*(const float &other) const;
 		// Methods
 		float dotProduct(Vector3D* b);
 		void normaliseSelf();

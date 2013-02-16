@@ -61,6 +61,66 @@ const Vector3D Vector3D::operator-(const Vector3D &other) const {
   return result;              // All done!
 }
 
+Vector3D & Vector3D::operator*=(const Vector3D &rhs) {
+  x *= rhs.x;
+  y *= rhs.y;
+  z *= rhs.z;
+  return *this;
+}
+
+// Add this instance's value to other, and return a new instance
+// with the result.
+const Vector3D Vector3D::operator*(const Vector3D &other) const {
+  Vector3D result = *this;     // Make a copy of myself.  Same as MyClass result(*this);
+  result *= other;            // Use += to add other to the copy.
+  return result;              // All done!
+}
+
+Vector3D & Vector3D::operator+=(const float &rhs) {
+  x += rhs;
+  y += rhs;
+  z += rhs;
+  return *this;
+}
+
+// Add this instance's value to other, and return a new instance
+// with the result.
+const Vector3D Vector3D::operator+(const float &other) const {
+  Vector3D result = *this;     // Make a copy of myself.  Same as MyClass result(*this);
+  result += other;            // Use += to add other to the copy.
+  return result;              // All done!
+}
+
+Vector3D & Vector3D::operator-=(const float &rhs) {
+  x -= rhs;
+  y -= rhs;
+  z -= rhs;
+  return *this;
+}
+
+// Add this instance's value to other, and return a new instance
+// with the result.
+const Vector3D Vector3D::operator-(const float &other) const {
+  Vector3D result = *this;     // Make a copy of myself.  Same as MyClass result(*this);
+  result -= other;            // Use += to add other to the copy.
+  return result;              // All done!
+}
+
+Vector3D & Vector3D::operator*=(const float &rhs) {
+  x *= rhs;
+  y *= rhs;
+  z *= rhs;
+  return *this;
+}
+
+// Add this instance's value to other, and return a new instance
+// with the result.
+const Vector3D Vector3D::operator*(const float &other) const {
+  Vector3D result = *this;     // Make a copy of myself.  Same as MyClass result(*this);
+  result *= other;            // Use += to add other to the copy.
+  return result;              // All done!
+}
+
 /////////////
 // METHODS //
 /////////////
