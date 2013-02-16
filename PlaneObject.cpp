@@ -11,7 +11,7 @@ namespace photonCPU {
 
 PlaneObject::PlaneObject() {
 	position = new Vector3D();
-	normal = new Vector3D();
+	normal = new Vector3D(0, 1, 0);
 }
 
 PlaneObject::~PlaneObject() {
