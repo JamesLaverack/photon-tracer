@@ -50,5 +50,14 @@ void Vector3D::setTo(Vector3D* v) {
 	z = v->z;
 }
 
+/**
+ * Sets this vector to be the same as the given values.
+ */
+void Vector3D::setTo(float xi, float yi, float zi) {
+	x = xi;
+	y = yi;
+	z = zi;
+}
+
 } /* namespace photonCPU */
 
