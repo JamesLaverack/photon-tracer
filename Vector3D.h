@@ -8,6 +8,8 @@
 #ifndef VECTOR3D_H_
 #define VECTOR3D_H_
 
+#include <stdio.h>
+
 namespace photonCPU {
 
 	class Vector3D {
@@ -22,6 +24,7 @@ namespace photonCPU {
 		void normaliseSelf();
 		void setTo(Vector3D* v);
 		void setTo(float xi, float yi, float zi);
+		void print();
 	};
 
 } /* namespace photonCPU */

@@ -59,5 +59,12 @@ void Vector3D::setTo(float xi, float yi, float zi) {
 	z = zi;
 }
 
+/**
+ * Prints to standard out
+ */
+void Vector3D::print() {
+	printf("(%f, %f, %f)\n", x, y, z);
+}
+
 } /* namespace photonCPU */
 
