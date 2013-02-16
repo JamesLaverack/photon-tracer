@@ -9,15 +9,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Vector3D.h"
+#include "Ray.h"
 using photonCPU::Vector3D;
 
 
 int main(void) {
 
-	Vector3D vec;
+	photonCPU::Ray vec;
 
-	vec.x = 100.0f;
-	printf("(%f, %f, %f)\n", vec.x, vec.y, vec.z);
+	(vec.direction)->x = 100.0f;
+	printf("(%f, %f, %f)\n", (vec.direction)->x, (vec.direction)->y, (vec.direction)->z);
 
 
 	puts("!!!Hello World!!!");
