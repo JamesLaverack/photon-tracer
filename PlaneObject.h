@@ -25,6 +25,7 @@ public:
 	void setNormal(Vector3D* normal);
 	void setNormal(float x, float y, float z);
 	virtual bool intersects(photonCPU::Ray* r);
+	virtual Vector3D getIntersectionPoint(photonCPU::Ray* r);
 };
 
 } /* namespace photonCPU */

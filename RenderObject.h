@@ -17,6 +17,7 @@ public:
 	RenderObject();
 	virtual ~RenderObject();
 	virtual bool intersects(photonCPU::Ray* r) = 0;
+	virtual Vector3D getIntersectionPoint(photonCPU::Ray* r) = 0;
 };
 
 } /* namespace photonCPU */

@@ -35,6 +35,19 @@ void PlaneObject::setNormal(float x, float y, float z){
 }
 
 bool PlaneObject::intersects(photonCPU::Ray* r) {
+	return (r->direction->dotProduct(normal)) != 0;
+}
+
+/**
+ * WARNING we allocate memory here
+ *
+ */
+Vector3D PlaneObject::getIntersectionPoint(photonCPU::Ray* r) {
+	float i = (r->direction->dotProduct(normal));
+	if(i!=0){
+		float t = -(r->position->dotProduct(normal))/i;
+		return (r->position)+(r->direction)*t;
+	}
 	return false;
 }
 
