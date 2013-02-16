@@ -37,5 +37,15 @@ void Vector3D::normaliseSelf() {
 	}
 }
 
+/**
+ * Sets this vector to be the same as v.
+ * This does NOT modify v or allocate memory.
+ */
+void Vector3D::setTo(Vector3D* v) {
+	x = v->x;
+	y = v->y;
+	z = v->z;
+}
+
 } /* namespace photonCPU */
 
