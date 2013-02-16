@@ -16,6 +16,7 @@ namespace photonCPU {
 		float y;
 		float z;
 		Vector3D();
+		Vector3D(float xi, float yi, float zi);
 		virtual ~Vector3D();
 		float dotProduct(Vector3D b);
 		void normaliseSelf();

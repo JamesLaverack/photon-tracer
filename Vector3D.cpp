@@ -9,11 +9,14 @@
 
 namespace photonCPU {
 
+Vector3D::Vector3D(float xi, float yi, float zi){
+	x = xi;
+	y = yi;
+	z = zi;
+}
+
 Vector3D::Vector3D() {
-	// init values
-	x = 0.0f;
-	y = 0.0f;
-	z = 0.0f;
+	Vector3D(0.0f, 0.0f, 0.0f);
 }
 
 Vector3D::~Vector3D() {
