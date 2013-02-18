@@ -15,10 +15,27 @@ using photonCPU::Vector3D;
 
 int main(void) {
 
-	photonCPU::Ray vec;
+	Vector3D v1(1, 2, 3);
+	Vector3D v2;
 
-	(vec.direction)->x = 100.0f;
-	printf("(%f, %f, %f)\n", (vec.direction)->x, (vec.direction)->y, (vec.direction)->z);
+	v1.print();
+	v2.print();
+
+	v2.setTo(&v1);
+
+	v1.print();
+	v2.print();
+
+	v1.x = 0.03f;
+
+	v1.print();
+	v2.print();
+
+	Vector3D v3 = v1 + v2;
+	v3-=3.0f;
+	v3.print();
+
+	photonCPU::Ray r;
 
 
 	puts("!!!Hello World!!!");
