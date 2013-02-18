@@ -45,7 +45,8 @@ float PlaneObject::intersects(photonCPU::Ray* r) {
 Vector3D PlaneObject::getIntersectionPoint(photonCPU::Ray* r) {
 	float i = (r->direction->dotProduct(normal));
 	if(i!=0){
-		float t = -(r->position->dotProduct(normal))/i;
+		Vector3D adjusted_position = (*(r->position))-(*position);
+		float t = -adjusted_position.dotProduct(normal)/i;
 		return (*(r->position))+(*(r->direction))*t;
 	}
 	// HURF DURF
