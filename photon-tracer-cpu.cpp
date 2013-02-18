@@ -6,8 +6,8 @@
 // Description : Hello World in C, Ansi-style
 //============================================================================
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include "Vector3D.h"
 #include "Ray.h"
 using photonCPU::Vector3D;
