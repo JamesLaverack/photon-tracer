@@ -46,9 +46,10 @@ Vector3D PlaneObject::getIntersectionPoint(photonCPU::Ray* r) {
 	float i = (r->direction->dotProduct(normal));
 	if(i!=0){
 		float t = -(r->position->dotProduct(normal))/i;
-		return (r->position)+(r->direction)*t;
+		return (*(r->position))+(*(r->direction))*t;
 	}
-	return false;
+	// HURF DURF
+	// Reutrn null? Somehow? I wish.
 }
 
 } /* namespace photonCPU */
