@@ -10,33 +10,34 @@
 #include <cstdlib>
 #include "Vector3D.h"
 #include "Ray.h"
+#include "Scene.h"
+#include "PlaneObject.h"
 using photonCPU::Vector3D;
-
 
 int main(void) {
 
-	Vector3D v1(1, 2, 3);
-	Vector3D v2;
-
-	v1.print();
-	v2.print();
-
-	v2.setTo(&v1);
-
-	v1.print();
-	v2.print();
-
-	v1.x = 0.03f;
-
-	v1.print();
-	v2.print();
-
-	Vector3D v3 = v1 + v2;
-	v3-=3.0f;
-	v3.print();
-
 	photonCPU::Ray r;
+	photonCPU::PlaneObject p1;
+	photonCPU::PlaneObject p2;
 
+	r.direction->setTo(30, -20, 100);
+	r.direction->normaliseSelf();
+
+	r.position->x = 20;
+	r.position->y = 30;
+
+	p1.setNormal(0, 0, -1);
+	p2.setNormal(0, 0, -1);
+
+	p1.setPosition(0, 0, 15);
+	p2.setPosition(0, 0, 30);
+
+	photonCPU::Scene s;
+
+	s.addObject(&p1);
+	s.addObject(&p2);
+
+	((s.getClosestIntersection(&r))->getIntersectionPoint(&r)).print();
 
 	puts("!!!Hello World!!!");
 	return EXIT_SUCCESS;
