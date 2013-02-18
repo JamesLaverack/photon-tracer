@@ -12,7 +12,7 @@ namespace photonCPU {
 
 Ray::Ray() {
 	position = new Vector3D();
-	direction = new Vector3D();
+	direction = new Vector3D(0, 0, 1);
 }
 
 Ray::~Ray() {
