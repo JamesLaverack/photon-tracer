@@ -27,7 +27,7 @@ void Scene::addLight(AbstractLight* light) {
 RenderObject* Scene::getClosestIntersection(Ray* r) {
 	// Record smallest t
 	float min_t = std::numeric_limits<float>::infinity();
-	RenderObject* closest_object;
+	RenderObject* closest_object = 0;
 	// iterate
 	for(std::vector<RenderObject*>::size_type i = 0; i != mObjects.size(); i++) {
 		float t = ((RenderObject*) mObjects[i])->intersects(r);

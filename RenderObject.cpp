@@ -17,4 +17,8 @@ RenderObject::~RenderObject() {
 	delete mMaterial;
 }
 
+AbstractMaterial* RenderObject::getMaterial() {
+	return mMaterial;
+}
+
 } /* namespace photonCPU */

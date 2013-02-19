@@ -9,11 +9,12 @@
 
 namespace photonCPU {
 
-PlaneObject::PlaneObject(AbstractMaterial* pMaterial)
-: RenderObject(pMaterial)
+PlaneObject::PlaneObject(AbstractMaterial* pMaterial) : RenderObject(pMaterial)
 {
 	position = new Vector3D();
 	normal = new Vector3D(0, 1, 0);
+	vecA = new Vector3D(1, 0, 0);
+	vecB = new Vector3D(0, 0, 1);
 }
 
 PlaneObject::~PlaneObject() {
@@ -53,6 +54,19 @@ Vector3D PlaneObject::getIntersectionPoint(photonCPU::Ray* r) {
 	}
 	// HURF DURF
 	// Reutrn null? Somehow? I wish.
+}
+
+virtual int* PlaneObject::getTextureCordsAtPoint(photonCPU::Vector3D* point) {
+	// Project onto our plane and take that, this should account for rounding errors
+	// that result in points just off of our plane.
+	float m = (point-*position).dotProduct(normal);
+	vector3D projection = (*point)-m*(*normal);
+	// right, convert this to local cordinates on the plane
+	Vector3D diff = (*point)-(*position);
+	float u = diff.dotProduct(vecA);
+	float v = diff.dotProduct(vecB);
+	int uvw[] = { u, v, 0 }; // w is always 0
+	return uvw;
 }
 
 } /* namespace photonCPU */
