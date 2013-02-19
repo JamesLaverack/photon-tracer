@@ -18,7 +18,7 @@ private:
 	Vector3D* position;
 	Vector3D* normal;
 public:
-	PlaneObject();
+	PlaneObject(AbstractMaterial* pMaterial);
 	virtual ~PlaneObject();
 	void setPosition(Vector3D* pos);
 	void setPosition(float x, float y, float z);

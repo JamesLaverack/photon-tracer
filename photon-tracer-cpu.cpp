@@ -8,6 +8,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 #include "Vector3D.h"
 #include "Ray.h"
 #include "Scene.h"
@@ -16,15 +17,15 @@ using photonCPU::Vector3D;
 
 int main(void) {
 
+	int seed = std::time(NULL);
+	std::srand(seed);
+
 	photonCPU::Ray r;
 	photonCPU::PlaneObject p1;
 	photonCPU::PlaneObject p2;
 
-	r.direction->setTo(30, -20, 100);
-	r.direction->normaliseSelf();
-
-	r.position->x = 20;
-	r.position->y = 30;
+	r.setDirection(30, -20, 100);
+	r.setPosition(20, 30, 0);
 
 	p1.setNormal(0, 0, -1);
 	p2.setNormal(0, 0, -1);

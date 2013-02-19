@@ -9,13 +9,12 @@
 
 namespace photonCPU {
 
-RenderObject::RenderObject() {
-	// TODO Auto-generated constructor stub
-
+RenderObject::RenderObject(AbstractMaterial* pMaterial) {
+	mMaterial = pMaterial;
 }
 
 RenderObject::~RenderObject() {
-	// TODO Auto-generated destructor stub
+	delete mMaterial;
 }
 
 } /* namespace photonCPU */

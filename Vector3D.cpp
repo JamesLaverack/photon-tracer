@@ -19,6 +19,10 @@ Vector3D::Vector3D(float xi, float yi, float zi){
 	z = zi;
 }
 
+Vector3D::Vector3D(Vector3D* pVector) {
+	Vector3D(pVector->x, pVector->y, pVector->z);
+}
+
 Vector3D::Vector3D() {
 	Vector3D(0.0f, 0.0f, 0.0f);
 }

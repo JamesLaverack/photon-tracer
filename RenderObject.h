@@ -9,12 +9,15 @@
 #define RENDEROBJECT_H_
 
 #include "Ray.h"
+#include "AbstractMaterial.h"
 
 namespace photonCPU {
 
 class RenderObject {
+protected:
+	AbstractMaterial* mMaterial;
 public:
-	RenderObject();
+	RenderObject(AbstractMaterial* pMaterial);
 	virtual ~RenderObject();
 	virtual float intersects(photonCPU::Ray* r) = 0;
 	virtual Vector3D getIntersectionPoint(photonCPU::Ray* r) = 0;

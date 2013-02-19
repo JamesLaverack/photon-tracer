@@ -9,7 +9,9 @@
 
 namespace photonCPU {
 
-PlaneObject::PlaneObject() {
+PlaneObject::PlaneObject(AbstractMaterial* pMaterial)
+: RenderObject(pMaterial)
+{
 	position = new Vector3D();
 	normal = new Vector3D(0, 1, 0);
 }
@@ -35,7 +37,7 @@ void PlaneObject::setNormal(float x, float y, float z){
 }
 
 float PlaneObject::intersects(photonCPU::Ray* r) {
-	return (r->direction->dotProduct(normal));
+	return r->getDirection().dotProduct(normal);
 }
 
 /**
@@ -43,11 +45,11 @@ float PlaneObject::intersects(photonCPU::Ray* r) {
  *
  */
 Vector3D PlaneObject::getIntersectionPoint(photonCPU::Ray* r) {
-	float i = (r->direction->dotProduct(normal));
+	float i = r->getDirection().dotProduct(normal);
 	if(i!=0){
-		Vector3D adjusted_position = (*(r->position))-(*position);
+		Vector3D adjusted_position = r->getPosition()-*position;
 		float t = -adjusted_position.dotProduct(normal)/i;
-		return (*(r->position))+(*(r->direction))*t;
+		return r->getPosition()+r->getDirection()*t;
 	}
 	// HURF DURF
 	// Reutrn null? Somehow? I wish.

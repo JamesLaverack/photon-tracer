@@ -20,6 +20,7 @@ namespace photonCPU {
 		float z;
 		// Constructors & Deconstructors
 		Vector3D();
+		Vector3D(Vector3D* pVector);
 		Vector3D(float xi, float yi, float zi);
 		virtual ~Vector3D();
 		// Operators

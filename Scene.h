@@ -10,18 +10,23 @@
 
 #include <vector>
 #include <limits>
+#include <cstdlib>
 #include "RenderObject.h"
+#include "AbstractLight.h"
 
 namespace photonCPU {
 
 class Scene {
 private:
 	std::vector<RenderObject*> mObjects;
+	std::vector<AbstractLight*> mLights;
 public:
 	Scene();
 	virtual ~Scene();
 	void addObject(RenderObject* obj);
+	void addLight(AbstractLight* light);
 	RenderObject* getClosestIntersection(Ray* r);
+	AbstractLight* getRandomLight();
 };
 
 } /* namespace photonCPU */

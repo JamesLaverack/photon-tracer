@@ -6,12 +6,10 @@
  */
 
 #include "Scene.h"
-
 namespace photonCPU {
 
 Scene::Scene() {
 	// TODO Auto-generated constructor stub
-
 }
 
 Scene::~Scene() {
@@ -20,6 +18,10 @@ Scene::~Scene() {
 
 void Scene::addObject(RenderObject* obj) {
 	mObjects.push_back(obj);
+}
+
+void Scene::addLight(AbstractLight* light) {
+	mLights.push_back(light);
 }
 
 RenderObject* Scene::getClosestIntersection(Ray* r) {
@@ -36,5 +38,10 @@ RenderObject* Scene::getClosestIntersection(Ray* r) {
 	}
 	return closest_object;
 }
+
+AbstractLight* Scene::getRandomLight() {
+	return mLights[rand() % mLights.size()];
+}
+
 
 } /* namespace photonCPU */
