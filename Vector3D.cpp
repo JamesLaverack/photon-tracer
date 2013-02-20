@@ -138,7 +138,7 @@ float Vector3D::dotProduct(Vector3D* b) {
  */
 void Vector3D::normaliseSelf() {
 	// Sum
-	float sum = x+y+z;
+	float sum = std::abs(x+y+z);
 	if(sum!=0){
 		x = x/sum;
 		y = y/sum;

@@ -12,9 +12,9 @@ namespace photonCPU {
 PlaneObject::PlaneObject(AbstractMaterial* pMaterial) : RenderObject(pMaterial)
 {
 	position = new Vector3D();
-	normal = new Vector3D(0, 1, 0);
+	normal = new Vector3D(0, 0, 1);
 	vecA = new Vector3D(1, 0, 0);
-	vecB = new Vector3D(0, 0, 1);
+	vecB = new Vector3D(0, 1, 0);
 }
 
 PlaneObject::~PlaneObject() {
@@ -38,7 +38,12 @@ void PlaneObject::setNormal(float x, float y, float z){
 }
 
 float PlaneObject::intersects(photonCPU::Ray* r) {
-	return r->getDirection().dotProduct(normal);
+	float i = r->getDirection().dotProduct(normal);
+	if(i==0) return 0;
+	Vector3D adjusted_position = r->getPosition()-*position;
+	//printf("[normal %f, %f, %f]", normal->x, normal->y, normal->z);
+	return -adjusted_position.dotProduct(normal)/i;
+
 }
 
 /**
@@ -54,19 +59,29 @@ Vector3D PlaneObject::getIntersectionPoint(photonCPU::Ray* r) {
 	}
 	// HURF DURF
 	// Reutrn null? Somehow? I wish.
+	return 0;
 }
 
-virtual int* PlaneObject::getTextureCordsAtPoint(photonCPU::Vector3D* point) {
+void PlaneObject::getTextureCordsAtPoint(photonCPU::Vector3D* point, float* u, float* v, float* w) {
 	// Project onto our plane and take that, this should account for rounding errors
 	// that result in points just off of our plane.
-	float m = (point-*position).dotProduct(normal);
-	vector3D projection = (*point)-m*(*normal);
+	Vector3D adjustedLoc = (*point-*position);
+	float m = adjustedLoc.dotProduct(normal);
+	Vector3D projection = (*point)-((*normal)*m);
 	// right, convert this to local cordinates on the plane
-	Vector3D diff = (*point)-(*position);
-	float u = diff.dotProduct(vecA);
-	float v = diff.dotProduct(vecB);
-	int uvw[] = { u, v, 0 }; // w is always 0
-	return uvw;
+	Vector3D diff = projection-(*position);
+	*u = diff.dotProduct(vecA);
+	*v = diff.dotProduct(vecB);
+	*w = 0;
+}
+
+Ray* PlaneObject::transmitRay(Ray* r) {
+	float u, v, w;
+	Vector3D intersect = getIntersectionPoint(r);
+	getTextureCordsAtPoint(&(intersect), &u, &v, &w);
+	// Get our reflected ray
+	Vector3D dir = r->getDirection();
+	return mMaterial->transmitRay(&intersect, &dir, normal, u, v, w);
 }
 
 } /* namespace photonCPU */

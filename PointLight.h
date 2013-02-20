@@ -21,7 +21,7 @@ public:
 	PointLight(Vector3D* pPosition);
 	PointLight(float px, float py, float pz);
 	virtual ~PointLight();
-	virtual Ray getRandomRayFromLight();
+	virtual Ray* getRandomRayFromLight();
 };
 
 } /* namespace photonCPU */

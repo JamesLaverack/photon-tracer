@@ -21,16 +21,21 @@ PointLight::~PointLight() {
 	delete mPosition;
 }
 
-Ray PointLight::getRandomRayFromLight() {
+Ray* PointLight::getRandomRayFromLight() {
 	// Point light, so always emmit from 1 place
-	Ray r = new Ray();
-	r.setPosition(mPosition);
+	Ray* r = new Ray();
+	r->setPosition(mPosition);
+	//printf("HURF\n");
+	//r->getPosition().print();
+	//r->getPosition().print();
+	//printf("DURF\n");
 	// Randomise direction
-	r.setDirection(randFloat(), randFloat(), randFloat());
+	r->setDirection(randFloat(), randFloat(), randFloat());
+	return r;
 }
 
 float PointLight::randFloat() {
-	return (float)rand()/(float)RAND_MAX;
+	return (float)(rand()-(RAND_MAX/2))/(float)(RAND_MAX/2);
 }
 
 } /* namespace photonCPU */

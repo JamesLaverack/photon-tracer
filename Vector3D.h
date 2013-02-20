@@ -9,6 +9,7 @@
 #define VECTOR3D_H_
 
 #include <stdio.h>
+#include <cmath>
 
 namespace photonCPU {
 

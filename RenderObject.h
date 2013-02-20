@@ -22,7 +22,8 @@ public:
 	AbstractMaterial* getMaterial();
 	virtual float intersects(photonCPU::Ray* r) = 0;
 	virtual Vector3D getIntersectionPoint(photonCPU::Ray* r) = 0;
-	virtual int* getTextureCordsAtPoint(photonCPU::Vector3D* point) = 0;
+	virtual void getTextureCordsAtPoint(photonCPU::Vector3D* point, float* u, float* v, float* w) = 0;
+	virtual Ray* transmitRay(Ray* r) = 0;
 };
 
 } /* namespace photonCPU */

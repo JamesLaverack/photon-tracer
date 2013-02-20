@@ -27,7 +27,8 @@ void Ray::setPosition(float x, float y, float z) {
 	position->setTo(x, y, z);
 }
 Vector3D Ray::getPosition() {
-	Vector3D p = position;
+	Vector3D p;
+	p.setTo(position);
 	return p;
 }
 void Ray::setDirection(Vector3D* n) {
@@ -39,7 +40,8 @@ void Ray::setDirection(float x, float y, float z){
 	direction->normaliseSelf();
 }
 Vector3D Ray::getDirection() {
-	Vector3D d = direction;
+	Vector3D d;
+	d.setTo(direction);
 	return d;
 }
 

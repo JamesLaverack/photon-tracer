@@ -9,6 +9,8 @@
 #define RENDERER_H_
 
 #include "Scene.h"
+#include "PlaneObject.h"
+#include "CameraMaterial.h"
 
 namespace photonCPU {
 

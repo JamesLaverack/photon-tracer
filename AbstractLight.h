@@ -8,13 +8,15 @@
 #ifndef ABSTRACTLIGHT_H_
 #define ABSTRACTLIGHT_H_
 
+#include "Ray.h"
+
 namespace photonCPU {
 
 class AbstractLight {
 public:
 	AbstractLight();
 	virtual ~AbstractLight();
-	virtual Ray getRandomRayFromLight() = 0;
+	virtual photonCPU::Ray* getRandomRayFromLight() = 0;
 };
 
 } /* namespace photonCPU */

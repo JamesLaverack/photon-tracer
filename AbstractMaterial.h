@@ -8,13 +8,15 @@
 #ifndef ABSTRACTMATERIAL_H_
 #define ABSTRACTMATERIAL_H_
 
+#include "Ray.h"
+
 namespace photonCPU {
 
 class AbstractMaterial {
 public:
 	AbstractMaterial();
 	virtual ~AbstractMaterial();
-	virtual Ray transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w) = 0;
+	virtual Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w) = 0;
 };
 
 } /* namespace photonCPU */

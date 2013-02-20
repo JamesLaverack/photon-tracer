@@ -13,32 +13,29 @@
 #include "Ray.h"
 #include "Scene.h"
 #include "PlaneObject.h"
+#include "PerfectMirrorMaterial.h"
+#include "Renderer.h"
+#include "PointLight.h"
+#include "AbstractMaterial.h"
 using photonCPU::Vector3D;
 
 int main(void) {
 
 	int seed = std::time(NULL);
 	std::srand(seed);
+/*
+	photonCPU::AbstractMaterial* mirror = new photonCPU::PerfectMirrorMaterial();
+	photonCPU::PlaneObject* p1 = new photonCPU::PlaneObject(mirror);
+	p1->setNormal(0, 0, -1);
+	p1->setPosition(0, 0, 15);
+*/
+	photonCPU::PointLight* light = new photonCPU::PointLight(0, 0, 10);
 
-	photonCPU::Ray r;
-	photonCPU::PlaneObject p1;
-	photonCPU::PlaneObject p2;
+	photonCPU::Scene* s = new photonCPU::Scene();
+	s->addLight(light);
 
-	r.setDirection(30, -20, 100);
-	r.setPosition(20, 30, 0);
-
-	p1.setNormal(0, 0, -1);
-	p2.setNormal(0, 0, -1);
-
-	p1.setPosition(0, 0, 15);
-	p2.setPosition(0, 0, 30);
-
-	photonCPU::Scene s;
-
-	s.addObject(&p1);
-	s.addObject(&p2);
-
-	((s.getClosestIntersection(&r))->getIntersectionPoint(&r)).print();
+	photonCPU::Renderer* render = new photonCPU::Renderer(s, 100, 100);
+	render->doRenderPass(1000000);
 
 	puts("!!!Hello World!!!");
 	return EXIT_SUCCESS;

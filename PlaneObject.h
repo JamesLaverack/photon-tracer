@@ -28,7 +28,8 @@ public:
 	void setNormal(float x, float y, float z);
 	virtual float intersects(photonCPU::Ray* r);
 	virtual Vector3D getIntersectionPoint(photonCPU::Ray* r);
-	virtual int* getTextureCordsAtPoint(photonCPU::Vector3D* point);
+	virtual void getTextureCordsAtPoint(photonCPU::Vector3D* point, float* u, float* v, float* w);
+	virtual Ray* transmitRay(Ray* r);
 };
 
 } /* namespace photonCPU */
