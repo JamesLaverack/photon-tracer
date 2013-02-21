@@ -32,7 +32,7 @@ RenderObject* Scene::getClosestIntersection(Ray* r) {
 	for(std::vector<RenderObject*>::size_type i = 0; i != mObjects.size(); i++) {
 		float t = ((RenderObject*) mObjects[i])->intersects(r);
 		//printf("(t %f)", t);
-		if ((t<min_t)&&(t>0)) {
+		if ((t<min_t)&&(t>0.01)) {
 			min_t = t;
 			closest_object = mObjects[i];
 		}
