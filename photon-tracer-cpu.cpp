@@ -13,7 +13,9 @@
 #include "Ray.h"
 #include "Scene.h"
 #include "PlaneObject.h"
+#include "SphereObject.h"
 #include "PerfectMirrorMaterial.h"
+#include "PerfectMattMaterial.h"
 #include "Renderer.h"
 #include "PointLight.h"
 #include "AbstractMaterial.h"
@@ -26,14 +28,19 @@ int main(void) {
 
 	photonCPU::AbstractMaterial* mirror = new photonCPU::PerfectMirrorMaterial();
 	photonCPU::PlaneObject* p1 = new photonCPU::PlaneObject(mirror);
-	p1->setNormal(0, 1, -1);
-	p1->setPosition(0, -10, 15);
+	p1->setNormal(0, 0, -1);
+	p1->setPosition(0, 0, 15);
+
+	photonCPU::PerfectMattMaterial* matt = new photonCPU::PerfectMattMaterial();
+	photonCPU::SphereObject* sphere = new photonCPU::SphereObject(matt);
+	sphere->setPosition(0, -1, 2.5f);
 
 	photonCPU::PointLight* light = new photonCPU::PointLight(0, 0, 5);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 	s->addLight(light);
 	s->addObject(p1);
+	s->addObject(sphere);
 
 	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
 	int million = 1000000;

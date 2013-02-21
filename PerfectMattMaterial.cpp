@@ -18,7 +18,7 @@ PerfectMattMaterial::~PerfectMattMaterial() {
 	// TODO Auto-generated destructor stub
 }
 
-Ray* PerfectMirrorMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w) {
+Ray* PerfectMattMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w) {
 	return 0;
 }
 
