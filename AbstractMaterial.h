@@ -16,7 +16,7 @@ class AbstractMaterial {
 public:
 	AbstractMaterial();
 	virtual ~AbstractMaterial();
-	virtual Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w) = 0;
+	virtual Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength) = 0;
 };
 
 } /* namespace photonCPU */

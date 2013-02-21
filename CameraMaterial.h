@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "AbstractMaterial.h"
+//#include "specrend.h"
 
 namespace photonCPU {
 
@@ -22,15 +23,19 @@ private:
 	int imageHeight;
 	float actualWidth;
 	float actualHeight;
-	float* image;
+	float *imageR;
+	float *imageG;
+	float *imageB;
 	int vdiff;
 	int udiff;
-	int index(int x, int y, int z);
+	int index(int x, int y);
+
 public:
 	CameraMaterial(int width, int height);
 	virtual ~CameraMaterial();
-	Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w);
+	Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength);
 	void toPPM();
+	void verify();
 };
 
 } /* namespace photonCPU */

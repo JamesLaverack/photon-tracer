@@ -15,19 +15,25 @@ CameraMaterial::CameraMaterial(int width, int height) {
 	imageHeight = height;
 	actualWidth = 100.0f;
 	actualHeight = 100.0f;
-	image = (float*) calloc(sizeof(float), height*width);
+	imageR = (float*) malloc(height*width*sizeof(float));
+	imageG = (float*) malloc(height*width*sizeof(float));
+	imageB = (float*) malloc(height*width*sizeof(float));
 	vdiff = height/2;
 	udiff = width/2;
 }
 
 CameraMaterial::~CameraMaterial() {
+	free(imageR);
+	free(imageG);
+	free(imageB);
 }
 
-int CameraMaterial::index(int x, int y, int z) {
-	return x + imageWidth*y + imageWidth*imageHeight*0;
+int CameraMaterial::index(int x, int y) {
+	int wat =  (x + imageWidth*y);
+	return wat;
 }
 
-Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w) {
+Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength) {
 	//printf("(%f,%f)", hitLocation->x, hitLocation->y);
 	//printf("<%f,%f>", u, v);
 	// Are we in the renderable bit?
@@ -38,7 +44,8 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 		//printf(" HIT\n");
 		// record
 		// make red
-		image[index(tu, tv, 0)] += 0.01;
+		imageR[index(tu, tv)] += 0.01;
+		imageG[index(tu, tv)] += 0.01;
 		// Ray is finished
 		return 0;
 	} else {
@@ -52,8 +59,35 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 }
 
 int toColourInt(float f, int maxVal) {
+
 	if (f>1) return maxVal;
 	return int(f*maxVal);
+}
+
+void CameraMaterial::verify() {
+	printf("begin verify\n");
+	bool rv = true;
+	bool gv = true;
+	bool bv = true;
+	for(int i=0;i<imageWidth;i++) {
+		for(int j=0;j<imageHeight;j++) {
+			// Red
+			if(imageR[index(i, j)]!=0){
+				if (rv) printf("Nonzero red found\n");
+				rv = false;
+			}
+			// Green
+			if(imageG[index(i, j)]!=0){
+				if (gv) printf("Nonzero green found\n");
+				gv = false;
+			}
+			// Blue
+			if(imageB[index(i, j)]!=0){
+				if (bv) printf("Nonzero blue found\n");
+				bv = false;
+			}
+		}
+	}
 }
 
 void CameraMaterial::toPPM() {
@@ -68,9 +102,9 @@ void CameraMaterial::toPPM() {
 		for(int j=0;j<imageHeight;j++){
 			fprintf(f,
 					" %d %d %d \n",
-					toColourInt(image[index(i, j, 0)], maxVal),
-					0,
-					0
+					toColourInt(imageR[index(i, j)], maxVal),
+					toColourInt(imageG[index(i, j)], maxVal),
+					toColourInt(imageB[index(i, j)], maxVal)
 			       );
 		}
 	}

@@ -24,7 +24,7 @@ float randFloat() {
 	return f;
 }
 
-Ray* PerfectMirrorMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w) {
+Ray* PerfectMirrorMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength) {
 	Ray* r = new Ray();
 	r->setPosition(hitLocation);
 	// Do perfect reflection about the normal.
@@ -32,6 +32,7 @@ Ray* PerfectMirrorMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, 
 	float m = i.dotProduct(normal)*2;
 	Vector3D reflection = ((*normal)*m)-i;
 	r->setDirection(&reflection);
+	r->wavelength = wavelength;
 	return r;
 }
 

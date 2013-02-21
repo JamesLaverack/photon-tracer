@@ -61,7 +61,7 @@ Ray* SphereObject::transmitRay(Ray* r) {
 	// Get our reflected ray
 	Vector3D dir = r->getDirection();
 	Vector3D normal = *(position)-intersect;
-	return mMaterial->transmitRay(&intersect, &dir, &normal, u, v, w);
+	return mMaterial->transmitRay(&intersect, &dir, &normal, u, v, w, r->wavelength);
 }
 
 }

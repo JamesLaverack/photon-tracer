@@ -17,6 +17,7 @@ private:
 	Vector3D* position;
 	Vector3D* direction;
 public:
+	float wavelength;
 	Ray();
 	virtual ~Ray();
 	void setPosition(Vector3D* pos);

@@ -28,7 +28,7 @@ void Renderer::doRenderPass(int photons) {
 	// Fire a number of photons into the scene
 	for(int i=0;i<photons;i++) {
 		if(i% (photons/100) == 0) {
-			printf("    %d\%\n", (int) (100*i/(float) photons));
+			printf("    %d\n", (int) (100*i/(float) photons));
 		}
 		//printf("<%d>\n", i);
 		// Pick a random light
@@ -60,11 +60,7 @@ void Renderer::doRenderPass(int photons) {
 			}
 		}
 	}
-	Ray* butts = new Ray();
-	butts->setDirection(0, 0, -1);
-	butts->setPosition(-10, 40, 10);
-	mCameraObject->transmitRay(butts);
-	delete butts;
+	mCameraMat->verify();
 	//writeout
 	mCameraMat->toPPM();
 }

@@ -83,7 +83,7 @@ Ray* PlaneObject::transmitRay(Ray* r) {
 	getTextureCordsAtPoint(&(intersect), &u, &v, &w);
 	// Get our reflected ray
 	Vector3D dir = r->getDirection();
-	return mMaterial->transmitRay(&intersect, &dir, normal, u, v, w);
+	return mMaterial->transmitRay(&intersect, &dir, normal, u, v, w, r->wavelength);
 }
 
 } /* namespace photonCPU */
