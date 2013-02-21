@@ -17,8 +17,8 @@ class PlaneObject: public photonCPU::RenderObject {
 private:
 	Vector3D* position;
 	Vector3D* normal;
-	Vector3D* vecA;
-	Vector3D* vecB;
+	Vector3D* up;
+	Vector3D* right;
 public:
 	PlaneObject(AbstractMaterial* pMaterial);
 	virtual ~PlaneObject();

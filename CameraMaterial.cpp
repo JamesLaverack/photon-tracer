@@ -13,6 +13,8 @@ CameraMaterial::CameraMaterial(int width, int height) {
 
 	imageWidth = width;
 	imageHeight = height;
+	actualWidth = 100.0f;
+	actualHeight = 100.0f;
 	image = (float*) calloc(sizeof(float), height*width);
 	vdiff = height/2;
 	udiff = width/2;
@@ -29,9 +31,9 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	//printf("(%f,%f)", hitLocation->x, hitLocation->y);
 	//printf("<%f,%f>", u, v);
 	// Are we in the renderable bit?
-	int tu = u+udiff;
-	int tv = v+vdiff;
-	//printf("<%d,%d>", tu, tv);
+	int tu = u*(imageWidth/actualWidth)+udiff;
+	int tv = v*(imageHeight/actualHeight)+vdiff;
+	//printf("<%d,%d>", tu, tv;
 	if((tu>=0)&&(tu<imageWidth)&&(tv>=0)&&(tv<imageHeight)) {
 		//printf(" HIT\n");
 		// record

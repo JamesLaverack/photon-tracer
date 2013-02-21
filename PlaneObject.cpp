@@ -13,8 +13,10 @@ PlaneObject::PlaneObject(AbstractMaterial* pMaterial) : RenderObject(pMaterial)
 {
 	position = new Vector3D();
 	normal = new Vector3D(0, 0, 1);
-	vecA = new Vector3D(1, 0, 0);
-	vecB = new Vector3D(0, 1, 0);
+	up = new Vector3D(0, 1, 0);
+	right = new Vector3D(1, 0, 0);
+	up->normaliseSelf();
+	right->normaliseSelf();
 }
 
 PlaneObject::~PlaneObject() {
@@ -70,8 +72,8 @@ void PlaneObject::getTextureCordsAtPoint(photonCPU::Vector3D* point, float* u, f
 	Vector3D projection = (*point)-((*normal)*m);
 	// right, convert this to local cordinates on the plane
 	Vector3D diff = projection-(*position);
-	*u = diff.dotProduct(vecA);
-	*v = diff.dotProduct(vecB);
+	*u = diff.dotProduct(up);
+	*v = diff.dotProduct(right);
 	*w = 0;
 }
 

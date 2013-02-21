@@ -29,13 +29,14 @@ int main(void) {
 	p1->setNormal(0, 0, -1);
 	p1->setPosition(0, 0, 15);
 */
-	photonCPU::PointLight* light = new photonCPU::PointLight(0, 0, 10);
+	photonCPU::PointLight* light = new photonCPU::PointLight(0, 0, 5);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 	s->addLight(light);
 
-	photonCPU::Renderer* render = new photonCPU::Renderer(s, 100, 100);
-	render->doRenderPass(1000000);
+	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
+	int million = 1000000;
+	render->doRenderPass(10*million);
 
 	puts("!!!Hello World!!!");
 	return EXIT_SUCCESS;

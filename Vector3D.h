@@ -43,6 +43,7 @@ namespace photonCPU {
 		const Vector3D operator*(const float &other) const;
 		// Methods
 		float dotProduct(Vector3D* b);
+		float magnitude();
 		void normaliseSelf();
 		void setTo(Vector3D* v);
 		void setTo(float xi, float yi, float zi);

@@ -133,13 +133,17 @@ float Vector3D::dotProduct(Vector3D* b) {
 	return x*b->x+y*b->y+z*b->z;
 }
 
+float Vector3D::magnitude() {
+	return std::sqrt(x*x+y*y+z*z);
+}
+
 /**
  * Tells the vector to normalise itself. THIS IS DONE IN PLACE.
  */
 void Vector3D::normaliseSelf() {
 	// Sum
-	float sum = std::abs(x+y+z);
-	if(sum!=0){
+	float sum = magnitude();
+	if(sum>0){
 		x = x/sum;
 		y = y/sum;
 		z = z/sum;

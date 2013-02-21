@@ -56,6 +56,11 @@ void Renderer::doRenderPass(int photons) {
 			}
 		}
 	}
+	Ray* butts = new Ray();
+	butts->setDirection(0, 0, -1);
+	butts->setPosition(-10, 40, 10);
+	mCameraObject->transmitRay(butts);
+	delete butts;
 	//writeout
 	mCameraMat->toPPM();
 }

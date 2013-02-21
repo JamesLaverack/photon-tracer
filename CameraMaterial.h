@@ -20,6 +20,8 @@ class CameraMaterial: public photonCPU::AbstractMaterial {
 private:
 	int imageWidth;
 	int imageHeight;
+	float actualWidth;
+	float actualHeight;
 	float* image;
 	int vdiff;
 	int udiff;
