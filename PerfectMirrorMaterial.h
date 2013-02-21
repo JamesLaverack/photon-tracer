@@ -9,6 +9,7 @@
 #define PERFECTMIRRORMATERIAL_H_
 
 #include "AbstractMaterial.h"
+#include <cstdlib>
 
 namespace photonCPU {
 
