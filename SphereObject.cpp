@@ -61,6 +61,17 @@ Ray* SphereObject::transmitRay(Ray* r) {
 	// Get our reflected ray
 	Vector3D dir = r->getDirection();
 	Vector3D normal = *(position)-intersect;
+	/*
+	printf("sphere strike at (%f, %f, %f)\n", intersect.x, intersect.y, intersect.z );
+	printf("   Ray had orgin (%f, %f, %f) and direction <%f, %f, %f>.\n",
+			r->getPosition().x,
+			r->getPosition().y,
+			r->getPosition().z,
+			r->getDirection().x,
+			r->getDirection().y,
+			r->getDirection().z
+	);
+	*/
 	return mMaterial->transmitRay(&intersect, &dir, &normal, u, v, w, r->wavelength);
 }
 

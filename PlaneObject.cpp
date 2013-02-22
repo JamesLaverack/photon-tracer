@@ -67,22 +67,33 @@ Vector3D PlaneObject::getIntersectionPoint(photonCPU::Ray* r) {
 void PlaneObject::getTextureCordsAtPoint(photonCPU::Vector3D* point, float* u, float* v, float* w) {
 	// Project onto our plane and take that, this should account for rounding errors
 	// that result in points just off of our plane.
-	Vector3D adjustedLoc = (*point-*position);
+	Vector3D adjustedLoc = (*point)-(*position);
 	float m = adjustedLoc.dotProduct(normal);
 	Vector3D projection = (*point)-((*normal)*m);
 	// right, convert this to local cordinates on the plane
 	Vector3D diff = projection-(*position);
-	*u = diff.dotProduct(up);
-	*v = diff.dotProduct(right);
+	*u = diff.dotProduct(right);
+	*v = diff.dotProduct(up);
 	*w = 0;
 }
 
 Ray* PlaneObject::transmitRay(Ray* r) {
-	float u, v, w;
+	float u, v, w = 0;
 	Vector3D intersect = getIntersectionPoint(r);
 	getTextureCordsAtPoint(&(intersect), &u, &v, &w);
 	// Get our reflected ray
 	Vector3D dir = r->getDirection();
+	/*
+	printf("plane strike at (%f, %f, %f)\n", intersect.x, intersect.y, intersect.z );
+	printf("   Ray had orgin (%f, %f, %f) and direction <%f, %f, %f>.\n",
+			r->getPosition().x,
+			r->getPosition().y,
+			r->getPosition().z,
+			r->getDirection().x,
+			r->getDirection().y,
+			r->getDirection().z
+	);
+	*/
 	return mMaterial->transmitRay(&intersect, &dir, normal, u, v, w, r->wavelength);
 }
 

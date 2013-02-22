@@ -28,6 +28,7 @@ private:
 	float *imageB;
 	int vdiff;
 	int udiff;
+	bool derp;
 	int index(int x, int y);
 
 public:

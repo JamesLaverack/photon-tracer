@@ -27,14 +27,16 @@ void Renderer::doRenderPass(int photons) {
 	printf("[Begin photon tracing]\n");
 	// Fire a number of photons into the scene
 	for(int i=0;i<photons;i++) {
-		if(i% (photons/100) == 0) {
-			printf("    %d\n", (int) (100*i/(float) photons));
-		}
+
 		//printf("<%d>\n", i);
 		// Pick a random light
 		AbstractLight* light = mScene->getRandomLight();
 		// Get a random ray
 		r = light->getRandomRayFromLight();
+		if(i% (photons/100) == 0) {
+			printf("    %d\n", (int) (100*i/(float) photons));
+			(r->getDirection()).print();
+		}
 		loop = true;
 		while(loop) {
 			loop = false;
