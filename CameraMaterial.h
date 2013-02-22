@@ -13,7 +13,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "AbstractMaterial.h"
-//#include "specrend.h"
+#include "WavelengthToRGB.h"
 
 namespace photonCPU {
 
@@ -30,7 +30,7 @@ private:
 	int udiff;
 	bool derp;
 	int index(int x, int y);
-
+	photonCPU::WavelengthToRGB *converter;
 public:
 	CameraMaterial(int width, int height);
 	virtual ~CameraMaterial();

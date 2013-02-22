@@ -21,6 +21,7 @@ CameraMaterial::CameraMaterial(int width, int height) {
 	vdiff = height/2;
 	udiff = width/2;
 	derp = true;
+	converter = new photonCPU::WavelengthToRGB(1, 1.0f);
 	printf("DEBUG vdiff %d, udiff %d\n", vdiff, udiff);
 	printf("DEBUG imageWidth %d, imageHeight %d\n", imageWidth, imageHeight);
 	printf("DEBUG actualWidth %f, actualHeight %f\n", actualWidth, actualHeight);
@@ -30,6 +31,7 @@ CameraMaterial::~CameraMaterial() {
 	free(imageR);
 	free(imageG);
 	free(imageB);
+	delete converter;
 }
 
 int CameraMaterial::index(int x, int y) {
@@ -49,17 +51,20 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	}
 	//printf("<%d,%d>", tu, tv;
 	if((tu>=0)&&(tu<imageWidth)&&(tv>=0)&&(tv<imageHeight)) {
-		//printf(" HIT\n");
-		// record
-		// make red
+		// Do some debug testing
 		if (derp) {
 			printf("set\n");
+			derp = false;
 		}
-		derp = false;
+		// convert to RGB
+		float r, g, b;
+		converter->convert(wavelength, &r, &g, &b);
+
 		//printset = false;
-		imageR[index(tu, tv)] += 0.01;
-		imageG[index(tu, tv)] += 0.01;
-		imageB[index(tu, tv)] += 0.01;
+		//printf("colour set %f, %f, %f\n", r, g, b);
+		imageR[index(tu, tv)] += r*0.01;
+		imageG[index(tu, tv)] += g*0.01;
+		imageB[index(tu, tv)] += b*0.01;
 		// Ray is finished
 		return 0;
 	} else {
