@@ -12,6 +12,7 @@
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include "AbstractMaterial.h"
 #include "WavelengthToRGB.h"
 

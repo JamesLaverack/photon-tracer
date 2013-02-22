@@ -51,22 +51,25 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	}
 	//printf("<%d,%d>", tu, tv;
 	if((tu>=0)&&(tu<imageWidth)&&(tv>=0)&&(tv<imageHeight)) {
-		// Do some debug testing
-		if (derp) {
-			printf("set\n");
-			derp = false;
-		}
-		// convert to RGB
-		float r, g, b;
-		converter->convert(wavelength, &r, &g, &b);
+		// Are we on the correct side of the camera?
+		if(std::acos((*angle).dotProduct(normal))>(3.141/2)) {
+			// Do some debug testing
+			if (derp) {
+				printf("set\n");
+				derp = false;
+			}
+			// convert to RGB
+			float r, g, b;
+			converter->convert(wavelength, &r, &g, &b);
 
-		//printset = false;
-		//printf("colour set %f, %f, %f\n", r, g, b);
-		imageR[index(tu, tv)] += r*0.01;
-		imageG[index(tu, tv)] += g*0.01;
-		imageB[index(tu, tv)] += b*0.01;
-		// Ray is finished
-		return 0;
+			//printset = false;
+			//printf("colour set %f, %f, %f\n", r, g, b);
+			imageR[index(tu, tv)] += r*0.01;
+			imageG[index(tu, tv)] += g*0.01;
+			imageB[index(tu, tv)] += b*0.01;
+			// Ray is finished
+			return 0;
+		}
 	} else {
 		//printf(" MISS\n");
 	}
