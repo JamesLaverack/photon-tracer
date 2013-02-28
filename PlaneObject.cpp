@@ -22,6 +22,8 @@ PlaneObject::PlaneObject(AbstractMaterial* pMaterial) : RenderObject(pMaterial)
 PlaneObject::~PlaneObject() {
 	delete position;
 	delete normal;
+	delete up;
+	delete right;
 }
 
 void PlaneObject::setPosition(Vector3D* pos) {

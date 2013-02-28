@@ -14,7 +14,6 @@ RenderObject::RenderObject(AbstractMaterial* pMaterial) {
 }
 
 RenderObject::~RenderObject() {
-	delete mMaterial;
 }
 
 AbstractMaterial* RenderObject::getMaterial() {
