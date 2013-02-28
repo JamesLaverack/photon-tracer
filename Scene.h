@@ -24,7 +24,9 @@ public:
 	Scene();
 	virtual ~Scene();
 	void addObject(RenderObject* obj);
+	void delObject(RenderObject* obj);
 	void addLight(AbstractLight* light);
+	void delLight(AbstractLight* light);
 	RenderObject* getClosestIntersection(Ray* r);
 	AbstractLight* getRandomLight();
 };

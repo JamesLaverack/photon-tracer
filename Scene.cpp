@@ -20,8 +20,16 @@ void Scene::addObject(RenderObject* obj) {
 	mObjects.push_back(obj);
 }
 
+void Scene::delObject(RenderObject* obj) {
+	mObjects.erase(std::remove(vec.begin(), vec.end(), obj), vec.end());
+}
+
 void Scene::addLight(AbstractLight* light) {
 	mLights.push_back(light);
+}
+
+void Scene::delLight(AbstractLight* light) {
+	mLights.erase(std::remove(vec.begin(), vec.end(), light), vec.end());
 }
 
 RenderObject* Scene::getClosestIntersection(Ray* r) {
