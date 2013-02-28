@@ -11,6 +11,7 @@
 #include <vector>
 #include <limits>
 #include <cstdlib>
+#include <algorithm>
 #include "RenderObject.h"
 #include "AbstractLight.h"
 

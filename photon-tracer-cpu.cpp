@@ -48,17 +48,18 @@ int main(void) {
 	s->addObject(sphere);
 	s->addObject(sphere2);
 
-	/*
+
 	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
 	int million = 1000000;
-	render->doRenderPass(1);
-	*/
+	//render->doRenderPass(1);
+
 
 	puts("!!!Hello World!!!");
 
 	/* Free some memory */
 
 	// Delete container objects
+	delete render;
 	delete s;
 
 	// Delete objects

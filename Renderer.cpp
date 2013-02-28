@@ -18,7 +18,12 @@ Renderer::Renderer(Scene* pScene, int width, int height) {
 }
 
 Renderer::~Renderer() {
-	// TODO Remove our camera and delete it
+	// Remove the camera from the scene
+	mScene->delObject(mCameraObject);
+	// Delete the camera
+	delete mCameraObject;
+	delete mCameraMat;
+
 }
 
 void Renderer::doRenderPass(int photons) {

@@ -21,7 +21,7 @@ void Scene::addObject(RenderObject* obj) {
 }
 
 void Scene::delObject(RenderObject* obj) {
-	mObjects.erase(std::remove(vec.begin(), vec.end(), obj), vec.end());
+	mObjects.erase(std::remove(mObjects.begin(), mObjects.end(), obj), mObjects.end());
 }
 
 void Scene::addLight(AbstractLight* light) {
@@ -29,7 +29,7 @@ void Scene::addLight(AbstractLight* light) {
 }
 
 void Scene::delLight(AbstractLight* light) {
-	mLights.erase(std::remove(vec.begin(), vec.end(), light), vec.end());
+	mLights.erase(std::remove(mLights.begin(), mLights.end(), light), mLights.end());
 }
 
 RenderObject* Scene::getClosestIntersection(Ray* r) {
