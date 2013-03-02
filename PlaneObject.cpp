@@ -46,8 +46,8 @@ float PlaneObject::intersects(photonCPU::Ray* r) {
 	if(i==0) return 0;
 	Vector3D adjusted_position = r->getPosition()-*position;
 	//printf("[normal %f, %f, %f]", normal->x, normal->y, normal->z);
-	return -adjusted_position.dotProduct(normal)/i;
-
+	float result =  -adjusted_position.dotProduct(normal)/i;
+	return result;
 }
 
 /**

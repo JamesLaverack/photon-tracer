@@ -37,9 +37,11 @@ RenderObject* Scene::getClosestIntersection(Ray* r) {
 	float min_t = std::numeric_limits<float>::infinity();
 	RenderObject* closest_object = 0;
 	// iterate
+	//unsigned int mObjectsSize = mObjects.size();
+	//printf("Objects: %u\n", mObjectsSize);
 	for(std::vector<RenderObject*>::size_type i = 0; i != mObjects.size(); i++) {
 		float t = ((RenderObject*) mObjects[i])->intersects(r);
-		//printf("(t %f)", t);
+		//printf("(t %f)\n", t);
 		if ((t<min_t)&&(t>0.01)) {
 			min_t = t;
 			closest_object = mObjects[i];

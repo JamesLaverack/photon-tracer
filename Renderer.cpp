@@ -38,9 +38,11 @@ void Renderer::doRenderPass(int photons) {
 		AbstractLight* light = mScene->getRandomLight();
 		// Get a random ray
 		r = light->getRandomRayFromLight();
-		if(i% (photons/100) == 0) {
+		int hundreth = (photons/100);
+		if (photons%100>0) hundreth++;
+		//printf("hundreth %d\n", hundreth);
+		if((i % hundreth) == 0) {
 			printf("    %d\n", (int) (100*i/(float) photons));
-			(r->getDirection()).print();
 		}
 		loop = true;
 		while(loop) {
@@ -64,7 +66,9 @@ void Renderer::doRenderPass(int photons) {
 				//printf(" STRIKE\n");
 			}else{
 				//printf(" MISS\n");
+				delete r;
 			}
+
 		}
 	}
 	mCameraMat->verify();

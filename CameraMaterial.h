@@ -32,6 +32,7 @@ private:
 	bool derp;
 	int index(int x, int y);
 	photonCPU::WavelengthToRGB *converter;
+	void initImage();
 public:
 	CameraMaterial(int width, int height);
 	virtual ~CameraMaterial();

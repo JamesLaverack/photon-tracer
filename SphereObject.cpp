@@ -32,10 +32,12 @@ float SphereObject::intersects(photonCPU::Ray* r) {
 	float posDotDir = (r->getDirection()).dotProduct(&(adjustedPos));
 	float posSquare = adjustedPos.dotProduct(&adjustedPos);
 
-	float root = std::sqrt(posDotDir*posDotDir-posSquare+radius*radius);
-	if(root < 0) {
+	float innerRoot = posDotDir*posDotDir-posSquare+radius*radius;
+	if(innerRoot <= 0) {
 		return 0;
 	}
+
+	float root = std::sqrt(innerRoot);
 
 	float tmax = -posDotDir+root;
 	float tmin = -posDotDir-root;

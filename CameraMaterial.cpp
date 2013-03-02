@@ -22,6 +22,7 @@ CameraMaterial::CameraMaterial(int width, int height) {
 	udiff = width/2;
 	derp = true;
 	converter = new photonCPU::WavelengthToRGB(1, 1.0f);
+	initImage();
 	printf("DEBUG vdiff %d, udiff %d\n", vdiff, udiff);
 	printf("DEBUG imageWidth %d, imageHeight %d\n", imageWidth, imageHeight);
 	printf("DEBUG actualWidth %f, actualHeight %f\n", actualWidth, actualHeight);
@@ -32,6 +33,16 @@ CameraMaterial::~CameraMaterial() {
 	free(imageG);
 	free(imageB);
 	delete converter;
+}
+
+void CameraMaterial::initImage() {
+	for(int i=0;i<imageWidth;i++ ) {
+		for(int j=0;j<imageHeight;j++ ) {
+			imageR[index(i, j)] = 0.0f;
+			imageG[index(i, j)] = 0.0f;
+			imageB[index(i, j)] = 0.0f;
+		}
+	}
 }
 
 int CameraMaterial::index(int x, int y) {

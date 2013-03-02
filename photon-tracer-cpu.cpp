@@ -51,7 +51,7 @@ int main(void) {
 
 	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
 	int million = 1000000;
-	//render->doRenderPass(1);
+	render->doRenderPass(50*million);
 
 
 	puts("!!!Hello World!!!");
