@@ -25,6 +25,12 @@ float randFloat() {
 }
 
 Ray* PerfectMirrorMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength) {
+	// We don't care where we hit this material in terms of textures
+	(void)u;
+	(void)v;
+	(void)w;
+
+	// Create new ray
 	Ray* r = new Ray();
 	r->setPosition(hitLocation);
 	// Do perfect reflection about the normal.

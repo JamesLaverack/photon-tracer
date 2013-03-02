@@ -19,6 +19,15 @@ PerfectMattMaterial::~PerfectMattMaterial() {
 }
 
 Ray* PerfectMattMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength) {
+	// We don't give a shit about any of these peramiters, a perfect matt material just absorbs everything.
+	(void)hitLocation;
+	(void)angle;
+	(void)normal;
+	(void)u;
+	(void)v;
+	(void)w;
+	(void)wavelength;
+	// Return no ray
 	return 0;
 }
 

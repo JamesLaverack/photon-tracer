@@ -40,6 +40,9 @@ int CameraMaterial::index(int x, int y) {
 }
 
 Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength) {
+	// We don't use the 3rd texture cordinate
+	(void)w;
+
 	//printf("(%f,%f)", hitLocation->x, hitLocation->y);
 	//printf("<%f,%f>", u, v);
 
