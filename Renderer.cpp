@@ -42,7 +42,7 @@ void Renderer::doRenderPass(int photons) {
 		if (photons%100>0) hundreth++;
 		//printf("hundreth %d\n", hundreth);
 		if((i % hundreth) == 0) {
-			printf("    %d\n", (int) (100*i/(float) photons));
+			printf("    %d\n", (int) (100*(i/(float) photons)));
 		}
 		loop = true;
 		while(loop) {
