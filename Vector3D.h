@@ -48,6 +48,7 @@ namespace photonCPU {
 		void setTo(Vector3D* v);
 		void setTo(float xi, float yi, float zi);
 		void print();
+		Vector3D crossProduct(Vector3D vec);
 	};
 
 } /* namespace photonCPU */

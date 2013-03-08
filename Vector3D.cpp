@@ -135,6 +135,15 @@ float Vector3D::dotProduct(Vector3D* b) {
 	return x*b->x+y*b->y+z*b->z;
 }
 
+Vector3D Vector3D::crossProduct(Vector3D vec) {
+	Vector3D result;
+	result.x = y*vec.z - z*vec.y;
+	result.y = z*vec.x - x*vec.z;
+	result.z = x*vec.y - y*vec.x;
+	return result;
+}
+
+
 float Vector3D::magnitude() {
 	return std::sqrt(x*x+y*y+z*z);
 }
