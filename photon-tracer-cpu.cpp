@@ -41,8 +41,8 @@ int main(void) {
 	sphere2->setPosition(-1, 0, 2.5f);
 
 	photonCPU::PlaneObject* floor = new photonCPU::PlaneObject(green);
-	floor->setNormal(-1, 0, 0);
-	floor->setPosition(400, 0, 0);
+	floor->setNormal(1, 0.8, 0);
+	floor->setPosition(-400, 0, 0);
 
 
 	photonCPU::PointLight* light = new photonCPU::PointLight(0, 0, 5);

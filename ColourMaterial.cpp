@@ -32,6 +32,7 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	//// Vector3D i = (*angle)*(-1.0f);
 	//// float m = i.dotProduct(normal)*2;
 	//// Vector3D reflection = ((*normal)*m)-i;
+	//Vector3D adjusted_angle = (*angle)*-1;
 	float reflect_angle = std::acos(angle->dotProduct(normal));
 	reflect_angle = reflect_angle - 3.141/2; // DEBUG CODE ONLY
 	//printf("Reflection angle %f\n", reflect_angle);
@@ -39,9 +40,9 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	// project our incident ray onto the plane defined by
 	// < hitLocation, normal > and make sure it's a unit vector, this becomes u.
 	//Vector3D adjustedLoc = (*angle)-(*hitLocation);
-	//float m = angle.dotProduct(normal);
-	Vector3D u_vec;// = (*hitLocation)-((*normal)*m);
-	u_vec.setTo(0, angle->y, angle->z); // DEBUG CODE ONLY
+	float m = angle->dotProduct(normal);
+	Vector3D u_vec = (*angle)-((*normal)*m);
+	//u_vec.setTo(0, angle->y, angle->z); // DEBUG CODE ONLY
 	u_vec.normaliseSelf();
 	// Calculate v from the cross product of u and normal
 	Vector3D v_vec = u_vec.crossProduct(*normal);
@@ -52,8 +53,8 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 
 	// get theta, which is the angle between our bounce and the normal in the u direction.
 	// Also get phi, the angle between our bounce and the normal in the v direction.
-	float theta = reflect_angle;//mRand->getRandom(reflect_angle, std);
-	float phi   = 0;//mRand->getRandom(0            , std);
+	float theta = mRand->getRandom(reflect_angle, std);
+	float phi   = mRand->getRandom(0            , std);
 	//printf("Refection angle %f, theta %f, phi %f.\n", reflect_angle, theta, phi);
 	// Construct our bounce vector, this is our actual reflection.
 	Vector3D bounce;
