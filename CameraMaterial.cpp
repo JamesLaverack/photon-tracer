@@ -13,8 +13,8 @@ CameraMaterial::CameraMaterial(int width, int height) {
 
 	imageWidth = width;
 	imageHeight = height;
-	actualWidth = 100.0f;
-	actualHeight = 100.0f;
+	actualWidth = 1000.0f;
+	actualHeight = 1000.0f;
 	imageR = (float*) malloc(height*width*sizeof(float));
 	imageG = (float*) malloc(height*width*sizeof(float));
 	imageB = (float*) malloc(height*width*sizeof(float));
@@ -57,6 +57,10 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	//printf("(%f,%f)", hitLocation->x, hitLocation->y);
 	//printf("<%f,%f>", u, v);
 
+	if(wavelength>0) {
+		//printf("STRIKE");
+	}
+
 	// Are we in the renderable bit?
 	int tu = u*(imageWidth/actualWidth)+udiff;
 	int tv = v*(imageHeight/actualHeight)+vdiff;
@@ -78,9 +82,9 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 
 			//printset = false;
 			//printf("wavelength %f to colour set %f, %f, %f\n", wavelength, r, g, b);
-			imageR[index(tu, tv)] += r*0.01;
-			imageG[index(tu, tv)] += g*0.01;
-			imageB[index(tu, tv)] += b*0.01;
+			imageR[index(tu, tv)] += r;//*0.01;
+			imageG[index(tu, tv)] += g;//*0.01;
+			imageB[index(tu, tv)] += b;//*0.01;
 			// Ray is finished
 			return 0;
 		}

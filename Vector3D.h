@@ -49,6 +49,7 @@ namespace photonCPU {
 		void setTo(float xi, float yi, float zi);
 		void print();
 		Vector3D crossProduct(Vector3D vec);
+		Vector3D rotate(Vector3D *axis, float angle);
 	};
 
 } /* namespace photonCPU */

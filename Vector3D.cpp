@@ -137,15 +137,60 @@ float Vector3D::dotProduct(Vector3D* b) {
 
 Vector3D Vector3D::crossProduct(Vector3D vec) {
 	Vector3D result;
+	/*printf("cross {\n");
+	printf("    this <%f, %f, %f>\n", x, y, z);
+	printf("    vec  <%f, %f, %f>\n", vec.x, vec.y, vec.z);*/
 	result.x = y*vec.z - z*vec.y;
 	result.y = z*vec.x - x*vec.z;
 	result.z = x*vec.y - y*vec.x;
+	/*printf("    res  <%f, %f, %f>\n", result.x, result.y, result.z);
+	printf("}\n");*/
 	return result;
 }
 
-
 float Vector3D::magnitude() {
 	return std::sqrt(x*x+y*y+z*z);
+}
+
+/**
+ * Rotate this vector around an arbitary axis vector by an amount of angle.
+ * Angle should be in radians. We assue that axis is normalised. If it isn't
+ * you will fuck this up.
+ */
+Vector3D Vector3D::rotate(Vector3D *axis, float angle) {
+	// We use the matrix
+	// |  a  b  c  |
+	// |  d  e  f  | = R
+	// |  g  h  i  |
+
+	// Precalculate our cos and sin values for our angle
+	float cos = std::cos(angle);
+	float sin = std::sin(angle);
+	// Move out our axis x, y and z values for ease of use
+	float x = axis->x;
+	float y = axis->y;
+	float z = axis->z;
+
+	// Define our rotation matrix members
+
+	float a = cos + x*x*(1-cos);
+	float b = x*y*(1-cos) - z*sin;
+	float c = x*z*(1-cos) + y*sin;
+
+	float d = y*x*(1-cos) + z*sin;
+	float e = cos + y*y*(1-cos);
+	float f = y*z*(1-cos) - x*sin;
+
+	float g = z*x*(1-cos) - y*sin;
+	float h = x*y*(1-cos) + x*sin;
+	float i = cos + z*z*(1-cos);
+
+	// Apply to create our return vector by standard matrix multiplation R*this
+	Vector3D result;
+	result.x = a*this->x + b*this->y + c*this->z;
+	result.y = d*this->x + e*this->y + f*this->z;
+	result.z = g*this->x + h*this->y + i*this->z;
+	return result;
 }
 
 /**

@@ -28,8 +28,10 @@ Renderer::~Renderer() {
 
 void Renderer::doRenderPass(int photons) {
 	Ray* r;
+	const int maxBounce = 10;
+	int bounceCount = 0;
 	bool loop = true;
-	printf("[Begin photon tracing]\n");
+	printf("[Begin photon traciTheirng]\n");
 	// Fire a number of photons into the scene
 	for(int i=0;i<photons;i++) {
 
@@ -45,6 +47,7 @@ void Renderer::doRenderPass(int photons) {
 			printf("    %d\n", (int) (100*(i/(float) photons)));
 		}
 		loop = true;
+		bounceCount = 0;
 		while(loop) {
 			loop = false;
 			// debug
@@ -55,7 +58,8 @@ void Renderer::doRenderPass(int photons) {
 			// Shoot
 			RenderObject* obj = mScene->getClosestIntersection(r);
 			// Did we hit anything?
-			if (obj != 0) {
+			if ((obj != 0) && (bounceCount<maxBounce)) {
+				bounceCount++;
 				Ray* newr = obj->transmitRay(r);
 				delete r;
 				if(newr!=0) {
@@ -67,10 +71,9 @@ void Renderer::doRenderPass(int photons) {
 			}else{
 				//printf(" MISS\n");
 				delete r;
-			}
-
 		}
-	}
+		}
+		}
 	mCameraMat->verify();
 	//writeout
 	mCameraMat->toPPM();
