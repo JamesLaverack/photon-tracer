@@ -16,8 +16,9 @@ namespace photonCPU {
 class SphereObject: public photonCPU::RenderObject {
 private:
 	Vector3D* position;
-	float radius;
+
 public:
+	float radius;
 	SphereObject(AbstractMaterial* pMaterial);
 	virtual ~SphereObject();
 	void setPosition(Vector3D* pos);

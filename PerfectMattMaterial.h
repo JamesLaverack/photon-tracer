@@ -16,7 +16,7 @@ class PerfectMattMaterial: public photonCPU::AbstractMaterial {
 public:
 	PerfectMattMaterial();
 	virtual ~PerfectMattMaterial();
-	virtual Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength);
+	virtual Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength);
 };
 
 } /* namespace photonCPU */

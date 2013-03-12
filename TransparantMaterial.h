@@ -1,0 +1,27 @@
+/*
+ * TransparantMaterial.h
+ *
+ *  Created on: Mar 12, 2013
+ *      Author: James Laverack
+ */
+
+#ifndef TRANSPARANTMATERIAL_H_
+#define TRANSPARANTMATERIAL_H_
+
+#include "AbstractMaterial.h"
+
+namespace photonCPU {
+
+class TransparantMaterial: public photonCPU::AbstractMaterial {
+private:
+	float index_of_refraction;
+public:
+	float radius;
+	TransparantMaterial();
+	virtual ~TransparantMaterial();
+	Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength);
+};
+
+}
+
+#endif /* TRANSPARANTMATERIAL_H_ */

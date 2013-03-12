@@ -14,9 +14,18 @@ PlaneObject::PlaneObject(AbstractMaterial* pMaterial) : RenderObject(pMaterial)
 	position = new Vector3D();
 	normal = new Vector3D(0, 0, 1);
 	up = new Vector3D(0, 1, 0);
-	right = new Vector3D(1, 0, 0);
+	up->normaliseSelf();
+	Vector3D tmp = normal->crossProduct(*up);
+	tmp = tmp*-1;
+	right = new Vector3D(0, 0, 0);
+	right->setTo(&tmp);
 	up->normaliseSelf();
 	right->normaliseSelf();
+	// This shit only matters for a camera, but whatever.
+	focal_length = 26.0f;
+	// Focal point is behind us
+	Vector3D scaled_normal = ((*normal)*focal_length);
+	focal_point = *position-scaled_normal;
 }
 
 PlaneObject::~PlaneObject() {
@@ -96,7 +105,9 @@ Ray* PlaneObject::transmitRay(Ray* r) {
 			r->getDirection().z
 	);
 	*/
-	return mMaterial->transmitRay(&intersect, &dir, normal, u, v, w, r->wavelength);
+	Vector3D psp_norm = intersect-focal_point;
+	psp_norm.normaliseSelf();
+	return mMaterial->transmitRay(&intersect, &dir, normal, &psp_norm, u, v, w, r->wavelength);
 }
 
 } /* namespace photonCPU */

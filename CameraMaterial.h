@@ -33,10 +33,13 @@ private:
 	int index(int x, int y);
 	photonCPU::WavelengthToRGB *converter;
 	void initImage();
+	float focalLength;
+	float apatureSize;
+	Vector3D* focalPoint;
 public:
 	CameraMaterial(int width, int height);
 	virtual ~CameraMaterial();
-	Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength);
+	Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength);
 	void toPPM();
 	void verify();
 };

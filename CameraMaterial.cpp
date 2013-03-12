@@ -13,8 +13,8 @@ CameraMaterial::CameraMaterial(int width, int height) {
 
 	imageWidth = width;
 	imageHeight = height;
-	actualWidth = 1000.0f;
-	actualHeight = 1000.0f;
+	actualWidth = 100.0f;
+	actualHeight = 100.0f;
 	imageR = (float*) malloc(height*width*sizeof(float));
 	imageG = (float*) malloc(height*width*sizeof(float));
 	imageB = (float*) malloc(height*width*sizeof(float));
@@ -22,6 +22,8 @@ CameraMaterial::CameraMaterial(int width, int height) {
 	udiff = width/2;
 	derp = true;
 	converter = new photonCPU::WavelengthToRGB(1, 1.0f);
+	focalLength = 5;
+	apatureSize = 3.141/16;
 	initImage();
 	printf("DEBUG vdiff %d, udiff %d\n", vdiff, udiff);
 	printf("DEBUG imageWidth %d, imageHeight %d\n", imageWidth, imageHeight);
@@ -50,7 +52,7 @@ int CameraMaterial::index(int x, int y) {
 	return wat;
 }
 
-Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength) {
+Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	// We don't use the 3rd texture cordinate
 	(void)w;
 
@@ -61,16 +63,22 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 		//printf("STRIKE");
 	}
 
+
 	// Are we in the renderable bit?
 	int tu = u*(imageWidth/actualWidth)+udiff;
 	int tv = v*(imageHeight/actualHeight)+vdiff;
+
+
+
 	if (derp) {
 		printf("DEBUG <%f, %f> (%d, %d)\n", u, v, tu, tv);
 	}
 	//printf("<%d,%d>", tu, tv;
 	if((tu>=0)&&(tu<imageWidth)&&(tv>=0)&&(tv<imageHeight)) {
 		// Are we on the correct side of the camera?
-		if(std::acos((*angle).dotProduct(normal))>(3.141/2)) {
+		if((std::acos((*angle).dotProduct(normal))>(3.141/2))
+		//&& (std::acos((*angle).dotProduct(perspective_normal))>(3.141-apatureSize))
+		) {
 			// Do some debug testing
 			if (derp) {
 				printf("set\n");

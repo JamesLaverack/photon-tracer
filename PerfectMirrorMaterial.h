@@ -17,7 +17,7 @@ class PerfectMirrorMaterial: public photonCPU::AbstractMaterial {
 public:
 	PerfectMirrorMaterial();
 	virtual ~PerfectMirrorMaterial();
-	Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength);
+	Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength);
 };
 
 } /* namespace photonCPU */

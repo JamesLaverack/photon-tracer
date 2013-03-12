@@ -21,8 +21,8 @@ private:
 	float minValue;
 	bool isInRange(float value);
 	float getUncappedRandom(float mean, float sd);
-	float randFloat();
 public:
+	float randFloat();
 	NormalRandomGenerator();
 	virtual ~NormalRandomGenerator();
 	float getRandom(float mean, float sd);

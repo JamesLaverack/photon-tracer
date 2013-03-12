@@ -21,6 +21,7 @@
 #include "PointLight.h"
 #include "AbstractMaterial.h"
 #include "ColourMaterial.h"
+#include "TransparantMaterial.h"
 using photonCPU::Vector3D;
 using photonCPU::PointLight;
 
@@ -28,24 +29,54 @@ int main(void) {
 
 	int seed = std::time(NULL);
 	std::srand(seed);
+	printf("D.A.N.C.E.\n");
 
 	photonCPU::AbstractMaterial* mirror = new photonCPU::PerfectMirrorMaterial();
 	photonCPU::PerfectMattMaterial* matt = new photonCPU::PerfectMattMaterial();
-	photonCPU::ColourMaterial* blue  = new photonCPU::ColourMaterial(460.0f);
-	photonCPU::ColourMaterial* green = new photonCPU::ColourMaterial(530.0f);
+	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 1000.0f);
+	photonCPU::ColourMaterial* green = new photonCPU::ColourMaterial(495.0f, 570.0f);
+	photonCPU::ColourMaterial* red = new photonCPU::ColourMaterial(630.0f, 740.0f);
+	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
+	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
 
-	photonCPU::SphereObject* sphere = new photonCPU::SphereObject(green);
-	sphere->setPosition(0, -1, 2.5f);
+	float R = 24;
+	float d = 1;
 
-	photonCPU::SphereObject* sphere2 = new photonCPU::SphereObject(mirror);
-	sphere2->setPosition(-1, 0, 2.5f);
+	photonCPU::SphereObject* sphere = new photonCPU::SphereObject(trans_out);
+	sphere->setPosition(0, 0, R-d);
+	sphere->radius = R;
 
-	photonCPU::PlaneObject* floor = new photonCPU::PlaneObject(green);
-	floor->setNormal(1, 0.8, 0);
-	floor->setPosition(-400, 0, 0);
+	photonCPU::SphereObject* sphere2 = new photonCPU::SphereObject(trans_in);
+	sphere2->setPosition(0, 0, -R+d);
+	sphere2->radius = R;
 
+	// YOLO walls
 
-	photonCPU::PointLight* light = new photonCPU::PointLight(0, 0, 5);
+	photonCPU::PlaneObject* floor = new photonCPU::PlaneObject(white);
+	floor->setNormal(0, 1, 0);
+	floor->setPosition(0, -50, 0);
+
+	photonCPU::PlaneObject* top = new photonCPU::PlaneObject(white);
+	top->setNormal(0, -1, 0);
+	top->setPosition(0, 50, 0);
+
+	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(white);
+	back->setNormal(0, 0, -1);
+	back->setPosition(0, 0, 30);
+
+	photonCPU::PlaneObject* front = new photonCPU::PlaneObject(white);
+	front->setNormal(0, 0, 1);
+	front->setPosition(0, 0, 0);
+
+	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(red);
+	right->setNormal(-1, 0, 0);
+	right->setPosition(50, 0, 0);
+
+	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(green);
+	left->setNormal(1, 0, 0);
+	left->setPosition(-50, 0, 0);
+
+	photonCPU::PointLight* light = new photonCPU::PointLight(0, 0, 50);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
@@ -63,9 +94,17 @@ int main(void) {
 
 
 	s->addLight(light);
+/*
 	s->addObject(floor);
-	//s->addObject(sphere);
-	//s->addObject(sphere2);
+	s->addObject(top);
+	s->addObject(right);
+	s->addObject(left);
+*/
+
+	//s->addObject(back);
+//	/s->addObject(front);
+	s->addObject(sphere);
+	s->addObject(sphere2);
 
 
 	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
@@ -73,7 +112,7 @@ int main(void) {
 	render->doRenderPass(100*million);
 
 
-	puts("!!!Hello World!!!");
+	puts("Done!");
 
 	/* Free some memory */
 
@@ -85,12 +124,20 @@ int main(void) {
 	delete sphere;
 	delete sphere2;
 	delete floor;
+	delete back;
+	delete front;
+	delete right;
+	delete left;
+	delete top;
 
 	// Delete materials
 	delete mirror;
 	delete matt;
 	delete green;
-	delete blue;
+	delete white;
+	delete red;
+	delete trans_in;
+	delete trans_out;
 
 	// Delete light
 	delete light;

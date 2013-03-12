@@ -13,7 +13,9 @@ Renderer::Renderer(Scene* pScene, int width, int height) {
 	mScene = pScene;
 	// Add a camera to the scene
 	mCameraMat = new CameraMaterial(width, height);
-	mCameraObject = new PlaneObject(mCameraMat);
+	PlaneObject* plane = new PlaneObject(mCameraMat);
+	plane->setPosition(0, 0, -50);
+	mCameraObject = plane;
 	mScene->addObject(mCameraObject);
 }
 
@@ -28,10 +30,10 @@ Renderer::~Renderer() {
 
 void Renderer::doRenderPass(int photons) {
 	Ray* r;
-	const int maxBounce = 10;
+	const int maxBounce = 50;
 	int bounceCount = 0;
 	bool loop = true;
-	printf("[Begin photon traciTheirng]\n");
+	printf("[Begin photon tracing]\n");
 	// Fire a number of photons into the scene
 	for(int i=0;i<photons;i++) {
 
@@ -44,7 +46,14 @@ void Renderer::doRenderPass(int photons) {
 		if (photons%100>0) hundreth++;
 		//printf("hundreth %d\n", hundreth);
 		if((i % hundreth) == 0) {
-			printf("    %d\n", (int) (100*(i/(float) photons)));
+			int progress = (int) (100*(i/(float) photons));
+			printf("    %d", progress );
+			// output
+			if ( (progress % 5 == 0) && (progress != 0)) {
+				mCameraMat->toPPM();
+				printf(" (image saved)");
+			}
+			printf("\n");
 		}
 		loop = true;
 		bounceCount = 0;

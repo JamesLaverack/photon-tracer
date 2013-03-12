@@ -44,7 +44,7 @@ Ray* PointLight::getRandomRayFromLight() {
 	//y = 0;
 	//printf("<%f, %f, %f>\n", x, y, z);
 	r->setDirection(x, y, z);
-	r->wavelength = 0;//randFloat()*400+380;
+	r->wavelength = ((y+1)/2)*400+380;
 	//r->getDirection().print();
 	return r;
 }

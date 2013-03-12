@@ -11,7 +11,7 @@ namespace photonCPU {
 
 SphereObject::SphereObject(AbstractMaterial* pMaterial) : RenderObject(pMaterial) {
 	position = new Vector3D();
-	radius = 1;
+	radius = 10;
 }
 
 SphereObject::~SphereObject() {
@@ -63,6 +63,7 @@ Ray* SphereObject::transmitRay(Ray* r) {
 	// Get our reflected ray
 	Vector3D dir = r->getDirection();
 	Vector3D normal = *(position)-intersect;
+	normal.normaliseSelf();
 	/*
 	printf("sphere strike at (%f, %f, %f)\n", intersect.x, intersect.y, intersect.z );
 	printf("   Ray had orgin (%f, %f, %f) and direction <%f, %f, %f>.\n",
@@ -74,7 +75,7 @@ Ray* SphereObject::transmitRay(Ray* r) {
 			r->getDirection().z
 	);
 	*/
-	return mMaterial->transmitRay(&intersect, &dir, &normal, u, v, w, r->wavelength);
+	return mMaterial->transmitRay(&intersect, &dir, &normal, &normal, u, v, w, r->wavelength);
 }
 
 }

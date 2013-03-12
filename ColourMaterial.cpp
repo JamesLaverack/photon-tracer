@@ -9,8 +9,9 @@
 
 namespace photonCPU {
 
-ColourMaterial::ColourMaterial(float pColourWavelength) {
-	mColourWavelength = pColourWavelength;
+ColourMaterial::ColourMaterial(float pColourWavelengthMin, float pColourWavelengthMax) {
+	mColourWavelengthMax = pColourWavelengthMax;
+	mColourWavelengthMin = pColourWavelengthMin;
 	mRand = new photonCPU::NormalRandomGenerator();
 }
 
@@ -18,11 +19,16 @@ ColourMaterial::~ColourMaterial() {
 	delete mRand;
 }
 
-Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength) {
+Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	// We don't care where we hit this material in terms of textures
 	(void)u;
 	(void)v;
 	(void)w;
+	(void)perspective_normal;
+
+	// Do we absorb this?
+	if(wavelength>mColourWavelengthMax) return 0;
+	if(wavelength<mColourWavelengthMin) return 0;
 
 	float std = 1;
 	// Create new ray
@@ -79,7 +85,7 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	*/
 
 	r->setDirection(&bounce);
-	r->wavelength = mColourWavelength;
+	r->wavelength = wavelength;
 	return r;
 }
 

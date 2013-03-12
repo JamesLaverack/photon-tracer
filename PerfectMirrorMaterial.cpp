@@ -24,11 +24,12 @@ float randFloat() {
 	return f;
 }
 
-Ray* PerfectMirrorMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, float u, float v, float w, float wavelength) {
+Ray* PerfectMirrorMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	// We don't care where we hit this material in terms of textures
 	(void)u;
 	(void)v;
 	(void)w;
+	(void)perspective_normal;
 
 	// Create new ray
 	Ray* r = new Ray();
