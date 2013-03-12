@@ -22,6 +22,7 @@
 #include "AbstractMaterial.h"
 #include "ColourMaterial.h"
 #include "TransparantMaterial.h"
+#include "RadiusMaskMaterial.h"
 using photonCPU::Vector3D;
 using photonCPU::PointLight;
 
@@ -38,13 +39,16 @@ int main(void) {
 	photonCPU::ColourMaterial* red = new photonCPU::ColourMaterial(630.0f, 740.0f);
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
+	photonCPU::RadiusMaskMaterial* mask = new photonCPU::RadiusMaskMaterial();
 
-	float R = 24;
+	float R = 19;
 	float d = 1;
 
 	float radi = std::sqrt(R*R - (R-d)*(R-d));
+	printf("Apature size %f\n", radi);
 	trans_in->radius = radi;
 	trans_out->radius = radi;
+	mask->radius = radi;
 
 	photonCPU::SphereObject* sphere = new photonCPU::SphereObject(trans_out);
 	sphere->setPosition(0, 0, R-d);
@@ -53,6 +57,15 @@ int main(void) {
 	photonCPU::SphereObject* sphere2 = new photonCPU::SphereObject(trans_in);
 	sphere2->setPosition(0, 0, -R+d);
 	sphere2->radius = R;
+
+	// Balls
+	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(red);
+	spherer->setPosition(20, 0, 50);
+	spherer->radius = 10;
+
+	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(green);
+	sphereg->setPosition(-20, 0, 50);
+	sphereg->radius = 10;
 
 	// YOLO walls
 
@@ -66,9 +79,9 @@ int main(void) {
 
 	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(white);
 	back->setNormal(0, 0, -1);
-	back->setPosition(0, 0, 30);
+	back->setPosition(0, 0, 260);
 
-	photonCPU::PlaneObject* front = new photonCPU::PlaneObject(white);
+	photonCPU::PlaneObject* front = new photonCPU::PlaneObject(mask);
 	front->setNormal(0, 0, 1);
 	front->setPosition(0, 0, 0);
 
@@ -80,7 +93,7 @@ int main(void) {
 	left->setNormal(1, 0, 0);
 	left->setPosition(-50, 0, 0);
 
-	photonCPU::PointLight* light = new photonCPU::PointLight(0, 0, 50);
+	photonCPU::PointLight* light = new photonCPU::PointLight(0, 45, 40);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
@@ -103,17 +116,18 @@ int main(void) {
 	s->addObject(top);
 	s->addObject(right);
 	s->addObject(left);
+	s->addObject(back);
 */
-
-	//s->addObject(back);
-//	/s->addObject(front);
+	s->addObject(front);
 	s->addObject(sphere);
 	s->addObject(sphere2);
+	s->addObject(spherer);
+	s->addObject(sphereg);
 
 
 	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
 	int million = 1000000;
-	render->doRenderPass(100*million);
+	render->doRenderPass(5000*million);
 
 
 	puts("Done!");
@@ -127,6 +141,8 @@ int main(void) {
 	// Delete objects
 	delete sphere;
 	delete sphere2;
+	delete spherer;
+	delete sphereg;
 	delete floor;
 	delete back;
 	delete front;
@@ -135,6 +151,7 @@ int main(void) {
 	delete top;
 
 	// Delete materials
+	delete mask;
 	delete mirror;
 	delete matt;
 	delete green;

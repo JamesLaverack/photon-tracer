@@ -51,9 +51,9 @@ Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Ve
 	if(std::abs(hitLocation->z)>1) {
 			index = 1;
 	}
-	if(std::sqrt(hitLocation->x*hitLocation->x + hitLocation->y*hitLocation->y) > radius) {
+	/*if(std::sqrt(hitLocation->x*hitLocation->x + hitLocation->y*hitLocation->y) > radius) {
 			return 0;
-	}
+	}*/
 	if(angle_in < pi/2) {
 		// We are coming from the material out
 		index = 1/index;
