@@ -42,6 +42,10 @@ int main(void) {
 	float R = 24;
 	float d = 1;
 
+	float radi = std::sqrt(R*R - (R-d)*(R-d));
+	trans_in->radius = radi;
+	trans_out->radius = radi;
+
 	photonCPU::SphereObject* sphere = new photonCPU::SphereObject(trans_out);
 	sphere->setPosition(0, 0, R-d);
 	sphere->radius = R;
