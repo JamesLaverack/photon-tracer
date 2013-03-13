@@ -39,7 +39,7 @@ Ray* PerfectMirrorMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, 
 	float m = i.dotProduct(normal)*2;
 	Vector3D reflection = ((*normal)*m)-i;
 	r->setDirection(&reflection);
-	r->wavelength = 500;
+	r->wavelength = wavelength;
 	return r;
 }
 

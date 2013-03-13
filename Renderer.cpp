@@ -14,7 +14,7 @@ Renderer::Renderer(Scene* pScene, int width, int height) {
 	// Add a camera to the scene
 	mCameraMat = new CameraMaterial(width, height);
 	PlaneObject* plane = new PlaneObject(mCameraMat);
-	plane->setPosition(0, 0, -50);
+	plane->setPosition(0, 0, -90);
 	mCameraObject = plane;
 	mScene->addObject(mCameraObject);
 }

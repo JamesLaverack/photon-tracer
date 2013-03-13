@@ -26,6 +26,8 @@ PlaneObject::PlaneObject(AbstractMaterial* pMaterial) : RenderObject(pMaterial)
 	// Focal point is behind us
 	Vector3D scaled_normal = ((*normal)*focal_length);
 	focal_point = *position-scaled_normal;
+	height = 100;
+	width = 100;
 }
 
 PlaneObject::~PlaneObject() {
@@ -92,6 +94,17 @@ Ray* PlaneObject::transmitRay(Ray* r) {
 	float u, v, w = 0;
 	Vector3D intersect = getIntersectionPoint(r);
 	getTextureCordsAtPoint(&(intersect), &u, &v, &w);
+	// In bounds?
+	if((std::abs(u)>(width/2)) | (std::abs(v)>(height/2))) {
+		Ray* re = new Ray();
+		Vector3D pos = r->getPosition();
+		re->setPosition(&pos);
+		Vector3D dir = r->getDirection();
+		re->setDirection(&dir);
+		re->wavelength = r->wavelength;
+		return re;
+	}
+
 	// Get our reflected ray
 	Vector3D dir = r->getDirection();
 	/*

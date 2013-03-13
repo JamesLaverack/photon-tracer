@@ -21,6 +21,8 @@ private:
 	Vector3D* right;
 	float focal_length;
 	Vector3D focal_point;
+	int height;
+	int width;
 public:
 	PlaneObject(AbstractMaterial* pMaterial);
 	virtual ~PlaneObject();

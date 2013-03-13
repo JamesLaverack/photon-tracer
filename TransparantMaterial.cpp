@@ -48,7 +48,7 @@ Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Ve
 
 	// which side are we coming from
 	float index = index_of_refraction;
-	if(std::abs(hitLocation->z)>1) {
+	if(std::abs(hitLocation->z)>16) {
 			index = 1;
 	}
 	/*if(std::sqrt(hitLocation->x*hitLocation->x + hitLocation->y*hitLocation->y) > radius) {

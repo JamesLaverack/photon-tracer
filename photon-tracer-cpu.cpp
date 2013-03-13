@@ -41,8 +41,8 @@ int main(void) {
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
 	photonCPU::RadiusMaskMaterial* mask = new photonCPU::RadiusMaskMaterial();
 
-	float R = 19;
-	float d = 1;
+	float R = 50;//19;
+	float d = 16;
 
 	float radi = std::sqrt(R*R - (R-d)*(R-d));
 	printf("Apature size %f\n", radi);
@@ -59,12 +59,12 @@ int main(void) {
 	sphere2->radius = R;
 
 	// Balls
-	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(red);
-	spherer->setPosition(20, 0, 50);
+	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(trans_in);
+	spherer->setPosition(25, -40, 60);
 	spherer->radius = 10;
 
-	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(green);
-	sphereg->setPosition(-20, 0, 50);
+	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(mirror);
+	sphereg->setPosition(-25, -40, 60);
 	sphereg->radius = 10;
 
 	// YOLO walls
@@ -79,7 +79,7 @@ int main(void) {
 
 	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(white);
 	back->setNormal(0, 0, -1);
-	back->setPosition(0, 0, 260);
+	back->setPosition(0, 0, 100);
 
 	photonCPU::PlaneObject* front = new photonCPU::PlaneObject(mask);
 	front->setNormal(0, 0, 1);
@@ -93,7 +93,7 @@ int main(void) {
 	left->setNormal(1, 0, 0);
 	left->setPosition(-50, 0, 0);
 
-	photonCPU::PointLight* light = new photonCPU::PointLight(0, 45, 40);
+	photonCPU::PointLight* light = new photonCPU::PointLight(0, 45, 50);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
@@ -111,13 +111,13 @@ int main(void) {
 
 
 	s->addLight(light);
-/*
+
 	s->addObject(floor);
 	s->addObject(top);
 	s->addObject(right);
 	s->addObject(left);
 	s->addObject(back);
-*/
+
 	s->addObject(front);
 	s->addObject(sphere);
 	s->addObject(sphere2);
@@ -127,7 +127,7 @@ int main(void) {
 
 	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
 	int million = 1000000;
-	render->doRenderPass(5000*million);
+	render->doRenderPass(500*million);
 
 
 	puts("Done!");
