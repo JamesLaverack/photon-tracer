@@ -42,7 +42,7 @@ int main(void) {
 	photonCPU::RadiusMaskMaterial* mask = new photonCPU::RadiusMaskMaterial();
 
 	float R = 50;//19;
-	float d = 16;
+	float d = 20;
 
 	float radi = std::sqrt(R*R - (R-d)*(R-d));
 	printf("Apature size %f\n", radi);
@@ -127,8 +127,9 @@ int main(void) {
 
 	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
 	int million = 1000000;
-	render->doRenderPass(500*million);
-
+	do {
+		render->doRenderPass(50*million);
+	}while(true);
 
 	puts("Done!");
 

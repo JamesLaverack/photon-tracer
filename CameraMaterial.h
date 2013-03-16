@@ -30,6 +30,7 @@ private:
 	int vdiff;
 	int udiff;
 	bool derp;
+	int fileid;
 	int index(int x, int y);
 	photonCPU::WavelengthToRGB *converter;
 	void initImage();

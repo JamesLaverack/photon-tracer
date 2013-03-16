@@ -24,6 +24,7 @@ CameraMaterial::CameraMaterial(int width, int height) {
 	converter = new photonCPU::WavelengthToRGB(1, 1.0f);
 	focalLength = 5;
 	apatureSize = 3.141/16;
+	fileid = 0;
 	initImage();
 	printf("DEBUG vdiff %d, udiff %d\n", vdiff, udiff);
 	printf("DEBUG imageWidth %d, imageHeight %d\n", imageWidth, imageHeight);
@@ -141,7 +142,10 @@ void CameraMaterial::verify() {
 
 void CameraMaterial::toPPM() {
     FILE* f;
-	f = fopen("photons.ppm", "w");
+    char sbuffer[100];
+    sprintf(sbuffer, "photons-%d.ppm", fileid);
+    fileid++;
+	f = fopen(sbuffer, "w");
 	int maxVal = 65535;
 	fprintf(f, "P3\n");
 	fprintf(f, "%d %d\n", imageWidth, imageHeight);

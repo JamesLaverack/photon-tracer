@@ -11,7 +11,6 @@ namespace photonCPU {
 
 PerfectMirrorMaterial::PerfectMirrorMaterial() {
 	// TODO Auto-generated constructor stub
-
 }
 
 PerfectMirrorMaterial::~PerfectMirrorMaterial() {
