@@ -19,7 +19,9 @@ RadiusMaskMaterial::~RadiusMaskMaterial() {
 }
 
 Ray* RadiusMaskMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
-
+	(void)normal;
+	(void)perspective_normal;
+	(void)w;
 	if(std::sqrt(u*u + v*v) > radius) {
 		return 0;
 	}

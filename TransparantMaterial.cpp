@@ -32,6 +32,11 @@ Vector3D refract(Vector3D* angle, Vector3D* normal, Vector3D* axis, float index)
 }
 */
 Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
+	(void)perspective_normal;
+	(void)u;
+	(void)v;
+	(void)w;
+
 	// Some defintions
 	const float pi = 3.141;
 

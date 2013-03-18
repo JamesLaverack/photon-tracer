@@ -48,10 +48,17 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 	*/
 
 	// Render loop
+	int i = 0;
 	do{
+		// Render
 		doRenderPass(photons);
-		//writeout
-		mCameraMat->toPPM();
+		// Construct filename
+		char sbuffer[100];
+		sprintf(sbuffer, "photons-%d.ppm", i);
+		// Output
+		mCameraMat->getImage()->saveToPPMFile(sbuffer);
+		// Incriment number of images taken
+		i++;
 	}while(true);
 
 	// Teardown MPI

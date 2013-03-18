@@ -73,7 +73,6 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	bounce = bounce.rotate(&v_vec, theta);
 	bounce.normaliseSelf();
 	//printf("end   <%f, %f, %f>\n	", bounce.x, bounce.y, bounce.z);
-	float true_angle = std::acos(bounce.dotProduct(normal));
 
 	/*
 	printf("#\n");

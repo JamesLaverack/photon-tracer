@@ -11,6 +11,7 @@
 #include "Scene.h"
 #include "PlaneObject.h"
 #include "CameraMaterial.h"
+#include "Image.h"
 
 namespace photonCPU {
 
