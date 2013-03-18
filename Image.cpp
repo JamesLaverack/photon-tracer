@@ -18,6 +18,21 @@ Image::Image(int width, int height) {
 	initImage();
 }
 
+Image::Image(Image* imageIn) {
+	this->width = imageIn->getWidth();
+	this->height = imageIn->getHeight();
+	imageR = (float*) malloc(height*width*sizeof(float));
+	imageG = (float*) malloc(height*width*sizeof(float));
+	imageB = (float*) malloc(height*width*sizeof(float));
+	for(int i=0;i<width;i++ ) {
+			for(int j=0;j<height;j++ ) {
+				imageR[index(i, j)] = imageIn->imageR[imageIn->index(i, j)];
+				imageG[index(i, j)] = imageIn->imageG[imageIn->index(i, j)];
+				imageB[index(i, j)] = imageIn->imageB[imageIn->index(i, j)];
+			}
+		}
+}
+
 Image::~Image() {
 	free(imageR);
 	free(imageG);
@@ -68,6 +83,14 @@ void Image::verify() {
 int toColourInt(float f, int maxVal) {
 	if (f>1) return maxVal;
 	return int(f*maxVal);
+}
+
+int Image::getHeight() {
+	return height;
+}
+
+int Image::getWidth() {
+	return width;
 }
 
 void Image::saveToPPMFile(char* filename) {

@@ -28,7 +28,10 @@ public:
 	int index(int x, int y);
 	void verify();
 	void saveToPPMFile(char* filename);
+	int getWidth();
+	int getHeight();
 	Image(int width, int height);
+	Image(Image *pImage);
 	virtual ~Image();
 };
 
