@@ -13,3 +13,8 @@ all:	$(TARGET)
 
 clean:
 	rm -f $(OBJS) $(TARGET)
+
+clean-img:
+	rm photons-?.ppm
+
+clean-all: clean clean-img
