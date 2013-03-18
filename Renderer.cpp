@@ -32,7 +32,7 @@ Renderer::~Renderer() {
  * This function
  */
 void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
-	/*
+
 	// Construct MPI
 	int flag;
 	int size, rank;
@@ -45,23 +45,76 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 	MPI_Comm_size( MPI_COMM_WORLD, &size );
 	MPI_Comm_rank( MPI_COMM_WORLD, &rank );
 	printf("Hello, world; from process %d of %d\n", rank, size);
-	*/
+
 
 	// Render loop
 	int i = 0;
 	do{
 		// Render
 		doRenderPass(photons);
-		// Copy Image
-		Image* accImg = new Image(mCameraMat->getImage());
+		// Pointers
+		float **r_pntr;
+		float **g_pntr;
+		float **b_pntr;
+		Image* accImg;
+		Image* img = mCameraMat->getImage();
+
+		if(rank==0) {
+			// Create image to copy into
+			accImg = new Image(mCameraMat->getImage());
+			// Set our pointers
+			r_pntr = *(accImg->imageR);
+			g_pntr = *(accImg->imageG);
+			b_pntr = *(accImg->imageB);
+		} else {
+
+			r_pntr = *(img->imageR);
+			g_pntr = *(img->imageG);
+			b_pntr = *(img->imageB);
+		}
 		// MPI accumulate
-		// MPI_Accumulate()
-		// Construct filename
-		char sbuffer[100];
-		sprintf(sbuffer, "photons-%d.ppm", i);
-		// Output
-		accImg->saveToPPMFile(sbuffer);
-		delete accImg;
+		MPI_Accumulate(
+				&r_pntr,
+				img->getWidth()*img->getHeight(),
+				MPI_FLOAT,
+				0,
+				0,
+				img->getWidth()*img->getHeight(),
+				MPI_FLOAT,
+				MPI_PLUS,
+				MPI_COMM_WORLD
+		);
+		MPI_Accumulate(
+				&g_pntr,
+				img->getWidth()*img->getHeight(),
+				MPI_FLOAT,
+				0,
+				0,
+				img->getWidth()*img->getHeight(),
+				MPI_FLOAT,
+				MPI_PLUS,
+				MPI_COMM_WORLD
+		);
+		MPI_Accumulate(
+				&b_pntr,
+				img->getWidth()*img->getHeight(),
+				MPI_FLOAT,
+				0,
+				0,
+				img->getWidth()*img->getHeight(),
+				MPI_FLOAT,
+				MPI_PLUS,
+				MPI_COMM_WORLD
+		);
+		// Output this
+		if(rank==0) {
+			// Construct filename
+			char sbuffer[100];
+			sprintf(sbuffer, "photons-%d.ppm", i);
+			// Output
+			accImg->saveToPPMFile(sbuffer);
+			delete accImg;
+		}
 		// Incriment number of images taken
 		i++;
 	}while(true);
