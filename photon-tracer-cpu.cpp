@@ -26,7 +26,7 @@
 using photonCPU::Vector3D;
 using photonCPU::PointLight;
 
-int main(void) {
+int main(int argc, char* argv[]) {
 
 	int seed = std::time(NULL);
 	std::srand(seed);
@@ -127,9 +127,7 @@ int main(void) {
 
 	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
 	int million = 1000000;
-	do {
-		render->doRenderPass(50*million);
-	}while(true);
+	render->performRender(50*million, argc, argv);
 
 	puts("Done!");
 

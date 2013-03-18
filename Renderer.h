@@ -22,6 +22,7 @@ private:
 public:
 	Renderer(Scene* pScene, int width, int height);
 	virtual ~Renderer();
+	void performRender(int photons, int argc_mpi, char* argv_mpi[]);
 	void doRenderPass(int photons);
 };
 

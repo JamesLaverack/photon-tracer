@@ -28,6 +28,36 @@ Renderer::~Renderer() {
 
 }
 
+/**
+ * This function
+ */
+void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
+	/*
+	// Construct MPI
+	int flag;
+	int size, rank;
+	MPI_Init( &argc_mpi, &argv_mpi );
+	MPI_Initialized(&flag);
+	if ( flag != TRUE ) {
+		MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+	}
+	//MPI_Get_processor_name(hostname,&strlen);
+	MPI_Comm_size( MPI_COMM_WORLD, &size );
+	MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+	printf("Hello, world; from process %d of %d\n", rank, size);
+	*/
+
+	// Render loop
+	do{
+		doRenderPass(photons);
+		//writeout
+		mCameraMat->toPPM();
+	}while(true);
+
+	// Teardown MPI
+
+}
+
 void Renderer::doRenderPass(int photons) {
 	Ray* r;
 	const int maxBounce = 50;
@@ -84,9 +114,6 @@ void Renderer::doRenderPass(int photons) {
 			}
 		}
 	}
-	mCameraMat->verify();
-	//writeout
-	mCameraMat->toPPM();
 }
 
 } /* namespace photonCPU */
