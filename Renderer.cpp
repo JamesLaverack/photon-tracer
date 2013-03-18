@@ -53,9 +53,9 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 		// Render
 		doRenderPass(photons);
 		// Pointers
-		float **r_pntr;
-		float **g_pntr;
-		float **b_pntr;
+		float *r_pntr;
+		float *g_pntr;
+		float *b_pntr;
 		Image* accImg;
 		Image* img = mCameraMat->getImage();
 
@@ -63,18 +63,18 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 			// Create image to copy into
 			accImg = new Image(mCameraMat->getImage());
 			// Set our pointers
-			r_pntr = *(accImg->imageR);
-			g_pntr = *(accImg->imageG);
-			b_pntr = *(accImg->imageB);
+			r_pntr = accImg->imageR;
+			g_pntr = accImg->imageG;
+			b_pntr = accImg->imageB;
 		} else {
 
-			r_pntr = *(img->imageR);
-			g_pntr = *(img->imageG);
-			b_pntr = *(img->imageB);
+			r_pntr = img->imageR;
+			g_pntr = img->imageG;
+			b_pntr = img->imageB;
 		}
 		// MPI accumulate
 		MPI_Accumulate(
-				&r_pntr,
+				r_pntr,
 				img->getWidth()*img->getHeight(),
 				MPI_FLOAT,
 				0,
@@ -85,7 +85,7 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 				MPI_COMM_WORLD
 		);
 		MPI_Accumulate(
-				&g_pntr,
+				g_pntr,
 				img->getWidth()*img->getHeight(),
 				MPI_FLOAT,
 				0,
@@ -96,7 +96,7 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 				MPI_COMM_WORLD
 		);
 		MPI_Accumulate(
-				&b_pntr,
+				b_pntr,
 				img->getWidth()*img->getHeight(),
 				MPI_FLOAT,
 				0,
