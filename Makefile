@@ -1,4 +1,6 @@
-CXXFLAGS =	-O3 -g -Wall -W -Wextra -fmessage-length=0
+CXX = mpicxx
+
+CXXFLAGS =	-O3 -g -Wall -W -Wextra -fmessage-length=0 -lm
 
 OBJS =		photon-tracer-cpu.o Image.o RadiusMaskMaterial.o TransparantMaterial.o NormalRandomGenerator.o ColourMaterial.o WavelengthToRGB.o Vector3D.o Ray.o RenderObject.o PlaneObject.o Scene.o AbstractLight.o AbstractMaterial.o CameraMaterial.o PointLight.o Renderer.o PerfectMirrorMaterial.o PerfectMattMaterial.o SphereObject.o
 

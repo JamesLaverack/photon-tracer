@@ -34,18 +34,13 @@ Renderer::~Renderer() {
 void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 
 	// Construct MPI
-	int flag;
 	int size, rank;
-	MPI_Init( &argc_mpi, &argv_mpi );
-	MPI_Initialized(&flag);
-	if ( flag != TRUE ) {
-		MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
-	}
-	//MPI_Get_processor_name(hostname,&strlen);
-	MPI_Comm_size( MPI_COMM_WORLD, &size );
-	MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-	printf("Hello, world; from process %d of %d\n", rank, size);
+	MPI::Init( argc_mpi, argv_mpi );
 
+	//MPI_Get_processor_name(hostname,&strlen);
+	size = MPI::COMM_WORLD.Get_rank();
+	rank = MPI::COMM_WORLD.Get_size();
+	printf("Hello, world; from process %d of %d\n", rank, size);
 
 	// Render loop
 	int i = 0;
@@ -53,59 +48,58 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 		// Render
 		doRenderPass(photons);
 		// Pointers
-		float *r_pntr;
-		float *g_pntr;
-		float *b_pntr;
 		Image* accImg;
 		Image* img = mCameraMat->getImage();
+		MPI::Win window_r;
+		MPI::Win window_g;
+		MPI::Win window_b;
 
 		if(rank==0) {
 			// Create image to copy into
-			accImg = new Image(mCameraMat->getImage());
-			// Set our pointers
-			r_pntr = accImg->imageR;
-			g_pntr = accImg->imageG;
-			b_pntr = accImg->imageB;
-		} else {
+			accImg = new Image(img->getWidth(), img->getHeight());
 
-			r_pntr = img->imageR;
-			g_pntr = img->imageG;
-			b_pntr = img->imageB;
+			// Construct an MPI Window to copy some data into, one for each colour.
+			int size_in_bytes = sizeof(float)*img->getWidth()*img->getHeight();
+			window_r = MPI::Win::Create(accImg->imageR, size_in_bytes, sizeof(float), NULL, MPI_COMM_WORLD);
+	//		window_g = MPI::Win::Create(accImg->imageG, size_in_bytes, MPI_FLOAT, NULL, MPI_COMM_WORLD);
+		//	window_b = MPI::Win::Create(accImg->iamgeB, size_in_bytes, MPI_FLOAT, NULL, MPI_COMM_WORLD);
 		}
 		// MPI accumulate
+
+		window_r.Accumulate(
+				img->imageR,
+				img->getWidth()*img->getHeight(),
+				MPI_FLOAT,
+				0,
+				0,
+				img->getWidth()*img->getHeight(),
+				MPI_FLOAT,
+				MPI_SUM
+		);
+/*
 		MPI_Accumulate(
-				r_pntr,
+				img->imageG,
 				img->getWidth()*img->getHeight(),
 				MPI_FLOAT,
 				0,
 				0,
 				img->getWidth()*img->getHeight(),
 				MPI_FLOAT,
-				MPI_PLUS,
-				MPI_COMM_WORLD
+				MPI_SUM,
+				window_g
 		);
 		MPI_Accumulate(
-				g_pntr,
+				img->imageB,
 				img->getWidth()*img->getHeight(),
 				MPI_FLOAT,
 				0,
 				0,
 				img->getWidth()*img->getHeight(),
 				MPI_FLOAT,
-				MPI_PLUS,
-				MPI_COMM_WORLD
+				MPI_SUM,
+				window_b
 		);
-		MPI_Accumulate(
-				b_pntr,
-				img->getWidth()*img->getHeight(),
-				MPI_FLOAT,
-				0,
-				0,
-				img->getWidth()*img->getHeight(),
-				MPI_FLOAT,
-				MPI_PLUS,
-				MPI_COMM_WORLD
-		);
+*/
 		// Output this
 		if(rank==0) {
 			// Construct filename
