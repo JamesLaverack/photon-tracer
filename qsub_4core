@@ -3,7 +3,7 @@
 #! PBS file
 
 #PBS -N photon-tracer
-#PBS -o OUTPUT
+#PBS -o output/mpirun-output
 
 #! Number of nodes (in this case 1 node with 8 CPU cores)
 #! The total number of nodes passed to mpirun will be nodes*ppn 
@@ -16,10 +16,10 @@
 #PBS -m a
 
 #! application name
-application="./photon-tracer-cpu"
+application="bin/photon-tracer-cpu"
 
 #! Run options for the application
-options="input/input.params_300x200 input/obstacles_300x200.dat output"
+options="--imgdir img"
 
 #! change the working directory (default is home directory)
 
@@ -33,12 +33,10 @@ echo This jobs runs on the following machines:
 echo `cat $PBS_NODEFILE | uniq`
  
 #! Create a machine file for MPI
-cat $PBS_NODEFILE > machine.file.$PBS_JOBID
+cat $PBS_NODEFILE > output/machine.file.$PBS_JOBID
 
 numnodes=`wc $PBS_NODEFILE | awk '{ print $1 }'`
 
-#export OMP_NUM_THREADS=$numnodes
-
 #! Run the executable
-mpirun -np $numnodes -machinefile machine.file.$PBS_JOBID $application $options
+mpirun -np $numnodes -machinefile output/machine.file.$PBS_JOBID $application $options
 
