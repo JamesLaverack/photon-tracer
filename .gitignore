@@ -6,3 +6,5 @@ obj/
 img/
 # Other output
 output/
+# MPI crud
+photon-tracer.e*
