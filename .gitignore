@@ -1,3 +1,8 @@
-*.o
-*.ppm
-photon-tracer-cpu
+# Executables
+bin/
+# Unlinked object files
+obj/
+# Output images
+img/
+# Other output
+output/
