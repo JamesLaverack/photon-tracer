@@ -1,22 +1,60 @@
-CXX = mpicxx
+APP      = photon-tracer-cpu
 
-CXXFLAGS =	-O3 -g -Wall -W -Wextra -fmessage-length=0 -lm
+SRCEXT   = cpp
+SRCDIR   = src
+OBJDIR   = obj
+BINDIR   = bin
 
-OBJS =		photon-tracer-cpu.o Image.o RadiusMaskMaterial.o TransparantMaterial.o NormalRandomGenerator.o ColourMaterial.o WavelengthToRGB.o Vector3D.o Ray.o RenderObject.o PlaneObject.o Scene.o AbstractLight.o AbstractMaterial.o CameraMaterial.o PointLight.o Renderer.o PerfectMirrorMaterial.o PerfectMattMaterial.o SphereObject.o
+SRCS    := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
+SRCDIRS := $(shell find . -name '*.$(SRCEXT)' -exec dirname {} \; | uniq)
+OBJS    := $(patsubst %.$(SRCEXT),$(OBJDIR)/%.o,$(SRCS))
 
-LIBS =
+DEBUG       = -g
+PERFORMANCE = -O3 -march=opteron
+WARNINGS    = -Wall -W -Wextra
+INCLUDES    = -I./inc
+CXX         = mpicxx
+CXXFLAGS    = -fmessage-length=0 -c $(DEBUG) $(INCLUDES) $(PERFORMANCE) $(WARNINGS)
+LDFLAGS     =
 
-TARGET =	photon-tracer-cpu
+.PHONY: all clean distclean
 
-$(TARGET):	$(OBJS)
-	$(CXX) -o $(TARGET) $(OBJS) $(LIBS)
+all: $(BINDIR)/$(APP)
 
-all:	$(TARGET)
+$(BINDIR)/$(APP): buildrepo $(OBJS)
+	@mkdir -p `dirname $@`
+	@echo "Linking $@..."
+	$(CXX) $(OBJS) $(LDFLAGS) -o $@
+
+$(OBJDIR)/%.o: %.$(SRCEXT)
+	@echo "Generating dependencies for $<..."
+	@$(call make-depend,$<,$@,$(subst .o,.d,$@))
+	@echo "Compiling $<..."
+	$(CXX) $(CXXFLAGS) $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	$(RM) -r $(OBJDIR)
 
-clean-img:
-	rm photons-?.ppm
+distclean: clean
+	$(RM) -r $(BINDIR)
 
-clean-all: clean clean-img
+buildrepo:
+	@$(call make-repo)
+
+define make-repo
+   for dir in $(SRCDIRS); \
+   do \
+	mkdir -p $(OBJDIR)/$$dir; \
+   done
+endef
+
+
+# usage: $(call make-depend,source-file,object-file,depend-file)
+define make-depend
+  $(CXX) -MM       \
+        -MF $3    \
+        -MP       \
+        -MT $2    \
+        $(CXXFLAGS) \
+        $1
+endef
