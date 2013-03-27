@@ -10,3 +10,4 @@ output/
 photon-tracer.e*
 # Image files
 *.ppm
+*.png
