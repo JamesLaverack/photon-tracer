@@ -38,8 +38,8 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 	MPI::Init( argc_mpi, argv_mpi );
 
 	//MPI_Get_processor_name(hostname,&strlen);
-	size = MPI::COMM_WORLD.Get_rank();
-	rank = MPI::COMM_WORLD.Get_size();
+	rank = MPI::COMM_WORLD.Get_rank();
+	size = MPI::COMM_WORLD.Get_size();
 	printf("Hello, world; from process %d of %d\n", rank, size);
 
 	// Render loop
@@ -54,18 +54,17 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 		MPI::Win window_g;
 		MPI::Win window_b;
 
-		if(rank==0) {
 			// Create image to copy into
 			accImg = new Image(img->getWidth(), img->getHeight());
 
 			// Construct an MPI Window to copy some data into, one for each colour.
 			int size_in_bytes = sizeof(float)*img->getWidth()*img->getHeight();
-			window_r = MPI::Win::Create(accImg->imageR, size_in_bytes, sizeof(float), NULL, MPI_COMM_WORLD);
+			window_r = MPI::Win::Create(accImg->imageR, size_in_bytes, sizeof(float), MPI_INFO_NULL, MPI_COMM_WORLD);
 	//		window_g = MPI::Win::Create(accImg->imageG, size_in_bytes, MPI_FLOAT, NULL, MPI_COMM_WORLD);
 		//	window_b = MPI::Win::Create(accImg->iamgeB, size_in_bytes, MPI_FLOAT, NULL, MPI_COMM_WORLD);
-		}
-		// MPI accumulate
 
+		window_r.Fence(0);
+		// MPI accumulate
 		window_r.Accumulate(
 				img->imageR,
 				img->getWidth()*img->getHeight(),
@@ -76,6 +75,8 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 				MPI_FLOAT,
 				MPI_SUM
 		);
+		window_r.Fence(0);
+		window_r.Free();
 /*
 		MPI_Accumulate(
 				img->imageG,
@@ -108,13 +109,14 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 			// Output
 			accImg->saveToPPMFile(sbuffer);
 			delete accImg;
+			printf("Image outputed!");
 		}
 		// Incriment number of images taken
 		i++;
-	}while(true);
+	}while(false);
 
 	// Teardown MPI
-
+        MPI::Finalize();	
 }
 
 void Renderer::doRenderPass(int photons) {
