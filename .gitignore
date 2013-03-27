@@ -8,3 +8,5 @@ img/
 output/
 # MPI crud
 photon-tracer.e*
+# Image files
+*.ppm
