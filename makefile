@@ -16,16 +16,22 @@ SRCDIRS := $(shell find . -name '*.$(SRCEXT)' -exec dirname {} \; | uniq)
 OBJS    := $(patsubst %.$(SRCEXT),$(OBJDIR)/%.o,$(SRCS))
 
 DEBUG       = -g
-PERFORMANCE = -O3 -march=opteron
+PERFORMANCE = -O3
 WARNINGS    = -Wall -W -Wextra
 INCLUDES    = -I./inc
-CXX         = mpicxx
+CXX         = g++
 CXXFLAGS    = -fmessage-length=0 -c $(DEBUG) $(INCLUDES) $(PERFORMANCE) $(WARNINGS)
 LDFLAGS     =
 
 .PHONY: all clean distclean
 
 all: $(BINDIR)/$(APP) clean
+
+mpi: mpi-set-cxx all
+
+mpi-set-cxx:
+	$(eval CXX = mpicxx)
+	@echo "Set to MPI"
 
 $(BINDIR)/$(APP): buildrepo $(OBJS)
 	@mkdir -p `dirname $@`
