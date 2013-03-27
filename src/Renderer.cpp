@@ -34,13 +34,15 @@ Renderer::~Renderer() {
 void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 
 	// Construct MPI
-	int size, rank;
+	int size, rank = 0;
+	#ifdef MPI
 	MPI::Init( argc_mpi, argv_mpi );
 
 	//MPI_Get_processor_name(hostname,&strlen);
 	rank = MPI::COMM_WORLD.Get_rank();
 	size = MPI::COMM_WORLD.Get_size();
 	printf("Hello, world; from process %d of %d\n", rank, size);
+	#endif /* MPI */
 
 	// Render loop
 	int i = 0;
@@ -50,21 +52,26 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 		// Pointers
 		Image* accImg;
 		Image* img = mCameraMat->getImage();
+		// Create image to copy into
+
+		#ifndef MPI
+		accImg = new Image(img);
+		#endif /* If not MPI */
+		#ifdef MPI
+		// Create MPI handles
+		accImg = new Image(img->getWidth(), img->getHeight());
 		MPI::Win window_r;
 		MPI::Win window_g;
 		MPI::Win window_b;
+		
+		// Construct an MPI Window to copy some data into, one for each colour.
+		int size_in_bytes = sizeof(float)*img->getWidth()*img->getHeight();
+		window_r = MPI::Win::Create(accImg->imageR, size_in_bytes, sizeof(float), MPI_INFO_NULL, MPI_COMM_WORLD);
+		//window_g = MPI::Win::Create(accImg->imageG, size_in_bytes, MPI_FLOAT, NULL, MPI_COMM_WORLD);
+		//window_b = MPI::Win::Create(accImg->iamgeB, size_in_bytes, MPI_FLOAT, NULL, MPI_COMM_WORLD);
 
-			// Create image to copy into
-			accImg = new Image(img->getWidth(), img->getHeight());
-
-			// Construct an MPI Window to copy some data into, one for each colour.
-			int size_in_bytes = sizeof(float)*img->getWidth()*img->getHeight();
-			window_r = MPI::Win::Create(accImg->imageR, size_in_bytes, sizeof(float), MPI_INFO_NULL, MPI_COMM_WORLD);
-	//		window_g = MPI::Win::Create(accImg->imageG, size_in_bytes, MPI_FLOAT, NULL, MPI_COMM_WORLD);
-		//	window_b = MPI::Win::Create(accImg->iamgeB, size_in_bytes, MPI_FLOAT, NULL, MPI_COMM_WORLD);
-
+		// Perform transfer
 		window_r.Fence(0);
-		// MPI accumulate
 		window_r.Accumulate(
 				img->imageR,
 				img->getWidth()*img->getHeight(),
@@ -101,6 +108,7 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 				window_b
 		);
 */
+		#endif /* MPI */
 		// Output this
 		if(rank==0) {
 			// Construct filename
@@ -115,8 +123,10 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 		i++;
 	}while(false);
 
+	#ifdef MPI
 	// Teardown MPI
         MPI::Finalize();	
+	#endif /* MPI */
 }
 
 void Renderer::doRenderPass(int photons) {

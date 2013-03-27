@@ -19,8 +19,9 @@ DEBUG       = -g
 PERFORMANCE = -O3
 WARNINGS    = -Wall -W -Wextra
 INCLUDES    = -I./inc
+MPIFLAGS    =
 CXX         = g++
-CXXFLAGS    = -fmessage-length=0 -c $(DEBUG) $(INCLUDES) $(PERFORMANCE) $(WARNINGS)
+CXXFLAGS    = -fmessage-length=0 -c $(DEBUG) $(INCLUDES) $(PERFORMANCE) $(WARNINGS) $(MPIFLAGS)
 LDFLAGS     =
 
 .PHONY: all clean distclean
@@ -31,6 +32,7 @@ mpi: mpi-set-cxx all
 
 mpi-set-cxx:
 	$(eval CXX = mpicxx)
+	$(eval MPIFLAGS = -DMPI)
 	@echo "Set to MPI"
 
 $(BINDIR)/$(APP): buildrepo $(OBJS)
