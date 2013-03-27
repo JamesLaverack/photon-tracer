@@ -4,6 +4,12 @@ SRCEXT   = cpp
 SRCDIR   = src
 OBJDIR   = obj
 BINDIR   = bin
+IMGDIR   = img
+OUTDIR   = output
+
+QSUB_QUEUE = veryshort
+QSUB_CC    = qsub
+QSUB_FILE  = qsub_4core
 
 SRCS    := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
 SRCDIRS := $(shell find . -name '*.$(SRCEXT)' -exec dirname {} \; | uniq)
@@ -19,7 +25,7 @@ LDFLAGS     =
 
 .PHONY: all clean distclean
 
-all: $(BINDIR)/$(APP)
+all: $(BINDIR)/$(APP) clean
 
 $(BINDIR)/$(APP): buildrepo $(OBJS)
 	@mkdir -p `dirname $@`
@@ -32,6 +38,11 @@ $(OBJDIR)/%.o: %.$(SRCEXT)
 	@echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) $< -o $@
 
+submit:
+	@$(RM) $(OUTDIR)/*
+	@$(RM) photon-tracer.e*
+	$(QSUB_CC) -q $(QSUB_QUEUE) $(QSUB_FILE)
+
 clean:
 	$(RM) -r $(OBJDIR)
 
@@ -40,6 +51,8 @@ distclean: clean
 
 buildrepo:
 	@$(call make-repo)
+	@mkdir -p $(IMGDIR)
+	@mkdir -p $(OUTDIR) 
 
 define make-repo
    for dir in $(SRCDIRS); \
