@@ -32,7 +32,7 @@ mpi: mpi-set-cxx all
 
 mpi-set-cxx:
 	$(eval CXX = mpicxx)
-	$(eval MPIFLAGS = -DMPI)
+	$(eval MPIFLAGS = -D PHOTON_MPI)
 	@echo "Set to MPI"
 
 $(BINDIR)/$(APP): buildrepo $(OBJS)

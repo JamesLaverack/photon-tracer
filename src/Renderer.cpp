@@ -35,7 +35,7 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 
 	// Construct MPI
 	int size, rank = 0;
-	#ifdef MPI
+	#ifdef PHOTON_MPI
 	MPI::Init( argc_mpi, argv_mpi );
 
 	//MPI_Get_processor_name(hostname,&strlen);
@@ -54,10 +54,10 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 		Image* img = mCameraMat->getImage();
 		// Create image to copy into
 
-		#ifndef MPI
+		#ifndef PHOTON_MPI
 		accImg = new Image(img);
 		#endif /* If not MPI */
-		#ifdef MPI
+		#ifdef PHOTON_MPI
 		// Create MPI handles
 		accImg = new Image(img->getWidth(), img->getHeight());
 		MPI::Win window_r;
@@ -123,7 +123,7 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 		i++;
 	}while(false);
 
-	#ifdef MPI
+	#ifdef PHOTON_MPI
 	// Teardown MPI
         MPI::Finalize();	
 	#endif /* MPI */
