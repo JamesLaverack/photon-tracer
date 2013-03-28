@@ -7,9 +7,11 @@
 //============================================================================
 
 #include <cstdio>
+#include <cstring>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <sys/time.h>
 #include "Vector3D.h"
 #include "Ray.h"
 #include "Scene.h"
@@ -27,7 +29,35 @@ using photonCPU::Vector3D;
 using photonCPU::PointLight;
 
 int main(int argc, char* argv[]) {
+	// Set Varaibles to defaults
+	const int million = 1000000;
+	int num_photons = 50*million;
+	bool time_run = false;
 
+	// Parse inputs
+	for(int i=1;i<argc;i++) {
+		char* arg = argv[i];
+		// Ugly if-else chain to parse cmd arguments in a dumb way.
+		if(!strcmp(arg, "--num-photons")) {
+			// Set number of photons
+			i++;
+			if(i==argc) {
+				printf("Not enough arguments to --num-photons.\n");
+				return(1);
+			} else {
+				num_photons = atoi(argv[i])*million;
+			}
+		} else if (!strcmp(arg, "--time")){
+			// Do we time the run?
+			time_run = true;
+		}
+	}
+
+	// Report values used
+	printf("Firing %d million photons.\n", num_photons/million);
+	if (time_run) printf("Timing run.\n");
+
+	// Begin setup
 	int seed = std::time(NULL);
 	std::srand(seed);
 	printf("D.A.N.C.E.\n");
@@ -126,10 +156,14 @@ int main(int argc, char* argv[]) {
 
 
 	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
-	int million = 1000000;
-	render->performRender(50*million, argc, argv);
-
-	puts("Done!");
+	timeval tic, toc;
+	gettimeofday(&tic, NULL);
+	render->performRender(num_photons, argc, argv);
+	gettimeofday(&toc, NULL);
+	printf("Done in %ld s and %ld ms !", 
+		toc.tv_sec-tic.tv_sec,
+		(toc.tv_usec-tic.tv_usec)/1000
+	);
 
 	/* Free some memory */
 

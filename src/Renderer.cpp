@@ -42,6 +42,10 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 	rank = MPI::COMM_WORLD.Get_rank();
 	size = MPI::COMM_WORLD.Get_size();
 	printf("Hello, world; from process %d of %d\n", rank, size);
+
+	// Adjust number of photons for MPI
+	phtons = photons/size;
+	if(rank==0)	printf("MPI adjusted to %d photons per thread", photons);
 	#endif /* MPI */
 
 	// Render loop
