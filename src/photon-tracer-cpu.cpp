@@ -160,9 +160,8 @@ int main(int argc, char* argv[]) {
 	gettimeofday(&tic, NULL);
 	render->performRender(num_photons, argc, argv);
 	gettimeofday(&toc, NULL);
-	printf("Done in %ld s and %ld ms !", 
-		toc.tv_sec-tic.tv_sec,
-		(toc.tv_usec-tic.tv_usec)/1000
+	printf("Done in %ld seconds.\n", 
+		toc.tv_sec-tic.tv_sec
 	);
 
 	/* Free some memory */
