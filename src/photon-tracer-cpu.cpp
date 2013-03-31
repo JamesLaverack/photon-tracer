@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
 	const long long int million = 1000000;
 	long long int num_photons = 50*million;
 	bool time_run = false;
+	timeval tic, toc;
 
 	// Parse inputs
 	for(int i=1;i<argc;i++) {
@@ -69,7 +70,7 @@ int main(int argc, char* argv[]) {
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
 	photonCPU::RadiusMaskMaterial* mask = new photonCPU::RadiusMaskMaterial();
 
-	float R = 50;//19;
+	float R = 50;
 	float d = 20;
 
 	float radi = std::sqrt(R*R - (R-d)*(R-d));
@@ -152,15 +153,16 @@ int main(int argc, char* argv[]) {
 	s->addObject(spherer);
 	s->addObject(sphereg);
 
-
+	// Create our renderer
 	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
-	timeval tic, toc;
+
+	// Perform the render iself, and do some timing
 	gettimeofday(&tic, NULL);
 	render->performRender(num_photons, argc, argv);
 	gettimeofday(&toc, NULL);
-	printf("Done in %ld seconds.\n", 
-		toc.tv_sec-tic.tv_sec
-	);
+
+	// Report how fast we were, perhaps
+	if(time_run) printf("Done in %ld seconds.\n", toc.tv_sec-tic.tv_sec);
 
 	/* Free some memory */
 
