@@ -31,7 +31,7 @@ Renderer::~Renderer() {
 /**
  * This function
  */
-void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
+void Renderer::performRender(long long int photons, int argc_mpi, char* argv_mpi[]) {
 
 	// Construct MPI
 	int size, rank = 0;
@@ -45,7 +45,7 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 
 		// Adjust number of photons for MPI
 		photons = photons/size;
-		if(rank==0)	printf("MPI adjusted to %d photons per thread", photons);
+		if(rank==0)	printf("MPI adjusted to %ld photons per thread", photons);
 	#endif /* MPI */
 
 	// Setup rand based on our rank
@@ -125,7 +125,7 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 			// Output
 			accImg->saveToPPMFile(sbuffer);
 			delete accImg;
-			printf("Image outputed!");
+			printf("Image outputed!\n");
 		}
 		// Incriment number of images taken
 		i++;
@@ -137,43 +137,30 @@ void Renderer::performRender(int photons, int argc_mpi, char* argv_mpi[]) {
 	#endif /* MPI */
 }
 
-void Renderer::doRenderPass(int photons) {
+void Renderer::doRenderPass(long long int photons) {
 	Ray* r;
 	const int maxBounce = 50;
 	int bounceCount = 0;
 	bool loop = true;
 	printf("[Begin photon tracing]\n");
 	// Fire a number of photons into the scene
-	for (int i = 0; i < photons; i++) {
-
-		//printf("<%d>\n", i);
+	for (long long int i = 0; i < photons; i++) {
 		// Pick a random light
 		AbstractLight* light = mScene->getRandomLight();
 		// Get a random ray
 		r = light->getRandomRayFromLight();
-		int hundreth = (photons / 100);
+		long long int hundreth = (photons / 100);
 		if (photons % 100 > 0)
 			hundreth++;
 		//printf("hundreth %d\n", hundreth);
 		if ((i % hundreth) == 0) {
 			int progress = (int) (100 * (i / (float) photons));
-			printf("    %d", progress);
-			// output
-			/*			if ( (progress % 5 == 0) && (progress != 0)) {
-			 mCameraMat->toPPM();
-			 printf(" (image saved)");
-			 }	*/
-			printf("\n");
+			printf("    %d\n", progress);
 		}
 		loop = true;
 		bounceCount = 0;
 		while (loop) {
 			loop = false;
-			// debug
-			//printf("    dir: ");
-			//r->getDirection().print();
-			//printf("    pos: ");
-			//r->getPosition().print();
 			// Shoot
 			RenderObject* obj = mScene->getClosestIntersection(r);
 			// Did we hit anything?
@@ -186,9 +173,8 @@ void Renderer::doRenderPass(int photons) {
 					r = newr;
 					loop = true;
 				}
-				//printf(" STRIKE\n");
 			} else {
-				//printf(" MISS\n");
+				// Nahhhhh
 				delete r;
 			}
 		}
