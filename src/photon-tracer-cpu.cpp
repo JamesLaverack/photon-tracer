@@ -54,12 +54,10 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Report values used
-	printf("Firing %d million photons.\n", num_photons/million);
+	printf("Firing %ld photons.\n", num_photons);
 	if (time_run) printf("Timing run.\n");
 
 	// Begin setup
-	int seed = std::time(NULL);
-	std::srand(seed);
 	printf("D.A.N.C.E.\n");
 
 	photonCPU::AbstractMaterial* mirror = new photonCPU::PerfectMirrorMaterial();
