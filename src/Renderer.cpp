@@ -44,7 +44,8 @@ void Renderer::performRender(long long int photons, int argc_mpi, char* argv_mpi
 		printf("Hello, world; from process %d of %d\n", rank, size);
 
 		// Adjust number of photons for MPI
-		photons = photons/size;
+		long long int long_size = (long long int) size;
+		photons = photons/long_size;
 		if(rank==0)	printf("MPI adjusted to %ld photons per thread", photons);
 	#endif /* MPI */
 
