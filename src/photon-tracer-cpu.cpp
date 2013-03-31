@@ -30,8 +30,8 @@ using photonCPU::PointLight;
 
 int main(int argc, char* argv[]) {
 	// Set Varaibles to defaults
-	const int million = 1000000;
-	int num_photons = 50*million;
+	const long long int million = 1000000;
+	long long int num_photons = 50*million;
 	bool time_run = false;
 
 	// Parse inputs
