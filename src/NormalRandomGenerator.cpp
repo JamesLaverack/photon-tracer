@@ -43,10 +43,10 @@ bool NormalRandomGenerator::isInRange(float value) {
  * and max and don't set a stupid mean or this will be slow.
  */
 float NormalRandomGenerator::getRandom(float mean, float sd) {
-	float result;
-	do{
-		result = getUncappedRandom(mean, sd);
-	}while(!isInRange(result));
+	float result = getUncappedRandom(mean, sd);
+	// Clamp into range
+	if(value < minValue) return minValue;
+	if(value > maxValue) return maxValue;
 	return result;
 }
 
