@@ -72,17 +72,20 @@ void Renderer::performRender(long long int photons, int argc_mpi, char* argv_mpi
 			MPI::Win window_r;
 			MPI::Win window_g;
 			MPI::Win window_b;
+			MPI::Win window_h;
 			
 			// Construct an MPI Window to copy some data into, one for each colour.
 			int size_in_bytes = sizeof(float)*img->getWidth()*img->getHeight();
-			window_r = MPI::Win::Create(accImg->imageR, size_in_bytes, sizeof(float), MPI_INFO_NULL, MPI_COMM_WORLD);
-			window_g = MPI::Win::Create(accImg->imageG, size_in_bytes, sizeof(float), MPI_INFO_NULL, MPI_COMM_WORLD);
-			window_b = MPI::Win::Create(accImg->imageB, size_in_bytes, sizeof(float), MPI_INFO_NULL, MPI_COMM_WORLD);
+			window_r = MPI::Win::Create(accImg->imageR,   size_in_bytes, sizeof(float), MPI_INFO_NULL, MPI_COMM_WORLD);
+			window_g = MPI::Win::Create(accImg->imageG,   size_in_bytes, sizeof(float), MPI_INFO_NULL, MPI_COMM_WORLD);
+			window_b = MPI::Win::Create(accImg->imageB,   size_in_bytes, sizeof(float), MPI_INFO_NULL, MPI_COMM_WORLD);
+			window_h = MPI::Win::Create(accImg->imageHit, size_in_bytes, sizeof(int)  , MPI_INFO_NULL, MPI_COMM_WORLD);
 
 			// Perform transfer
 			window_r.Fence(0);
 			window_g.Fence(0);
 			window_b.Fence(0);
+			window_h.Fence(0);
 			window_r.Accumulate(
 					img->imageR,
 					img->getWidth()*img->getHeight(),
@@ -113,10 +116,24 @@ void Renderer::performRender(long long int photons, int argc_mpi, char* argv_mpi
 					MPI_FLOAT,
 					MPI_SUM
 			);
+			window_h.Accumulate(
+					img->imageHit,
+					img->getWidth()*img->getHeight(),
+					MPI_INT,
+					0,
+					0,
+					img->getWidth()*img->getHeight(),
+					MPI_INT,
+					MPI_SUM
+			);
 			window_r.Fence(0);
 			window_g.Fence(0);
 			window_b.Fence(0);
+			window_h.Fence(0);
 			window_r.Free();
+			window_g.Free();
+			window_b.Free();
+			window_h.Free();
 		#endif /* MPI */
 		// Output the image
 		if(rank==0) {
