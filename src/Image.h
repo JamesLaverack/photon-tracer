@@ -25,6 +25,7 @@ public:
 	float *imageR;
 	float *imageG;
 	float *imageB;
+	int   *imageHit;
 	int index(int x, int y);
 	void verify();
 	void saveToPPMFile(char* filename);
