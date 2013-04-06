@@ -34,8 +34,9 @@ private:
 	float focalLength;
 	float apatureSize;
 	Vector3D* focalPoint;
+	float modifier;
 public:
-	CameraMaterial(int width, int height);
+	CameraMaterial(int width, int height, float modifier);
 	virtual ~CameraMaterial();
 	Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength);
 	Image* getImage();

@@ -43,10 +43,17 @@ bool NormalRandomGenerator::isInRange(float value) {
  * and max and don't set a stupid mean or this will be slow.
  */
 float NormalRandomGenerator::getRandom(float mean, float sd) {
-	float result = getUncappedRandom(mean, sd);
-	// Clamp into range
-	if(value < minValue) return minValue;
-	if(value > maxValue) return maxValue;
+	float result;
+	const float pi = 3.141;
+	do{
+		result = getUncappedRandom(mean, sd);
+		while(result > pi){
+			result -= pi;
+		}
+		while(result < -pi){
+			result += pi;
+		}
+	}while(!isInRange(result));
 	return result;
 }
 

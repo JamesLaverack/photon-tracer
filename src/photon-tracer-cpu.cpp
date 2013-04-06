@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
 	const long long int million = 1000000;
 	long long int num_photons = 50*million;
 	bool time_run = false;
+	float modifier = 0.005f;
 	timeval tic, toc;
 
 	// Parse inputs
@@ -47,6 +48,15 @@ int main(int argc, char* argv[]) {
 				return(1);
 			} else {
 				num_photons = atoi(argv[i])*million;
+			}
+		} else if (!strcmp(arg, "--camera-mod")) {
+			// Set the camera modifier
+			i++;
+			if(i==argc) {
+				printf("Not enough arguments to --camera-mod.\n");
+				return(1);
+			} else {
+				modifier = atof(argv[i]);
 			}
 		} else if (!strcmp(arg, "--time")){
 			// Do we time the run?
@@ -66,6 +76,8 @@ int main(int argc, char* argv[]) {
 	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 1000.0f);
 	photonCPU::ColourMaterial* green = new photonCPU::ColourMaterial(495.0f, 570.0f);
 	photonCPU::ColourMaterial* red = new photonCPU::ColourMaterial(630.0f, 740.0f);
+	red->std = 6;
+	photonCPU::ColourMaterial* blue = new photonCPU::ColourMaterial(450.0f, 475.0f);
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
 	photonCPU::RadiusMaskMaterial* mask = new photonCPU::RadiusMaskMaterial();
@@ -88,8 +100,8 @@ int main(int argc, char* argv[]) {
 	sphere2->radius = R;
 
 	// Balls
-	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(trans_in);
-	spherer->setPosition(25, -40, 60);
+	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(red);
+	spherer->setPosition(25, -40, 120);
 	spherer->radius = 10;
 
 	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(mirror);
@@ -108,17 +120,17 @@ int main(int argc, char* argv[]) {
 
 	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(white);
 	back->setNormal(0, 0, -1);
-	back->setPosition(0, 0, 100);
+	back->setPosition(0, 0, 120);
 
 	photonCPU::PlaneObject* front = new photonCPU::PlaneObject(mask);
 	front->setNormal(0, 0, 1);
 	front->setPosition(0, 0, 0);
 
-	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(red);
+	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(green);
 	right->setNormal(-1, 0, 0);
 	right->setPosition(50, 0, 0);
 
-	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(green);
+	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(blue);
 	left->setNormal(1, 0, 0);
 	left->setPosition(-50, 0, 0);
 
@@ -154,7 +166,7 @@ int main(int argc, char* argv[]) {
 	s->addObject(sphereg);
 
 	// Create our renderer
-	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000);
+	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000, modifier);
 
 	// Perform the render iself, and do some timing
 	gettimeofday(&tic, NULL);

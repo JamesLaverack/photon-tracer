@@ -9,7 +9,7 @@
 
 namespace photonCPU {
 
-CameraMaterial::CameraMaterial(int width, int height) {
+CameraMaterial::CameraMaterial(int width, int height, float modifier) {
 
 	imageWidth = width;
 	imageHeight = height;
@@ -22,6 +22,7 @@ CameraMaterial::CameraMaterial(int width, int height) {
 	focalLength = 5;
 	apatureSize = 3.141/16;
 	fileid = 0;
+	this->modifier = modifier;
 	img = new photonCPU::Image(width, height);
 	printf("DEBUG vdiff %d, udiff %d\n", vdiff, udiff);
 	printf("DEBUG imageWidth %d, imageHeight %d\n", imageWidth, imageHeight);
@@ -70,7 +71,7 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 
 			//printset = false;
 			//printf("wavelength %f to colour set %f, %f, %f\n", wavelength, r, g, b);
-			float modifier = 0.005;
+			//float modifier = 0.0005;
 			img->imageR[img->index(tu, tv)] += r*modifier;
 			img->imageG[img->index(tu, tv)] += g*modifier;
 			img->imageB[img->index(tu, tv)] += b*modifier;
