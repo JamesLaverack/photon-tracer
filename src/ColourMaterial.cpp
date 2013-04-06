@@ -13,6 +13,7 @@ ColourMaterial::ColourMaterial(float pColourWavelengthMin, float pColourWaveleng
 	mColourWavelengthMax = pColourWavelengthMax;
 	mColourWavelengthMin = pColourWavelengthMin;
 	mRand = new photonCPU::NormalRandomGenerator();
+	this->std = 6;
 }
 
 ColourMaterial::~ColourMaterial() {
@@ -30,7 +31,6 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	if(wavelength>mColourWavelengthMax) return 0;
 	if(wavelength<mColourWavelengthMin) return 0;
 
-	float std = 2;
 	// Create new ray
 	Ray* r = new Ray();
 	r->setPosition(hitLocation);

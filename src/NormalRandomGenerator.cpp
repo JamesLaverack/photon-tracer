@@ -44,8 +44,15 @@ bool NormalRandomGenerator::isInRange(float value) {
  */
 float NormalRandomGenerator::getRandom(float mean, float sd) {
 	float result;
+	const float pi = 3.141;
 	do{
 		result = getUncappedRandom(mean, sd);
+		while(result > pi){
+			result -= pi;
+		}
+		while(result < -pi){
+			result += pi;
+		}
 	}while(!isInRange(result));
 	return result;
 }
