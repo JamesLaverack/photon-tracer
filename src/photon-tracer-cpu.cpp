@@ -1,5 +1,4 @@
-//============================================================================
-// Name        : photon-tracer-cpu.cpp
+//go        : photon-tracer-cpu.cpp
 // Author      : James Laverack
 // Version     :
 // Copyright   : MIT
@@ -81,6 +80,8 @@ int main(int argc, char* argv[]) {
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
 	photonCPU::RadiusMaskMaterial* mask = new photonCPU::RadiusMaskMaterial();
+	photonCPU::RadiusMaskMaterial* mask_apature = new photonCPU::RadiusMaskMaterial();
+	mask_apature->radius = 1;
 
 	float R = 50;
 	float d = 20;
@@ -126,6 +127,10 @@ int main(int argc, char* argv[]) {
 	front->setNormal(0, 0, 1);
 	front->setPosition(0, 0, 0);
 
+	photonCPU::PlaneObject* apature = new photonCPU::PlaneObject(mask_apature);
+	apature->setNormal(0, 0, 1);
+	apature->setPosition(0, 0, -38);
+
 	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(green);
 	right->setNormal(-1, 0, 0);
 	right->setPosition(50, 0, 0);
@@ -159,7 +164,8 @@ int main(int argc, char* argv[]) {
 	s->addObject(left);
 	s->addObject(back);
 
-	s->addObject(front);
+       	s->addObject(front);
+       	s->addObject(apature);
 	s->addObject(sphere);
 	s->addObject(sphere2);
 	s->addObject(spherer);
@@ -190,12 +196,14 @@ int main(int argc, char* argv[]) {
 	delete floor;
 	delete back;
 	delete front;
+	delete apature;
 	delete right;
 	delete left;
 	delete top;
 
 	// Delete materials
 	delete mask;
+	delete mask_apature;
 	delete mirror;
 	delete matt;
 	delete green;
