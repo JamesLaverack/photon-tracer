@@ -39,8 +39,9 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	//// float m = i.dotProduct(normal)*2;
 	//// Vector3D reflection = ((*normal)*m)-i;
 	//Vector3D adjusted_angle = (*angle)*-1;
-	float reflect_angle = std::acos(angle->dotProduct(normal));
-	reflect_angle = reflect_angle - 3.141/2; // DEBUG CODE ONLY
+	Vector3D reverse_normal = (*normal)*-1;
+	float reflect_angle = std::acos(angle->dotProduct(&reverse_normal));
+	//	reflect_angle = reflect_angle - 3.141/2; // DEBUG CODE ONLY
 	//printf("Reflection angle %f\n", reflect_angle);
 	//reflect_angle = -reflect_angle;
 	// project our incident ray onto the plane defined by
