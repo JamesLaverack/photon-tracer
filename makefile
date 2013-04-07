@@ -54,7 +54,12 @@ submit:
 clean:
 	$(RM) -r $(OBJDIR)
 
-distclean: clean
+imgclean:
+	$(RM) -f photon-tracer.e*
+	$(RM) output/*
+	$(RM) photons-*.ppm
+
+distclean: clean imgclean
 	$(RM) -r $(BINDIR)
 
 buildrepo:
