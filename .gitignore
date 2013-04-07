@@ -11,3 +11,5 @@ photon-tracer.e*
 # Image files
 *.ppm
 *.png
+# emacs backup files
+*~
