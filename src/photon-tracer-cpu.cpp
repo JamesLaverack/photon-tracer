@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 1000.0f);
 	photonCPU::ColourMaterial* green = new photonCPU::ColourMaterial(495.0f, 570.0f);
 	photonCPU::ColourMaterial* red = new photonCPU::ColourMaterial(630.0f, 740.0f);
-	red->std = 2;
+	red->std = 6;
 	photonCPU::ColourMaterial* blue = new photonCPU::ColourMaterial(450.0f, 475.0f);
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
