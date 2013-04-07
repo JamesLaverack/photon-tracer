@@ -100,6 +100,17 @@ void Image::saveToPPMFile(char* filename) {
     sprintf(sbuffer, "photons-%d.ppm", fileid);
     fileid++;
     */
+    	// Find highest value
+	float biggest = 0;
+	for(int i=0;i<width*height;i++) {
+	        biggest += imageR[i];
+		biggest += imageG[i];
+		biggest += imageB[i];
+	}
+	printf("SUM colour value is %f\n", biggest);
+	biggest = biggest/(width*height*3);
+	printf("Avg colour value is %f\n", biggest);
+	// BUild file
 	f = fopen(filename, "w");
 	int maxVal = 65535;
 	fprintf(f, "P3\n");
@@ -110,9 +121,9 @@ void Image::saveToPPMFile(char* filename) {
 		for(int j=0;j<height;j++){
 			fprintf(f,
 					" %d %d %d \n",
-					toColourInt(imageR[index(j, i)], maxVal),
-					toColourInt(imageG[index(j, i)], maxVal),
-					toColourInt(imageB[index(j, i)], maxVal)
+					toColourInt(imageR[index(j, i)]/biggest, maxVal),
+					toColourInt(imageG[index(j, i)]/biggest, maxVal),
+					toColourInt(imageB[index(j, i)]/biggest, maxVal)
 			       );
 		}
 	}
