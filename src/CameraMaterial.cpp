@@ -72,10 +72,9 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 			//printset = false;
 			//printf("wavelength %f to colour set %f, %f, %f\n", wavelength, r, g, b);
 			//float modifier = 0.0005;
-			img->imageR[img->index(tu, tv)] += r;
-			img->imageG[img->index(tu, tv)] += g;
-			img->imageB[img->index(tu, tv)] += b;
-			img->imageHit[img->index(tu, tv)] += 1;
+			img->imageR[img->index(tu, tv)] += r*modifier;
+			img->imageG[img->index(tu, tv)] += g*modifier;
+			img->imageB[img->index(tu, tv)] += b*modifier;
 			// Ray is finished
 			return 0;
 		}

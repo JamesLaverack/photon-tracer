@@ -13,7 +13,6 @@ Image::Image(int width, int height) {
 	imageR = (float*) malloc(height*width*sizeof(float));
 	imageG = (float*) malloc(height*width*sizeof(float));
 	imageB = (float*) malloc(height*width*sizeof(float));
-	imageHit = (int*) malloc(height*width*sizeof(int));
 	this->width = width;
 	this->height = height;
 	initImage();
@@ -25,13 +24,11 @@ Image::Image(Image* imageIn) {
 	imageR = (float*) malloc(height*width*sizeof(float));
 	imageG = (float*) malloc(height*width*sizeof(float));
 	imageB = (float*) malloc(height*width*sizeof(float));
-	imageHit = (int*) malloc(height*width*sizeof(int));
 	for(int i=0;i<width;i++ ) {
 			for(int j=0;j<height;j++ ) {
-				imageR[index(i, j)]   = imageIn->imageR[imageIn->index(i, j)];
-				imageG[index(i, j)]   = imageIn->imageG[imageIn->index(i, j)];
-				imageB[index(i, j)]   = imageIn->imageB[imageIn->index(i, j)];
-				imageHit[index(i, j)] = imageIn->imageHit[imageIn->index(i, j)];
+				imageR[index(i, j)] = imageIn->imageR[imageIn->index(i, j)];
+				imageG[index(i, j)] = imageIn->imageG[imageIn->index(i, j)];
+				imageB[index(i, j)] = imageIn->imageB[imageIn->index(i, j)];
 			}
 		}
 }
@@ -40,7 +37,6 @@ Image::~Image() {
 	free(imageR);
 	free(imageG);
 	free(imageB);
-	free(imageHit);
 }
 
 void Image::initImage() {
@@ -49,7 +45,6 @@ void Image::initImage() {
 			imageR[index(i, j)] = 0.0f;
 			imageG[index(i, j)] = 0.0f;
 			imageB[index(i, j)] = 0.0f;
-			imageHit[index(i, j)] = 0;
 		}
 	}
 }
@@ -113,16 +108,12 @@ void Image::saveToPPMFile(char* filename) {
 	fprintf(f, "\n");
 	for(int i=width-1;i>=0;i--){
 		for(int j=0;j<height;j++){
-		  if(imageHit[index(j, i)] == 0){
-		    fprintf(f, " 0 0 0 \n");
-		  } else {
 			fprintf(f,
 					" %d %d %d \n",
-	           			toColourInt(imageR[index(j, i)]/imageHit[index(j, i)], maxVal),
-				        toColourInt(imageG[index(j, i)]/imageHit[index(j, i)], maxVal),
-          				toColourInt(imageB[index(j, i)]/imageHit[index(j, i)], maxVal)
+					toColourInt(imageR[index(j, i)], maxVal),
+					toColourInt(imageG[index(j, i)], maxVal),
+					toColourInt(imageB[index(j, i)], maxVal)
 			       );
-		  }
 		}
 	}
 	fclose(f);
