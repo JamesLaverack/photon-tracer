@@ -57,7 +57,7 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	//v_vec.print();
 	v_vec.normaliseSelf();
 	//printf("u\n");
-
+	reflect_angle = -reflect_angle;
 	// get theta, which is the angle between our bounce and the normal in the u direction.
 	// Also get phi, the angle between our bounce and the normal in the v direction.
 	float theta = mRand->getRandom(reflect_angle, std);
