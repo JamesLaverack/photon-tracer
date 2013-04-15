@@ -34,6 +34,15 @@ CameraMaterial::~CameraMaterial() {
 	delete converter;
 }
 
+#ifdef PHOTON_OPTIX
+optix::Material CameraMaterial::getOptiXMaterial(optix::Context context) {
+	optix::Program chp = context->createProgramFromPTXFile( "ptx/CameraMaterial.ptx", "closest_hit" );
+	optix::Material mat = context->createMaterial();
+	mat->setClosestHitProgram(0, chp);
+	return mat;
+}
+#endif
+
 Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	// We don't use the 3rd texture cordinate
 	(void)w;

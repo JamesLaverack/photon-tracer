@@ -9,6 +9,9 @@
 #define ABSTRACTLIGHT_H_
 
 #include "Ray.h"
+#ifdef PHOTON_OPTIX
+        #include <optixu/optixpp_namespace.h>
+#endif
 
 namespace photonCPU {
 
@@ -17,6 +20,9 @@ public:
 	AbstractLight();
 	virtual ~AbstractLight();
 	virtual photonCPU::Ray* getRandomRayFromLight() = 0;
+	#ifdef PHOTON_OPTIX
+		virtual optix::Program getOptiXLight(optix::Context context) = 0;
+	#endif
 };
 
 } /* namespace photonCPU */

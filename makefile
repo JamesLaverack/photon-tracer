@@ -18,11 +18,11 @@ OBJS    := $(patsubst %.$(SRCEXT),$(OBJDIR)/%.o,$(SRCS))
 DEBUG       = -g
 PERFORMANCE = -O3
 WARNINGS    = -Wall -W -Wextra
-INCLUDES    = -I./inc
+INCLUDES    = -I./inc -I/opt/NVIDIA-OptiX-SDK-2.5.1-linux64/include -I/usr/local/cuda/include/
 MPIFLAGS    =
 CXX         = g++
 CXXFLAGS    = -fmessage-length=0 -c $(DEBUG) $(INCLUDES) $(PERFORMANCE) $(WARNINGS) $(MPIFLAGS)
-LDFLAGS     =
+LDFLAGS     = -L/opt/NVIDIA-OptiX-SDK-2.5.1-linux64/lib64 -L/usr/local/cuda/lib64 -lcuda -loptix -lcudart
 
 .PHONY: all clean distclean
 
@@ -30,10 +30,16 @@ all: $(BINDIR)/$(APP) clean
 
 mpi: mpi-set-cxx all
 
+optix: optix-set-cxx all
+
 mpi-set-cxx:
 	$(eval CXX = mpicxx)
 	$(eval MPIFLAGS = -D PHOTON_MPI)
 	@echo "Set to MPI"
+	
+optix-set-cxx:
+	$(eval CXXFLAGS = $(CXXFLAGS) -D PHOTON_OPTIX)
+	@echo "Set to Optix"
 
 $(BINDIR)/$(APP): buildrepo $(OBJS)
 	@mkdir -p `dirname $@`

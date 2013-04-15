@@ -23,6 +23,15 @@ float randFloat() {
 	return f;
 }
 
+#ifdef PHOTON_OPTIX
+optix::Material PerfectMirrorMaterial::getOptiXMaterial(optix::Context context) {
+		optix::Program chp = context->createProgramFromPTXFile( "ptx/PerfectMirrorMaterial.ptx", "closest_hit" );
+	optix::Material mat = context->createMaterial();
+	mat->setClosestHitProgram(0, chp);
+	return mat;
+}
+#endif
+
 Ray* PerfectMirrorMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	// We don't care where we hit this material in terms of textures
 	(void)u;

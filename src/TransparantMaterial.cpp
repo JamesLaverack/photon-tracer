@@ -31,6 +31,16 @@ Vector3D refract(Vector3D* angle, Vector3D* normal, Vector3D* axis, float index)
 	return r;
 }
 */
+
+#ifdef PHOTON_OPTIX
+optix::Material TransparantMaterial::getOptiXMaterial(optix::Context context) {
+	optix::Program chp = context->createProgramFromPTXFile( "ptx/TransparantMaterial.ptx", "closest_hit" );
+	optix::Material mat = context->createMaterial();
+	mat->setClosestHitProgram(0, chp);
+	return mat;
+}
+#endif
+
 Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	(void)perspective_normal;
 	(void)u;

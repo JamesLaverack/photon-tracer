@@ -17,8 +17,7 @@
 #include "PlaneObject.h"
 #include "SphereObject.h"
 #include "PerfectMirrorMaterial.h"
-#include "PerfectMattMaterial.h"
-#include "Renderer.h"
+#include "OptiXRenderer.h"
 #include "PointLight.h"
 #include "AbstractMaterial.h"
 #include "ColourMaterial.h"
@@ -71,7 +70,6 @@ int main(int argc, char* argv[]) {
 	printf("D.A.N.C.E.\n");
 
 	photonCPU::AbstractMaterial* mirror = new photonCPU::PerfectMirrorMaterial();
-	photonCPU::PerfectMattMaterial* matt = new photonCPU::PerfectMattMaterial();
 	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 1000.0f);
 	photonCPU::ColourMaterial* green = new photonCPU::ColourMaterial(495.0f, 570.0f);
 	photonCPU::ColourMaterial* red = new photonCPU::ColourMaterial(630.0f, 740.0f);
@@ -172,11 +170,11 @@ int main(int argc, char* argv[]) {
 	s->addObject(sphereg);
 
 	// Create our renderer
-	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000, modifier);
+	photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s, 1000, 1000, modifier);
 
 	// Perform the render iself, and do some timing
 	gettimeofday(&tic, NULL);
-	render->performRender(num_photons, argc, argv);
+	render->performRender(num_photons, argc, argv, 1000, 1000);
 	gettimeofday(&toc, NULL);
 
 	// Report how fast we were, perhaps
@@ -205,7 +203,6 @@ int main(int argc, char* argv[]) {
 	delete mask;
 	delete mask_apature;
 	delete mirror;
-	delete matt;
 	delete green;
 	delete white;
 	delete red;

@@ -20,4 +20,10 @@ AbstractMaterial* RenderObject::getMaterial() {
 	return mMaterial;
 }
 
+#ifdef PHOTON_OPTIX
+optix::Material RenderObject::getOptiXMaterial(optix::Context context) {
+	return mMaterial->getOptiXMaterial(context);
+}
+#endif
+
 } /* namespace photonCPU */

@@ -28,6 +28,9 @@ public:
 	virtual Vector3D getIntersectionPoint(photonCPU::Ray* r);
 	virtual void getTextureCordsAtPoint(photonCPU::Vector3D* point, float* u, float* v, float* w);
 	virtual Ray* transmitRay(Ray* r);
+	#ifdef PHOTON_OPTIX
+	    virtual optix::Geometry getOptiXGeometry(optix::Context context);
+	#endif
 };
 
 }

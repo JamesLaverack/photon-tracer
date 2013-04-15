@@ -49,7 +49,11 @@ Ray* PointLight::getRandomRayFromLight() {
 	return r;
 }
 
-
+#ifdef PHOTON_OPTIX
+optix::Program PointLight::getOptiXLight(optix::Context context) {
+	return context->createProgramFromPTXFile( "ptx/PointLight.ptx", "light" );
+}
+#endif
 
 float PointLight::randFloat() {
 	float f = (float)(rand()/((float)RAND_MAX));
