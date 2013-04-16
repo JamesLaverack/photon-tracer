@@ -2,8 +2,11 @@ APP      = photon-tracer-cpu
 
 SRCEXT   = cpp
 SRCDIR   = src
+CUDIR	 = src/cu
+CUEXT    = cu
 OBJDIR   = obj
 BINDIR   = bin
+PTXDIR   = bin/ptx
 IMGDIR   = img
 OUTDIR   = output
 
@@ -15,6 +18,11 @@ SRCS    := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
 SRCDIRS := $(shell find . -name '*.$(SRCEXT)' -exec dirname {} \; | uniq)
 OBJS    := $(patsubst %.$(SRCEXT),$(OBJDIR)/%.o,$(SRCS))
 
+CUS    := $(shell find $(CUDIR) -name '*.$(CUEXT)')
+CUDIRS := $(shell find . -name '*.$(CUEXT)' -exec dirname {} \; | uniq)
+PTXS   := $(CUS:$(CUDIR)%=$(PTXDIR)%)
+PTXS   := $(PTXS:.cu=.ptx)
+
 DEBUG       = -g
 PERFORMANCE = -O3
 WARNINGS    = -Wall -W -Wextra
@@ -23,6 +31,8 @@ MPIFLAGS    =
 CXX         = g++
 CXXFLAGS    = -fmessage-length=0 -c $(DEBUG) $(INCLUDES) $(PERFORMANCE) $(WARNINGS) $(MPIFLAGS)
 LDFLAGS     = -L/opt/NVIDIA-OptiX-SDK-2.5.1-linux64/lib64 -L/usr/local/cuda/lib64 -lcuda -loptix -lcudart
+NVCC        = nvcc
+NVCCFLAGS   = $(INCLUDES)
 
 .PHONY: all clean distclean
 
@@ -30,13 +40,15 @@ all: $(BINDIR)/$(APP) clean
 
 mpi: mpi-set-cxx all
 
-optix: optix-set-cxx all
+optix: optix-set-cxx all $(PTXS)
 
 mpi-set-cxx:
 	$(eval CXX = mpicxx)
 	$(eval MPIFLAGS = -D PHOTON_MPI)
 	@echo "Set to MPI"
-	
+
+ptx: buildrepo $(PTXS)
+
 optix-set-cxx:
 	$(eval CXXFLAGS = $(CXXFLAGS) -D PHOTON_OPTIX)
 	@echo "Set to Optix"
@@ -51,6 +63,10 @@ $(OBJDIR)/%.o: %.$(SRCEXT)
 	@$(call make-depend,$<,$@,$(subst .o,.d,$@))
 	@echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) $< -o $@
+
+$(PTXDIR)/%.ptx: $(CUDIR)/%.$(CUEXT)
+	@echo "Compiling $< to PTX..."
+	$(NVCC) $(NVCCFLAGS) -ptx $< -o $@
 
 submit:
 	@$(RM) $(OUTDIR)/*
@@ -72,6 +88,7 @@ buildrepo:
 	@$(call make-repo)
 	@mkdir -p $(IMGDIR)
 	@mkdir -p $(OUTDIR) 
+	@mkdir -p $(PTXDIR)
 
 define make-repo
    for dir in $(SRCDIRS); \
