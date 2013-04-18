@@ -23,6 +23,7 @@ optix::Material RadiusMaskMaterial::getOptiXMaterial(optix::Context context) {
 	optix::Program chp = context->createProgramFromPTXFile( "ptx/RadiusMaskMaterial.ptx", "closest_hit" );
 	optix::Material mat = context->createMaterial();
 	mat->setClosestHitProgram(0, chp);
+	mat["radius"]->setFloat(radius);
 	return mat;
 }
 #endif

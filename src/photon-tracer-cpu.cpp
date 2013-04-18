@@ -69,7 +69,6 @@ int main(int argc, char* argv[]) {
 	// Begin setup
 	printf("D.A.N.C.E.\n");
 
-	photonCPU::AbstractMaterial* mirror = new photonCPU::PerfectMirrorMaterial();
 	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 1000.0f);
 	photonCPU::ColourMaterial* green = new photonCPU::ColourMaterial(495.0f, 570.0f);
 	photonCPU::ColourMaterial* red = new photonCPU::ColourMaterial(630.0f, 740.0f);
@@ -102,10 +101,6 @@ int main(int argc, char* argv[]) {
 	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(red);
 	spherer->setPosition(25, -40, 120);
 	spherer->radius = 10;
-
-	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(mirror);
-	sphereg->setPosition(-25, -40, 60);
-	sphereg->radius = 10;
 
 	// YOLO walls
 
@@ -152,22 +147,17 @@ int main(int argc, char* argv[]) {
 		//s->addLight(lighting_rig[i]);
 	}
 
-
-
 	s->addLight(light);
-
 	s->addObject(floor);
 	s->addObject(top);
 	s->addObject(right);
 	s->addObject(left);
 	s->addObject(back);
-
-       	s->addObject(front);
-       	s->addObject(apature);
-	s->addObject(sphere);
-	s->addObject(sphere2);
+	//s->addObject(front);
+	//s->addObject(apature);
+	//s->addObject(sphere);
+	//s->addObject(sphere2);
 	s->addObject(spherer);
-	s->addObject(sphereg);
 
 	// Create our renderer
 	photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s, 1000, 1000, modifier);
@@ -190,7 +180,6 @@ int main(int argc, char* argv[]) {
 	delete sphere;
 	delete sphere2;
 	delete spherer;
-	delete sphereg;
 	delete floor;
 	delete back;
 	delete front;
@@ -202,7 +191,6 @@ int main(int argc, char* argv[]) {
 	// Delete materials
 	delete mask;
 	delete mask_apature;
-	delete mirror;
 	delete green;
 	delete white;
 	delete red;

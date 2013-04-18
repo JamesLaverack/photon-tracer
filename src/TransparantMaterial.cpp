@@ -34,8 +34,11 @@ Vector3D refract(Vector3D* angle, Vector3D* normal, Vector3D* axis, float index)
 
 #ifdef PHOTON_OPTIX
 optix::Material TransparantMaterial::getOptiXMaterial(optix::Context context) {
-	optix::Program chp = context->createProgramFromPTXFile( "ptx/TransparantMaterial.ptx", "closest_hit" );
+	optix::Program chp = context->createProgramFromPTXFile( "ptx/TransparentMaterial.ptx", "closest_hit" );
 	optix::Material mat = context->createMaterial();
+	mat["index_of_refraction"]->setFloat(index_of_refraction);
+	mat["hack_lens_depth"]->setFloat(20);
+	mat["hack_lens_radius"]->setFloat(40);
 	mat->setClosestHitProgram(0, chp);
 	return mat;
 }

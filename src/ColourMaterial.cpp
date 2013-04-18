@@ -27,6 +27,7 @@ optix::Material ColourMaterial::getOptiXMaterial(optix::Context context) {
 	mat->setClosestHitProgram(0, chp);
 	mat["max_wavelength"]->setFloat(mColourWavelengthMax);
 	mat["min_wavelength"]->setFloat(mColourWavelengthMin);
+	mat["standard_deviation"]->setFloat(std);
 	return mat;
 }
 #endif

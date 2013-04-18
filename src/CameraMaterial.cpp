@@ -39,6 +39,9 @@ optix::Material CameraMaterial::getOptiXMaterial(optix::Context context) {
 	optix::Program chp = context->createProgramFromPTXFile( "ptx/CameraMaterial.ptx", "closest_hit" );
 	optix::Material mat = context->createMaterial();
 	mat->setClosestHitProgram(0, chp);
+	mat["camera_size"]->setFloat(actualWidth, actualHeight);
+	mat["image_size"]->setInt(imageWidth, imageHeight);
+	printf("A HURF DURF\n");
 	return mat;
 }
 #endif

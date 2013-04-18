@@ -79,11 +79,23 @@ Vector3D PlaneObject::getIntersectionPoint(photonCPU::Ray* r) {
 
 #ifdef PHOTON_OPTIX
 optix::Geometry PlaneObject::getOptiXGeometry(optix::Context context) {
-	optix::Geometry sphere = context->createGeometry();
-	sphere->setPrimitiveCount( 1u );
-	sphere->setBoundingBoxProgram( context->createProgramFromPTXFile("ptx/Plane.ptx", "bounds" ) );
-	sphere->setIntersectionProgram( context->createProgramFromPTXFile("ptx/Plane.ptx", "intersect" ) );
-	return sphere;
+	optix::Geometry parallelogram = context->createGeometry();
+	parallelogram->setPrimitiveCount( 1u );
+	parallelogram->setBoundingBoxProgram( context->createProgramFromPTXFile("ptx/PlaneObject.ptx", "bounds" ) );
+	parallelogram->setIntersectionProgram( context->createProgramFromPTXFile("ptx/PlaneObject.ptx", "intersect" ) );
+	parallelogram["plane"]->setFloat(    normal->x,       normal->y,       normal->z, normal->dotProduct(position));
+	// Move the anchor point
+	Vector3D anchor = *position;
+	anchor = anchor + (*up)*(-height/2);
+	anchor = anchor + (*right)*(-width/2);
+	parallelogram["anchor"]->setFloat( anchor.x,     anchor.y,     anchor.z );
+	Vector3D v1 = *up*width;
+	Vector3D v2 = *right*height;
+	v1 = v1 * (1/(v1.dotProduct(&v1)));
+	v2 = v2 * (1/(v2.dotProduct(&v2)));
+	parallelogram["v1"]->setFloat(v1.x, v1.y, v1.z );
+	parallelogram["v2"]->setFloat(v2.x, v2.y, v2.z );
+	return parallelogram;
 }
 #endif
 

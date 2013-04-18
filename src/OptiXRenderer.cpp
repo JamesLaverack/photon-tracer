@@ -26,6 +26,7 @@ OptiXRenderer::~OptiXRenderer() {
 void OptiXRenderer::convertToOptiXScene(optix::Context context, int width, int height) {
 	// Setup lighting
 	// TODO For now, we assume just one light
+	context->setEntryPointCount( 1 );
 	context->setRayGenerationProgram( 0, mScene->mLights[0]->getOptiXLight(context) );
 
 	// Exception program
@@ -78,14 +79,21 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
     // Create OptiX context
 	optix::Context context = optix::Context::create();
 	context->setRayTypeCount( 1 );
-	context->setEntryPointCount( 1 );
+	
+	// Debug, this will make everything SLOOOOOW
+	context->setPrintEnabled(true);
+	
+	// Set some scene-wide variables
+	context["photon_ray_type"]->setUint( 0u );
+	context["scene_bounce_limit"]->setUint( 2u );
+	context["scene_epsilon"]->setFloat( 1.e-4f );
 
 	// Convert our existing scene into an OptiX one
 	convertToOptiXScene(context, width, height);
 
 	// Create Image buffer
-	optix::Buffer buffer = context->createBuffer( RT_BUFFER_OUTPUT, RT_FORMAT_FLOAT, width, height );
-	mCameraMatOptiX["output_buffer_r"]->set(buffer);
+	optix::Buffer buffer = context->createBuffer( RT_BUFFER_OUTPUT, RT_FORMAT_FLOAT4, width, height );
+	context["output_buffer"]->set(buffer);
 
 	buffer = context->createBuffer( RT_BUFFER_OUTPUT, RT_FORMAT_FLOAT, width, height );
 	mCameraMatOptiX["output_buffer_g"]->set(buffer);
@@ -117,7 +125,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context->compile();
 
 	// Render
-    context->launch( 0, width, height );
+    context->launch( 0, photons );
 	// Pointers
 	Image* accImg;
 	Image* img = mCameraMat->getImage();
@@ -187,19 +195,67 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		// Construct buffer
 		// TODO fix this memory leak we create right here by loosing the referance to the existing buffers
 		// TODO do something nicer than this horrible pointer munge
-		//accImg->imageR = (float*) (mCameraMatOptiX["output_buffer_r"]->getBuffer()->get());
+		optix::float4* img = (optix::float4*) (context["output_buffer"]->getBuffer()->map());
 		//accImg->imageG = (float*) (mCameraMatOptiX["output_buffer_g"]->getBuffer()->get());
 		//accImg->imageB = (float*) (mCameraMatOptiX["output_buffer_b"]->getBuffer()->get());
 		// Output
-		accImg->saveToPPMFile(sbuffer);
+		saveToPPMFile(sbuffer, img, width, height);
 		delete accImg;
 		printf("Image outputed!\n");
 	}
 
 	#ifdef PHOTON_MPI
-	// Teardown MPI
-        MPI::Finalize();	
+		// Teardown MPI
+		MPI::Finalize();	
 	#endif /* MPI */
+}
+
+int OptiXRenderer::index(int x, int y, int width) {
+	int wat =  (x + width*y);
+	return wat;
+}
+
+int OptiXRenderer::toColourInt(float f, int maxVal) {
+	if (f>1) return maxVal;
+	return int(f*maxVal);
+}
+
+void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int width, int height) {
+	FILE* f;
+	/*
+	char sbuffer[100];
+	sprintf(sbuffer, "photons-%d.ppm", fileid);
+	fileid++;
+	*/
+	// Find highest value
+	float biggest = 0;
+	for(int i=0;i<width*height;i++) {
+		biggest += image[i].x;
+		biggest += image[i].y;
+		biggest += image[i].z;
+	}
+	printf("SUM colour value is %f\n", biggest);
+	biggest = biggest/(width*height*3);
+	printf("Avg colour value is %f\n", biggest);
+	biggest = 1;
+	// BUild file
+	f = fopen(filename, "w");
+	int maxVal = 65535;
+	fprintf(f, "P3\n");
+	fprintf(f, "%d %d\n", width, height);
+	fprintf(f, "%d\n", maxVal);
+	fprintf(f, "\n");
+	for(int i=width-1;i>=0;i--){
+		for(int j=0;j<height;j++){
+			fprintf(f,
+					" %d %d %d \n",
+					toColourInt(image[index(j, i, width)].x/biggest, maxVal),
+					toColourInt(image[index(j, i, width)].y/biggest, maxVal),
+					toColourInt(image[index(j, i, width)].z/biggest, maxVal)
+			       );
+		}
+	}
+	fclose(f);
 }
 
 void OptiXRenderer::doRenderPass(long long int photons) {

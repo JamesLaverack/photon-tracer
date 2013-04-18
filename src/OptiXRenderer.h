@@ -26,6 +26,9 @@ private:
 	RenderObject* mCameraObject;
 	Scene* mScene;
 	void convertToOptiXScene(optix::Context context, int width, int height);
+	void saveToPPMFile(char* filename, optix::float4* image, int width, int height);
+	int index(int x, int y, int width);
+	int toColourInt(float f, int maxVal);
 public:
 	OptiXRenderer(Scene* pScene, int width, int height, float modifier);
 	virtual ~OptiXRenderer();

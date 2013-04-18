@@ -62,6 +62,7 @@ optix::Geometry SphereObject::getOptiXGeometry(optix::Context context) {
 	sphere->setPrimitiveCount( 1u );
 	sphere->setBoundingBoxProgram( context->createProgramFromPTXFile("ptx/SphereObject.ptx", "bounds" ) );
 	sphere->setIntersectionProgram( context->createProgramFromPTXFile("ptx/SphereObject.ptx", "intersect" ) );
+	sphere["sphere"]->setFloat( position->x, position->y, position->z, radius );
 	return sphere;
 }
 #endif
