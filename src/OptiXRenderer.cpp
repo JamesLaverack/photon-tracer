@@ -81,15 +81,39 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context->setRayTypeCount( 1 );
 	
 	// Debug, this will make everything SLOOOOOW
-	context->setPrintEnabled(true);
+	context->setPrintEnabled(false);
+	
+	// Setup CUrand
+	//CUDA_CALL(cudaMalloc((void **)&devStates, photons * sizeof(curandState)));
+	
+	// CU rand buffer
+// 	optix::Buffer rand_buffer = context->createBuffer( RT_BUFFER_OUTPUT, RT_FORMAT_USER, photons );
+// 	rand_buffer->setElementSize( sizeof(curandState));
+// 	context["curand_states"]->set(rand_buffer);
+	
+	// Calculate number of threads
+	int threads = 500000;
 	
 	// Set some scene-wide variables
 	context["photon_ray_type"]->setUint( 0u );
-	context["scene_bounce_limit"]->setUint( 2u );
+	context["scene_bounce_limit"]->setUint( 10u );
 	context["scene_epsilon"]->setFloat( 1.e-4f );
+	context["iterations"]->setUint(1u);
 
 	// Convert our existing scene into an OptiX one
 	convertToOptiXScene(context, width, height);
+
+	// Some random stuff
+	optix::Buffer random_buffer = context->createBuffer( RT_BUFFER_INPUT_OUTPUT, RT_FORMAT_USER, threads );
+	random_buffer->setElementSize(sizeof(curandState));
+	context["states"]->set(random_buffer);
+	void* states_ptr;
+	random_buffer->getDevicePointer(0, (CUdeviceptr*) &states_ptr);
+
+	// Run curand init
+	CUDAWrapper executer;
+	executer.curand_setup(10, 100, threads, &states_ptr);
+	printf("CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
 
 	// Create Image buffer
 	optix::Buffer buffer = context->createBuffer( RT_BUFFER_OUTPUT, RT_FORMAT_FLOAT4, width, height );
@@ -100,7 +124,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 
 	buffer = context->createBuffer( RT_BUFFER_OUTPUT, RT_FORMAT_FLOAT, width, height );
 	mCameraMatOptiX["output_buffer_b"]->set(buffer);
-	
+
 	// Construct MPI
 	int size, rank = 0;
 	#ifdef PHOTON_MPI
@@ -124,8 +148,23 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context->validate();
 	context->compile();
 
+	printf("Render With:\n");
+	printf("    %d photons.\n", photons);
+	int launches = photons/threads;
+	printf("    %d launches.\n", launches);
+	
 	// Render
-    context->launch( 0, photons );
+	try{
+		for(int i=0;i<launches;i++) {
+			context->launch( 0, threads );
+		}
+	}catch(Exception& e){
+		printf("Launch error!\n");
+		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
+		printf("    OptiX says : %s\n", e.getErrorString().c_str() );
+	}
+	// Error time
+	
 	// Pointers
 	Image* accImg;
 	Image* img = mCameraMat->getImage();
@@ -249,9 +288,9 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 		for(int j=0;j<height;j++){
 			fprintf(f,
 					" %d %d %d \n",
-					toColourInt(image[index(j, i, width)].x/biggest, maxVal),
-					toColourInt(image[index(j, i, width)].y/biggest, maxVal),
-					toColourInt(image[index(j, i, width)].z/biggest, maxVal)
+					toColourInt(image[index(i, j, width)].x/biggest, maxVal),
+					toColourInt(image[index(i, j, width)].y/biggest, maxVal),
+					toColourInt(image[index(i, j, width)].z/biggest, maxVal)
 			       );
 		}
 	}

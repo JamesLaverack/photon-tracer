@@ -1,6 +1,7 @@
 #include <optix_world.h>
 #include <optixu/optixu_math_namespace.h>
 #include <optixu/optixu_matrix_namespace.h>
+#include <curand_kernel.h>
 #include "NormalRandom.h"
 #include "PerRay.h"
 
@@ -42,9 +43,10 @@ RT_PROGRAM void closest_hit() {
 	reflect_angle = -reflect_angle;
 	// get theta, which is the angle between our bounce and the normal in the u direction.
 	// Also get phi, the angle between our bounce and the normal in the v direction.
-	
-	float theta = getNormalRandom(reflect_angle, standard_deviation, prd_photon.seed);
-	float phi   = 0;//getNormalRandom(reflect_angle, standard_deviation, prd_photon.seed);
+
+	float theta = reflect_angle+curand_normal(&prd_photon.rand_state)*standard_deviation;
+	float phi   = 0+curand_normal(&prd_photon.rand_state)*standard_deviation;
+
 	// Construct our bounce vector, this is our actual reflection.
 	float4 bounce = optix::make_float4( geometric_normal.x, geometric_normal.y, geometric_normal.z, 0);
 	// Do some rotation
@@ -61,7 +63,7 @@ RT_PROGRAM void closest_hit() {
 	PerRayData_photon prd_bounce;
 	prd_bounce.importance = 1.f;
 	prd_bounce.depth = prd_photon.depth+1;
-	prd_bounce.seed = prd_photon.seed;
+	prd_bounce.rand_state = prd_photon.rand_state;
 	prd_bounce.wavelength = prd_photon.wavelength;
-	rtTrace(top_object, ray, prd_bounce);
+	rtTrace(top_object, new_ray, prd_bounce);
 }

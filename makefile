@@ -14,9 +14,9 @@ QSUB_QUEUE = veryshort
 QSUB_CC    = qsub
 QSUB_FILE  = qsub_4core
 
-SRCS    := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
-SRCDIRS := $(shell find . -name '*.$(SRCEXT)' -exec dirname {} \; | uniq)
-OBJS    := $(patsubst %.$(SRCEXT),$(OBJDIR)/%.o,$(SRCS))
+SRCS     := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
+SRCDIRS  := $(shell find . -name '*.$(SRCEXT)' -exec dirname {} \; | uniq)
+OBJS     := $(patsubst %.$(SRCEXT),$(OBJDIR)/%.o,$(SRCS))
 
 CUS    := $(shell find $(CUDIR) -name '*.$(CUEXT)')
 CUDIRS := $(shell find . -name '*.$(CUEXT)' -exec dirname {} \; | uniq)
@@ -26,13 +26,13 @@ PTXS   := $(PTXS:.cu=.ptx)
 DEBUG       = -g
 PERFORMANCE = -O3
 WARNINGS    = -Wall -W -Wextra
-INCLUDES    = -I./inc -I/opt/NVIDIA-OptiX-SDK-2.5.1-linux64/include -I/usr/local/cuda/include/
+INCLUDES    = -I./inc -I/usr/local/optix/include -I/usr/local/cuda/include
 MPIFLAGS    =
 CXX         = g++
 CXXFLAGS    = -fmessage-length=0 -c $(DEBUG) $(INCLUDES) $(PERFORMANCE) $(WARNINGS) $(MPIFLAGS)
-LDFLAGS     = -L/opt/NVIDIA-OptiX-SDK-2.5.1-linux64/lib64 -L/usr/local/cuda/lib64 -lcuda -loptix -lcudart
+LDFLAGS     = -L/usr/local/optix/lib64 -L/usr/local/cuda/lib64 -lcuda -loptix -lcudart
 NVCC        = nvcc
-NVCCFLAGS   = $(INCLUDES)
+NVCCFLAGS   = $(INCLUDES) $(LDFLAGS) -arch sm_20
 
 .PHONY: all clean distclean
 
@@ -51,6 +51,7 @@ ptx: buildrepo $(PTXS)
 
 optix-set-cxx:
 	$(eval CXXFLAGS = $(CXXFLAGS) -D PHOTON_OPTIX)
+	$(eval NVCCFLAGS = $(NVCCFLAGS) -D PHOTON_OPTIX)
 	@echo "Set to Optix"
 
 $(BINDIR)/$(APP): buildrepo $(OBJS)
@@ -62,7 +63,10 @@ $(OBJDIR)/%.o: %.$(SRCEXT)
 	@echo "Generating dependencies for $<..."
 	@$(call make-depend,$<,$@,$(subst .o,.d,$@))
 	@echo "Compiling $<..."
-	$(CXX) $(CXXFLAGS) $< -o $@
+	$(if $(findstring Wrapper,$<),   \
+                $(NVCC) $(NVCCFLAGS) -x=cu -c $< -o $@,  \
+                $(CXX)  $(CXXFLAGS) $< -o $@)
+
 
 $(PTXDIR)/%.ptx: $(CUDIR)/%.$(CUEXT)
 	@echo "Compiling $< to PTX..."

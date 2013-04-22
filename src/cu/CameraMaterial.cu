@@ -24,24 +24,84 @@ rtDeclareVariable(float3, texcoord, attribute texcoord, );
 rtBuffer<float4, 2>              output_buffer;
 rtDeclareVariable(float2,  camera_size, , );
 rtDeclareVariable(int2,  image_size, , );
+rtDeclareVariable(int, max_intensity, , );
+rtDeclareVariable(float,  camera_gamma, , );
+
+__device__ int factorAdjust(float Color, float Factor){
+	if(Color == 0.0){
+		return 0;
+	}else{
+		return (int) round(max_intensity * pow(Color * Factor, camera_gamma));
+	}
+}
+
+__device__ void convert(float wavelength, float* r, float* g, float* b){
+	float Blue;
+	float Green;
+	float Red;
+	float Factor;
+	if(wavelength >= 350 && wavelength <= 439){
+		Red	= -(wavelength - 440.0f) / (440.0f - 350.0f);
+		Green = 0.0;
+		Blue	= 1.0;
+	}else if(wavelength >= 440 && wavelength <= 489){
+		Red	= 0.0;
+		Green = (wavelength - 440.0f) / (490.0f - 440.0f);
+		Blue	= 1.0;
+	}else if(wavelength >= 490 && wavelength <= 509){
+		Red = 0.0;
+		Green = 1.0;
+		Blue = -(wavelength - 510.0f) / (510.0f - 490.0f);
+	}else if(wavelength >= 510 && wavelength <= 579){
+		Red = (wavelength - 510.0f) / (580.0f - 510.0f);
+		Green = 1.0;
+		Blue = 0.0;
+	}else if(wavelength >= 580 && wavelength <= 644){
+		Red = 1.0;
+		Green = -(wavelength - 645.0f) / (645.0f - 580.0f);
+		Blue = 0.0;
+	}else if(wavelength >= 645 && wavelength <= 780){
+		Red = 1.0;
+		Green = 0.0;
+		Blue = 0.0;
+	}else{
+		Red = 0.0;
+		Green = 0.0;
+		Blue = 0.0;
+	}
+	if(wavelength >= 350 && wavelength <= 419){
+		Factor = 0.3 + 0.7*(wavelength - 350.0f) / (420.0f - 350.0f);
+	}else if(wavelength >= 420 && wavelength <= 700){
+		Factor = 1.0;
+	}else if(wavelength >= 701 && wavelength <= 780){
+		Factor = 0.3 + 0.7*(780.0f - wavelength) / (780.0f - 700.0f);
+	}else{
+		Factor = 0.0;
+	}
+	*r = factorAdjust(Red, Factor);
+	*g = factorAdjust(Green, Factor);
+	*b = factorAdjust(Blue, Factor);
+}
 
 RT_PROGRAM void closest_hit() {
 	const float pi = 3.141;
 
 	//output_buffer[make_uint2(5, 5)] = make_float4(1, 1, 1, 1);
-	rtPrintf("hit at %f, %f\n", texcoord.x, texcoord.y);
 	
 	// Hit from the right side?
 	if(std::abs(std::acos(optix::dot(ray.direction, geometric_normal))) <= pi/2) return;
-	rtPrintf("confirmed hit at %f, %f\n", texcoord.x, texcoord.y);
 
 	// Adjusted cords
 	int adj_x = std::floor(texcoord.x*image_size.x);
 	int adj_y = std::floor(texcoord.y*image_size.x);
-	rtPrintf("tex coords at %d, %d\n", adj_x, adj_y);
-	// Convert wavelength to colour
-	//float3 colour = wavelength_to_colour(ray.wavelength);
+	//if(prd_photon.depth == 0) return; //DEBUG CODE
+	if(prd_photon.depth > 0 ) rtPrintf("hit depth %d\n", prd_photon.depth);
 
 	// Record in buffer
-	output_buffer[make_uint2(adj_x, adj_y)] = make_float4(1, 1, 1, 1);
+	float r, g, b;
+	convert(prd_photon.wavelength, &r, &g, &b);
+	uint2 address = make_uint2(adj_x, adj_y);
+	atomicAdd((float*) &(output_buffer[address].x), r);
+	atomicAdd(&(output_buffer[address].y), g);
+	atomicAdd(&(output_buffer[address].z), b);
 }

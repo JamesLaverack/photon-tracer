@@ -12,10 +12,19 @@
 #include "PlaneObject.h"
 #include "CameraMaterial.h"
 #include "Image.h"
+#include "CUDAWrapper.h"
 #include <optixu/optixpp_namespace.h>
 #ifdef PHOTON_MPI
 	#include "mpi.h"
 #endif /* MPI */
+
+//#include <driver_types.h>
+//using cuda::cudaError_t;
+
+	using namespace optix;
+	#include <curand_kernel.h>
+	#include <cuda.h>
+	#include <cuda_runtime_api.h>
 
 namespace photonCPU {
 

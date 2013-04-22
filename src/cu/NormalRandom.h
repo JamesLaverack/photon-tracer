@@ -16,7 +16,7 @@ __host__ __device__ float getUncappedNormalRandom(float mean, float sd, unsigned
 }
 
 __host__ __device__ float getNormalRandom(float mean, float sd, unsigned int seed) {
-	return rnd(seed);
+	return getUncappedNormalRandom(mean, sd, seed);
 	float result;
 	const float pi = 3.141;
 	do{

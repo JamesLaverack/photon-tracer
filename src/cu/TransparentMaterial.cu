@@ -66,7 +66,7 @@ RT_PROGRAM void closest_hit() {
 	PerRayData_photon prd_bounce;
 	prd_bounce.importance = 1.f;
 	prd_bounce.depth = prd_photon.depth+1;
-	prd_bounce.seed = prd_photon.seed;
+	prd_bounce.rand_state = prd_photon.rand_state;
 	prd_bounce.wavelength = prd_photon.wavelength;
-	rtTrace(top_object, ray, prd_bounce);
+	rtTrace(top_object, new_ray, prd_bounce);
 }
