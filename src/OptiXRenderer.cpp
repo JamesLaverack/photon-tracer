@@ -82,7 +82,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	
 	// Debug, this will make everything SLOOOOOW
 	context->setPrintEnabled(false);
-	
+	printf("Using %d devices.\n", context->getEnabledDeviceCount());
 	// Setup CUrand
 	//CUDA_CALL(cudaMalloc((void **)&devStates, photons * sizeof(curandState)));
 	
@@ -93,12 +93,13 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	
 	// Calculate number of threads
 	int threads = 500000;
+	unsigned int iterations_on_device = 10;
 	
 	// Set some scene-wide variables
 	context["photon_ray_type"]->setUint( 0u );
 	context["scene_bounce_limit"]->setUint( 10u );
 	context["scene_epsilon"]->setFloat( 1.e-4f );
-	context["iterations"]->setUint(1u);
+	context["iterations"]->setUint(iterations_on_device);
 
 	// Convert our existing scene into an OptiX one
 	convertToOptiXScene(context, width, height);
@@ -107,23 +108,20 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	optix::Buffer random_buffer = context->createBuffer( RT_BUFFER_INPUT_OUTPUT, RT_FORMAT_USER, threads );
 	random_buffer->setElementSize(sizeof(curandState));
 	context["states"]->set(random_buffer);
-	void* states_ptr;
-	random_buffer->getDevicePointer(0, (CUdeviceptr*) &states_ptr);
+	void* states_ptr_0;
+	void* states_ptr_1;
+	random_buffer->getDevicePointer(0, (CUdeviceptr*) &states_ptr_0);
+	random_buffer->getDevicePointer(1, (CUdeviceptr*) &states_ptr_1);
 
 	// Run curand init
 	CUDAWrapper executer;
-	executer.curand_setup(10, 100, threads, &states_ptr);
+	executer.curand_setup(10, 100, threads, &states_ptr_0, time(NULL), 0);
+	executer.curand_setup(10, 100, threads, &states_ptr_1, time(NULL), 1);
 	printf("CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
 
 	// Create Image buffer
 	optix::Buffer buffer = context->createBuffer( RT_BUFFER_OUTPUT, RT_FORMAT_FLOAT4, width, height );
 	context["output_buffer"]->set(buffer);
-
-	buffer = context->createBuffer( RT_BUFFER_OUTPUT, RT_FORMAT_FLOAT, width, height );
-	mCameraMatOptiX["output_buffer_g"]->set(buffer);
-
-	buffer = context->createBuffer( RT_BUFFER_OUTPUT, RT_FORMAT_FLOAT, width, height );
-	mCameraMatOptiX["output_buffer_b"]->set(buffer);
 
 	// Construct MPI
 	int size, rank = 0;
@@ -141,16 +139,15 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		if(rank==0)	printf("MPI adjusted to %ld photons per thread", photons);
 	#endif /* MPI */
 
-	// Setup rand based on our rank
-	std::srand(rank);
-
 	// Validate
 	context->validate();
 	context->compile();
 
 	printf("Render With:\n");
 	printf("    %d photons.\n", photons);
-	int launches = photons/threads;
+	printf("    %d threads.\n", threads);
+	printf("    %d iterations per thread.\n", iterations_on_device);
+	int launches = (photons/threads)/iterations_on_device;
 	printf("    %d launches.\n", launches);
 	
 	// Render

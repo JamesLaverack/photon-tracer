@@ -66,4 +66,5 @@ RT_PROGRAM void closest_hit() {
 	prd_bounce.rand_state = prd_photon.rand_state;
 	prd_bounce.wavelength = prd_photon.wavelength;
 	rtTrace(top_object, new_ray, prd_bounce);
+	prd_photon.rand_state = prd_bounce.rand_state;
 }

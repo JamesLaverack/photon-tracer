@@ -29,7 +29,7 @@ using photonCPU::PointLight;
 int main(int argc, char* argv[]) {
 	// Set Varaibles to defaults
 	const long long int million = 1000000;
-	long long int num_photons = 500000;
+	long long int num_photons = 5000000;
 	bool time_run = false;
 	float modifier = 0.005f;
 	timeval tic, toc;
@@ -148,16 +148,16 @@ int main(int argc, char* argv[]) {
 	}
 
 	s->addLight(light);
-// 	s->addObject(floor);
-// 	s->addObject(top);
-// 	s->addObject(right);
-// 	s->addObject(left);
-// 	s->addObject(back);
+	s->addObject(floor);
+	s->addObject(top);
+	s->addObject(right);
+	s->addObject(left);
+	s->addObject(back);
 	//s->addObject(front);
 	//s->addObject(apature);
-	//s->addObject(sphere);
-	//s->addObject(sphere2);
-// 	s->addObject(spherer);
+	s->addObject(sphere);
+	s->addObject(sphere2);
+	s->addObject(spherer);
 
 	// Create our renderer
 	photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s, 1000, 1000, modifier);
