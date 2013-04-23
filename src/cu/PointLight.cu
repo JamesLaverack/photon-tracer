@@ -8,7 +8,7 @@ rtDeclareVariable(float,         scene_epsilon, , );
 rtDeclareVariable(unsigned int,  photon_ray_type, , );
 rtDeclareVariable(rtObject,      top_object, , );
 rtDeclareVariable(unsigned int,  iterations, , );
-rtDeclareVariable(uint2,      launch_index, rtLaunchIndex, );
+rtDeclareVariable(uint,      launch_index, rtLaunchIndex, );
 
 // Object spesific
 rtDeclareVariable(float3,            location, , );
@@ -23,13 +23,7 @@ RT_PROGRAM void light() {
 	// Randomise direction
 	//TODO Frame number?
 	/* Copy state to local memory for efficiency */
-	int id = launch_index.x;
-	curandState_t localState = states[id];
-	if(id % 10000 == 0) {
-		//curand_init(1024, id, 0, &localState);
-		//rtPrintf("Thread %d reporting.\n", id);
-	}
-	/* Generate pseudo-random uniforms */
+	curandState localState = states[launch_index];
 
 	for(int i=0;i<iterations;i++) {
 		float a = curand_uniform(&localState);
@@ -43,10 +37,6 @@ RT_PROGRAM void light() {
 		z = (float) std::sin(theta)*std::sin(phi);
 		y = (float) std::cos(theta);
 
-		if(id % 10000 == 0) {
-			//rtPrintf("[%d] theta %f, phi %f\n", id, a, b);
-		}
-		
 		float3 ray_direction = make_float3(x, y, z);
 		
 		optix::Ray ray = optix::make_Ray(location, ray_direction, photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
@@ -55,10 +45,8 @@ RT_PROGRAM void light() {
 		prd.importance = 1.f;
 		prd.depth = 0;
 		prd.wavelength = curand_uniform(&localState)*400+300;
-		prd.rand_state = localState;
-
+		states[launch_index] = localState;
 		rtTrace(top_object, ray, prd);
-		localState = prd.rand_state;
 	}
-	states[id] = localState;
+	
 }

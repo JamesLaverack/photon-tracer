@@ -12,6 +12,7 @@
 #include "PlaneObject.h"
 #include "CameraMaterial.h"
 #include "Image.h"
+#include <iterator>
 #include "CUDAWrapper.h"
 #include <optixu/optixpp_namespace.h>
 #ifdef PHOTON_MPI

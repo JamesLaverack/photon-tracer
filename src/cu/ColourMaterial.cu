@@ -10,6 +10,8 @@ rtDeclareVariable(float,         scene_epsilon, , );
 rtDeclareVariable(unsigned int,  photon_ray_type, , );
 rtDeclareVariable(unsigned int,  scene_bounce_limit, , );
 rtDeclareVariable(rtObject,      top_object, , );
+rtDeclareVariable(uint,      launch_index, rtLaunchIndex, );
+rtBuffer<curandState, 1>              states;
 
 // Photon ray datatype
 rtDeclareVariable(PerRayData_photon, prd_photon, rtPayload, );
@@ -43,10 +45,10 @@ RT_PROGRAM void closest_hit() {
 	reflect_angle = -reflect_angle;
 	// get theta, which is the angle between our bounce and the normal in the u direction.
 	// Also get phi, the angle between our bounce and the normal in the v direction.
-
-	float theta = reflect_angle+curand_normal(&prd_photon.rand_state)*standard_deviation;
-	float phi   = 0+curand_normal(&prd_photon.rand_state)*standard_deviation;
-
+	curandState localState = states[launch_index];
+	float theta = reflect_angle+curand_normal(&localState)*standard_deviation;
+	float phi   = 0+curand_normal(&localState)*standard_deviation;
+	states[launch_index] = localState;
 	// Construct our bounce vector, this is our actual reflection.
 	float4 bounce = optix::make_float4( geometric_normal.x, geometric_normal.y, geometric_normal.z, 0);
 	// Do some rotation
@@ -63,8 +65,6 @@ RT_PROGRAM void closest_hit() {
 	PerRayData_photon prd_bounce;
 	prd_bounce.importance = 1.f;
 	prd_bounce.depth = prd_photon.depth+1;
-	prd_bounce.rand_state = prd_photon.rand_state;
 	prd_bounce.wavelength = prd_photon.wavelength;
 	rtTrace(top_object, new_ray, prd_bounce);
-	prd_photon.rand_state = prd_bounce.rand_state;
 }

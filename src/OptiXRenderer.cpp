@@ -81,8 +81,20 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context->setRayTypeCount( 1 );
 	
 	// Debug, this will make everything SLOOOOOW
-	context->setPrintEnabled(false);
-	printf("Using %d devices.\n", context->getEnabledDeviceCount());
+	context->setPrintEnabled(true);
+	
+	
+	int tmp[] = { 0, 1 };
+	std::vector<int> v( tmp, tmp+2 ); 
+	context->setDevices(v.begin(), v.end());
+	
+	int num_devices = context->getEnabledDeviceCount();
+	printf("Using %d devices:\n", num_devices);
+	
+	std::vector<int> enabled_devices =  context->getEnabledDevices();
+	for(int i=0;i<num_devices;i++) {
+		printf("    Device #%d [%s]\n", enabled_devices[i], context->getDeviceName(enabled_devices[i]).c_str());
+	}
 	// Setup CUrand
 	//CUDA_CALL(cudaMalloc((void **)&devStates, photons * sizeof(curandState)));
 	
@@ -140,8 +152,21 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	#endif /* MPI */
 
 	// Validate
-	context->validate();
-	context->compile();
+	try{
+		context->validate();
+	}catch(Exception& e){
+		printf("Validate error!\n");
+		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
+		printf("    OptiX says : %s\n", e.getErrorString().c_str() );
+	}
+	// Compile context
+	try{
+		context->compile();
+	}catch(Exception& e){
+		printf("Compile error!\n");
+		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
+		printf("    OptiX says : %s\n", e.getErrorString().c_str() );
+	}
 
 	printf("Render With:\n");
 	printf("    %d photons.\n", photons);
@@ -151,12 +176,13 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	printf("    %d launches.\n", launches);
 	
 	// Render
+	int current_launch = 0;
 	try{
-		for(int i=0;i<launches;i++) {
-			context->launch( 0, threads );
+		for(current_launch=0;current_launch<launches;current_launch++) {
+			context->launch(0 , threads );
 		}
 	}catch(Exception& e){
-		printf("Launch error!\n");
+		printf("Launch error on launch #%d!\n", current_launch);
 		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
 		printf("    OptiX says : %s\n", e.getErrorString().c_str() );
 	}
