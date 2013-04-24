@@ -26,7 +26,7 @@ PTXS   := $(PTXS:.cu=.ptx)
 DEBUG       = -g
 PERFORMANCE = -O3
 WARNINGS    = -Wall -W -Wextra
-INCLUDES    = -I./inc -I/usr/local/optix/include -I/usr/local/cuda/include
+INCLUDES    = -I./inc -I/usr/local/optix/include -I/usr/local/cuda-5.0/include
 MPIFLAGS    =
 CXX         = g++
 CXXFLAGS    = -fmessage-length=0 -c $(DEBUG) $(INCLUDES) $(PERFORMANCE) $(WARNINGS) $(MPIFLAGS)

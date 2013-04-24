@@ -23,11 +23,10 @@ RT_PROGRAM void light() {
 	// Randomise direction
 	//TODO Frame number?
 	/* Copy state to local memory for efficiency */
-	curandState localState = states[launch_index];
 
 	for(int i=0;i<iterations;i++) {
-		float a = curand_uniform(&localState);
-		float b = curand_uniform(&localState);
+		float a = curand_uniform(&states[launch_index]);
+		float b = curand_uniform(&states[launch_index]);
 		float phi = 2*3.141*a;
 		float theta = std::acos(2*b-1);
 // 		rtPrintf("theta %f phi %f\n", theta, phi);
@@ -44,8 +43,7 @@ RT_PROGRAM void light() {
 		PerRayData_photon prd;
 		prd.importance = 1.f;
 		prd.depth = 0;
-		prd.wavelength = curand_uniform(&localState)*400+300;
-		states[launch_index] = localState;
+		prd.wavelength = curand_uniform(&states[launch_index])*400+300;
 		rtTrace(top_object, ray, prd);
 	}
 	

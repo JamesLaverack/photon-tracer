@@ -71,6 +71,17 @@ void OptiXRenderer::convertToOptiXScene(optix::Context context, int width, int h
 	context["top_object"]->set(geometrygroup);
 }
 
+void sync_all_threads() {
+	/*  Force Thread Synchronization  */
+	cudaError err = cudaThreadSynchronize();
+
+	/*  Check for and display Error  */
+	if ( cudaSuccess != err )
+	{
+		fprintf( stderr, "Cuda Sync Error! : %s.\n", cudaGetErrorString( err) );
+	}
+}
+
 /**
  * This function does what it says on the tin.
  */
@@ -116,23 +127,37 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	// Convert our existing scene into an OptiX one
 	convertToOptiXScene(context, width, height);
 
-	// Some random stuff
-	optix::Buffer random_buffer = context->createBuffer( RT_BUFFER_INPUT_OUTPUT, RT_FORMAT_USER, threads );
+	// Create buffer for random numbers
+	optix::Buffer random_buffer = context->createBufferForCUDA( RT_BUFFER_INPUT_OUTPUT | RT_BUFFER_GPU_LOCAL, RT_FORMAT_USER, threads );
 	random_buffer->setElementSize(sizeof(curandState));
+	curandState* states_ptr[num_devices];
+	
+	cudaSetDeviceFlags(cudaDeviceMapHost | cudaDeviceLmemResizeToMax);
+	//cudaSetDevice(0);
+	//cudaMalloc((void **)&states_ptr_0, threads * sizeof(curandState));
+	for(int i=0;i<num_devices;i++) {
+		int device_id = enabled_devices[i];
+		long memory_in_bytes = threads * sizeof(curandState);
+		printf("Allocating %ld bytes of memory on device #%d for random states.\n", memory_in_bytes, device_id);
+		cudaSetDevice(device_id);
+		cudaFree(0);
+		cudaMalloc((void **)&states_ptr[device_id], memory_in_bytes);
+		CUDAWrapper executer;
+		//executer.curand_setup(10, 100, threads, (void **)&states_ptr[device_id], time(NULL), i);
+		printf("    Executing...\n");
+		//sync_all_threads();
+		//cudaDeviceSynchronize();
+		printf("    Binding to OptiX Buffer...\n");
+		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
+		random_buffer->setDevicePointer(device_id, (CUdeviceptr) states_ptr[device_id]);
+		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaGetLastError()));
+	}
+	
+	// Set as buffer on context
 	context["states"]->set(random_buffer);
-	void* states_ptr_0;
-	void* states_ptr_1;
-	random_buffer->getDevicePointer(0, (CUdeviceptr*) &states_ptr_0);
-	random_buffer->getDevicePointer(1, (CUdeviceptr*) &states_ptr_1);
-
-	// Run curand init
-	CUDAWrapper executer;
-	executer.curand_setup(10, 100, threads, &states_ptr_0, time(NULL), 0);
-	executer.curand_setup(10, 100, threads, &states_ptr_1, time(NULL), 1);
-	printf("CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
 
 	// Create Image buffer
-	optix::Buffer buffer = context->createBuffer( RT_BUFFER_OUTPUT, RT_FORMAT_FLOAT4, width, height );
+	optix::Buffer buffer = context->createBuffer( RT_BUFFER_INPUT_OUTPUT, RT_FORMAT_FLOAT4, width, height );
 	context["output_buffer"]->set(buffer);
 
 	// Construct MPI
@@ -158,6 +183,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		printf("Validate error!\n");
 		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
 		printf("    OptiX says : %s\n", e.getErrorString().c_str() );
+		return;
 	}
 	// Compile context
 	try{
@@ -166,6 +192,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		printf("Compile error!\n");
 		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
 		printf("    OptiX says : %s\n", e.getErrorString().c_str() );
+		return;
 	}
 
 	printf("Render With:\n");
@@ -185,6 +212,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		printf("Launch error on launch #%d!\n", current_launch);
 		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
 		printf("    OptiX says : %s\n", e.getErrorString().c_str() );
+		return;
 	}
 	// Error time
 	

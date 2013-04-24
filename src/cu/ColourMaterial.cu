@@ -45,10 +45,8 @@ RT_PROGRAM void closest_hit() {
 	reflect_angle = -reflect_angle;
 	// get theta, which is the angle between our bounce and the normal in the u direction.
 	// Also get phi, the angle between our bounce and the normal in the v direction.
-	curandState localState = states[launch_index];
-	float theta = reflect_angle+curand_normal(&localState)*standard_deviation;
-	float phi   = 0+curand_normal(&localState)*standard_deviation;
-	states[launch_index] = localState;
+	float theta = reflect_angle+curand_normal(&states[launch_index])*standard_deviation;
+	float phi   = 0+curand_normal(&states[launch_index])*standard_deviation;
 	// Construct our bounce vector, this is our actual reflection.
 	float4 bounce = optix::make_float4( geometric_normal.x, geometric_normal.y, geometric_normal.z, 0);
 	// Do some rotation

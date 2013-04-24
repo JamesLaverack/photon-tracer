@@ -155,9 +155,9 @@ int main(int argc, char* argv[]) {
 	s->addObject(back);
 	//s->addObject(front);
 	//s->addObject(apature);
-	s->addObject(sphere);
-	s->addObject(sphere2);
-	s->addObject(spherer);
+	//s->addObject(sphere);
+	//s->addObject(sphere2);
+	//s->addObject(spherer);
 
 	// Create our renderer
 	photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s, 1000, 1000, modifier);
