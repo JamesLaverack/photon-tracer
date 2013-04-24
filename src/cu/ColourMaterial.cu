@@ -28,6 +28,22 @@ rtDeclareVariable(float, max_wavelength, , );
 rtDeclareVariable(float, min_wavelength, , );
 rtDeclareVariable(float, standard_deviation, , );
 
+/** Get a random number between */
+__device__ __inline__ float cappedNormalRandom(float mean) {
+	float const pi = 3.141;
+	float result;
+	do {
+		result = mean+curand_normal(&states[launch_index])*standard_deviation;
+		while(result > pi){
+			result -= pi;
+		}
+		while(result < -pi){
+			result += pi;
+		}
+	} while(std::abs(result)>pi/2);
+	return result;
+}
+
 RT_PROGRAM void closest_hit() {
 	// Do we absorb this?
 	if(prd_photon.wavelength>max_wavelength) return;
@@ -45,8 +61,8 @@ RT_PROGRAM void closest_hit() {
 	reflect_angle = -reflect_angle;
 	// get theta, which is the angle between our bounce and the normal in the u direction.
 	// Also get phi, the angle between our bounce and the normal in the v direction.
-	float theta = reflect_angle+curand_normal(&states[launch_index])*standard_deviation;
-	float phi   = 0+curand_normal(&states[launch_index])*standard_deviation;
+	float theta = cappedNormalRandom(reflect_angle);
+	float phi   = cappedNormalRandom(0);
 	// Construct our bounce vector, this is our actual reflection.
 	float4 bounce = optix::make_float4( geometric_normal.x, geometric_normal.y, geometric_normal.z, 0);
 	// Do some rotation
