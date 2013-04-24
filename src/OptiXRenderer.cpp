@@ -309,7 +309,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		// TODO fix this memory leak we create right here by loosing the referance to the existing buffers
 		// TODO do something nicer than this horrible pointer munge
 		optix::float4* img = (optix::float4*) malloc(width*height*sizeof(optix::float4));
-		cudaMemcpy(img, imgs_ptr[0], sizeof(width*height*sizeof(optix::float4)), cudaMemcpyDeviceToHost);
+		cudaMemcpy(img, imgs_ptr[0], width*height*sizeof(optix::float4), cudaMemcpyDeviceToHost);
 		cudaThreadSynchronize();
 		//accImg->imageG = (float*) (mCameraMatOptiX["output_buffer_g"]->getBuffer()->get());
 		//accImg->imageB = (float*) (mCameraMatOptiX["output_buffer_b"]->getBuffer()->get());
@@ -362,11 +362,12 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 	fprintf(f, "\n");
 	for(int i=width-1;i>=0;i--){
 		for(int j=0;j<height;j++){
+			optix::float4 pixel = image[index(i, j, width)];
 			fprintf(f,
 					" %d %d %d \n",
-					toColourInt(image[index(i, j, width)].x/biggest, maxVal),
-					toColourInt(image[index(i, j, width)].y/biggest, maxVal),
-					toColourInt(image[index(i, j, width)].z/biggest, maxVal)
+					toColourInt(pixel.x/biggest, maxVal),
+					toColourInt(pixel.y/biggest, maxVal),
+					toColourInt(pixel.z/biggest, maxVal)
 			       );
 		}
 	}
