@@ -11,6 +11,16 @@ __global__ void setup_kernel(curandState *state, int iterations, int total_threa
 	//}
 }
 
+__global__ void img_setup_kernel(float4 *value, int y, int width)
+{
+    int id = (threadIdx.x + blockIdx.x * blockDim.x);
+    /* Each thread gets same seed, a different sequence 
+       number, no offset */
+	//for(int i=0;i<iterations;i++) {
+	value[width*y + id] = make_float4(0, 0, 0, 0);
+	//}
+}
+
 namespace photonCPU {
 
 void CUDAWrapper::curand_setup(int num_blocks, int threads_per_block, int total_threads, void** states, int seed, int device_id) {
@@ -23,6 +33,14 @@ void CUDAWrapper::curand_setup(int num_blocks, int threads_per_block, int total_
 	printf("    %d total random generators.\n", total_threads);
 	for(int i=0;i<iterations;i++) {
 		setup_kernel<<<num_blocks, threads_per_block>>>((curandState*) *states, iterations, total_threads, seed, device_id, i);
+	}
+}
+
+void CUDAWrapper::img_setup(void** states, int width, int height) {
+	int num_blocks= 10;
+	int threads_per_block = height/num_blocks;
+	for(int i=0;i<height;i++) {
+		img_setup_kernel<<<num_blocks, threads_per_block>>>((float4*) *states, i, width);
 	}
 }
 

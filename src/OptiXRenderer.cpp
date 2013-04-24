@@ -95,8 +95,8 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context->setPrintEnabled(true);
 	
 	
-	int tmp[] = { 0, 1 };
-	std::vector<int> v( tmp, tmp+2 ); 
+	int tmp[] = { 0 };
+	std::vector<int> v( tmp, tmp+1 ); 
 	context->setDevices(v.begin(), v.end());
 	
 	int num_devices = context->getEnabledDeviceCount();
@@ -143,10 +143,10 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		cudaFree(0);
 		cudaMalloc((void **)&states_ptr[device_id], memory_in_bytes);
 		CUDAWrapper executer;
-		//executer.curand_setup(10, 100, threads, (void **)&states_ptr[device_id], time(NULL), i);
+		executer.curand_setup(10, 100, threads, (void **)&states_ptr[device_id], time(NULL), i);
 		printf("    Executing...\n");
-		//sync_all_threads();
-		//cudaDeviceSynchronize();
+		sync_all_threads();
+		cudaDeviceSynchronize();
 		printf("    Binding to OptiX Buffer...\n");
 		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
 		random_buffer->setDevicePointer(device_id, (CUdeviceptr) states_ptr[device_id]);
@@ -157,7 +157,30 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context["states"]->set(random_buffer);
 
 	// Create Image buffer
-	optix::Buffer buffer = context->createBuffer( RT_BUFFER_INPUT_OUTPUT, RT_FORMAT_FLOAT4, width, height );
+	optix::Buffer buffer = context->createBufferForCUDA( RT_BUFFER_INPUT_OUTPUT | RT_BUFFER_GPU_LOCAL, RT_FORMAT_FLOAT4, width, height );
+	optix::float4* imgs_ptr[num_devices];
+	
+	//cudaSetDevice(0);
+	//cudaMalloc((void **)&states_ptr_0, threads * sizeof(curandState));
+	for(int i=0;i<num_devices;i++) {
+		int device_id = enabled_devices[i];
+		long memory_in_bytes = width * height * sizeof(optix::float4);
+		printf("Allocating %ld bytes of memory on device #%d for image result.\n", memory_in_bytes, device_id);
+		cudaSetDevice(device_id);
+		cudaFree(0);
+		cudaMalloc((void **)&imgs_ptr[device_id], memory_in_bytes);
+		CUDAWrapper executer;
+		executer.img_setup((void **)&imgs_ptr[device_id], width, height);
+		printf("    Executing...\n");
+		sync_all_threads();
+		cudaDeviceSynchronize();
+		printf("    Binding to OptiX Buffer...\n");
+		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
+		buffer->setDevicePointer(device_id, (CUdeviceptr) imgs_ptr[device_id]);
+		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaGetLastError()));
+	}
+	
+	// Set as buffer on context
 	context["output_buffer"]->set(buffer);
 
 	// Construct MPI
@@ -285,7 +308,9 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		// Construct buffer
 		// TODO fix this memory leak we create right here by loosing the referance to the existing buffers
 		// TODO do something nicer than this horrible pointer munge
-		optix::float4* img = (optix::float4*) (context["output_buffer"]->getBuffer()->map());
+		optix::float4* img = (optix::float4*) malloc(width*height*sizeof(optix::float4));
+		cudaMemcpy(img, imgs_ptr[0], sizeof(width*height*sizeof(optix::float4)), cudaMemcpyDeviceToHost);
+		cudaThreadSynchronize();
 		//accImg->imageG = (float*) (mCameraMatOptiX["output_buffer_g"]->getBuffer()->get());
 		//accImg->imageB = (float*) (mCameraMatOptiX["output_buffer_b"]->getBuffer()->get());
 		// Output
