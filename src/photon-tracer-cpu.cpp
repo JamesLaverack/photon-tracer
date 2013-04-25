@@ -62,13 +62,25 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	// Report!
+	printf("****************************************\n");
+	printf("              PHOTON TRACER             \n");
+	#ifdef PHOTON_MPI
+	printf("               MPI:    ON               \n");
+	#else
+	printf("               MPI:    OFF              \n");
+	#endif
+	#ifdef PHOTON_OPTIX
+	printf("               OPTIX:  ON               \n");
+	#else
+	printf("               OPTIX:  OFF              \n");
+	#endif
+	printf("****************************************\n");
+	
 	// Report values used
-	printf("Firing %ld photons.\n", num_photons);
 	if (time_run) printf("Timing run.\n");
 
 	// Begin setup
-	printf("D.A.N.C.E.\n");
-
 	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 1000.0f);
 	photonCPU::ColourMaterial* green = new photonCPU::ColourMaterial(495.0f, 570.0f);
 	photonCPU::ColourMaterial* red = new photonCPU::ColourMaterial(630.0f, 740.0f);
@@ -84,7 +96,7 @@ int main(int argc, char* argv[]) {
 	float d = 20;
 
 	float radi = std::sqrt(R*R - (R-d)*(R-d));
-	printf("Apature size %f\n", radi);
+	//printf("Apature size %f\n", radi);
 	trans_in->radius = radi;
 	trans_out->radius = radi;
 	mask->radius = radi;
@@ -169,7 +181,7 @@ int main(int argc, char* argv[]) {
 	s->addObject(sphereg);
 
 	// Create our renderer
-	photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s, 1000, 1000, modifier);
+	photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s);
 
 	// Perform the render iself, and do some timing
 	gettimeofday(&tic, NULL);

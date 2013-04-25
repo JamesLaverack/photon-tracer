@@ -1,7 +1,6 @@
 #include <optix_world.h>
 #include <optixu/optixu_math_namespace.h>
 #include <optixu/optixu_matrix_namespace.h>
-#include "NormalRandom.h"
 #include "PerRay.h"
 
 // Scene wide

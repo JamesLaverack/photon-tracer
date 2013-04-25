@@ -24,9 +24,6 @@ CameraMaterial::CameraMaterial(int width, int height, float modifier) {
 	fileid = 0;
 	this->modifier = modifier;
 	img = new photonCPU::Image(width, height);
-	printf("DEBUG vdiff %d, udiff %d\n", vdiff, udiff);
-	printf("DEBUG imageWidth %d, imageHeight %d\n", imageWidth, imageHeight);
-	printf("DEBUG actualWidth %f, actualHeight %f\n", actualWidth, actualHeight);
 }
 
 CameraMaterial::~CameraMaterial() {
@@ -43,7 +40,6 @@ optix::Material CameraMaterial::getOptiXMaterial(optix::Context context) {
 	mat["image_size"]->setInt(imageWidth, imageHeight);
 	mat["max_intensity"]->setInt(1);
 	mat["gamma"]->setFloat(1.0f);
-	printf("A HURF DURF\n");
 	return mat;
 }
 #endif
@@ -59,7 +55,6 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	if(wavelength>0) {
 		//printf("STRIKE");
 	}
-
 
 	// Are we in the renderable bit?
 	int tu = u*(imageWidth/actualWidth)+udiff;

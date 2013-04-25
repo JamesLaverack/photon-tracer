@@ -40,7 +40,7 @@ private:
 	int index(int x, int y, int width);
 	int toColourInt(float f, int maxVal);
 public:
-	OptiXRenderer(Scene* pScene, int width, int height, float modifier);
+	OptiXRenderer(Scene* pScene);
 	virtual ~OptiXRenderer();
 	void performRender(long long int photons, int argc_mpi, char* argv_mpi[], int width, int height);
 	void doRenderPass(long long int photons);

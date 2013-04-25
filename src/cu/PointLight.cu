@@ -1,7 +1,6 @@
 #include <optix_world.h>
-#include "Random.h"
-#include "PerRay.h"
 #include <curand_kernel.h>
+#include "PerRay.h"
 
 // Scene wide
 rtDeclareVariable(float,         scene_epsilon, , );
@@ -23,6 +22,8 @@ RT_PROGRAM void light() {
 	// Randomise direction
 	//TODO Frame number?
 	/* Copy state to local memory for efficiency */
+	int report = 0;
+	if(launch_index == 0) report = 1;
 
 	for(int i=0;i<iterations;i++) {
 		float a = curand_uniform(&states[launch_index]);
@@ -46,5 +47,5 @@ RT_PROGRAM void light() {
 		prd.wavelength = curand_uniform(&states[launch_index])*400+300;
 		rtTrace(top_object, ray, prd);
 	}
-	
+	if(report) rtPrintf("Ran all iterations.\n");
 }

@@ -9,11 +9,13 @@
 #define CUDAWRAPPER_H_
 
 #include <cuda.h>
+#include <ctime>
+#include <sys/time.h>
 namespace photonCPU {
 
 class CUDAWrapper {
 public:
-	void curand_setup(int num_blocks, int threads_per_block, int total_threads, void** states, int seed, int num_devices);
+	void curand_setup(int num_rngs, void** states, int seed, int device_id);
 	void img_setup(void** states, int width, int height);
 	void img_accumulate(void*** dev_ptrs, void** destination, int buffers, int width, int height);
 };
