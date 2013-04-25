@@ -114,8 +114,8 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	cudaSetDeviceFlags(cudaDeviceMapHost | cudaDeviceLmemResizeToMax);
 
 	// Set used devices
-	int tmp[] = { 1 };
-	std::vector<int> v( tmp, tmp+1 ); 
+	int tmp[] = { 1, 0 };
+	std::vector<int> v( tmp, tmp+2 ); 
 	context->setDevices(v.begin(), v.end());
 
 	// Report device usage
@@ -127,7 +127,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	}
 
 	// Declare some variables
-	int threads = 20000000;
+	int threads = 5000000; //20000000;
 	unsigned int iterations_on_device = 1;
 
 	// Set some scene-wide variables
