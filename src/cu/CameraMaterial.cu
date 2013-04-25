@@ -105,7 +105,10 @@ RT_PROGRAM void closest_hit() {
 	float r, g, b;
 	convert(prd_photon.wavelength, &r, &g, &b);
 	uint2 address = make_uint2(adj_x, adj_y);
-	atomicAdd((float*) &(output_buffer[address].x), r);
+	float old_r = output_buffer[address].x;
+	atomicAdd(&(output_buffer[address].x), r);
 	atomicAdd(&(output_buffer[address].y), g);
 	atomicAdd(&(output_buffer[address].z), b);
+	atomicAdd(&(output_buffer[address].w), 1);
+	//printf("R was %f, is now %f.\n", old_r, output_buffer[address].x);
 }

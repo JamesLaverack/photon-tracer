@@ -95,7 +95,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context->setPrintEnabled(true);
 	
 	
-	int tmp[] = { 0 };
+	int tmp[] = { 1 };
 	std::vector<int> v( tmp, tmp+1 ); 
 	context->setDevices(v.begin(), v.end());
 	
@@ -168,15 +168,15 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		printf("Allocating %ld bytes of memory on device #%d for image result.\n", memory_in_bytes, device_id);
 		cudaSetDevice(device_id);
 		cudaFree(0);
-		cudaMalloc((void **)&imgs_ptr[device_id], memory_in_bytes);
+		cudaMalloc((void **)&imgs_ptr[i], memory_in_bytes);
 		CUDAWrapper executer;
-		executer.img_setup((void **)&imgs_ptr[device_id], width, height);
+		executer.img_setup((void **)&imgs_ptr[i], width, height);
 		printf("    Executing...\n");
 		sync_all_threads();
 		cudaDeviceSynchronize();
 		printf("    Binding to OptiX Buffer...\n");
 		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaPeekAtLastError()));
-		buffer->setDevicePointer(device_id, (CUdeviceptr) imgs_ptr[device_id]);
+		buffer->setDevicePointer(device_id, (CUdeviceptr) imgs_ptr[i]);
 		printf("    CUDA says  : %s\n",  cudaGetErrorString(cudaGetLastError()));
 	}
 	
@@ -239,13 +239,10 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	}
 	// Error time
 	
-	// Pointers
-	Image* accImg;
-	Image* img = mCameraMat->getImage();
-	// Create image to copy into
+	
 
 	#ifndef PHOTON_MPI
-		accImg = new Image(img);
+
 	#endif /* If not MPI */
 	#ifdef PHOTON_MPI
 
@@ -305,20 +302,50 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		// Construct filename
 		char sbuffer[100];
 		sprintf(sbuffer, "photons-%d.ppm", 0);
-		// Construct buffer
-		// TODO fix this memory leak we create right here by loosing the referance to the existing buffers
-		// TODO do something nicer than this horrible pointer munge
-		optix::float4* img = (optix::float4*) malloc(width*height*sizeof(optix::float4));
-		cudaMemcpy(img, imgs_ptr[0], width*height*sizeof(optix::float4), cudaMemcpyDeviceToHost);
-		cudaThreadSynchronize();
-		//accImg->imageG = (float*) (mCameraMatOptiX["output_buffer_g"]->getBuffer()->get());
-		//accImg->imageB = (float*) (mCameraMatOptiX["output_buffer_b"]->getBuffer()->get());
-		// Output
-		saveToPPMFile(sbuffer, img, width, height);
-		delete accImg;
+		// This is the collected image data on the host
+		optix::float4* img_host_ptr = (optix::float4*) malloc(width*height*sizeof(optix::float4));
+		// If we have more than one device we have to accumulate everything back into one buffer
+		if(num_devices == 1) {
+			img_host_ptr = (optix::float4*) malloc(width*height*sizeof(optix::float4));
+			cudaMemcpy(img_host_ptr, imgs_ptr[0], width*height*sizeof(optix::float4), cudaMemcpyDeviceToHost);
+		} else {
+			// Create an accumulate buffer on GPU #0#
+// 			int device_id = enabled_devices[0];
+// 			cudaSetDevice(device_id);
+// 			optix::float4* accumulate_dev_ptr;
+// 			cudaMalloc((void **)&accumulate_dev_ptr, width*height*sizeof(optix::float4));
+// 			// put the array of memory ptrs on device 0
+// 			optix::float4** ptrs_dev_ptr;
+// 			cudaMalloc((void **)&ptrs_dev_ptr, num_devices*sizeof(optix::float4*));
+// 			// Copy data over
+// 			cudaMemcpy(ptrs_dev_ptr, imgs_ptr, num_devices*sizeof(optix::float4*), cudaMemcpyHostToDevice);
+// 			CUDAWrapper executer;
+// 			executer.img_accumulate((void ***)&ptrs_dev_ptr, (void **)&accumulate_dev_ptr, num_devices, width, height);
+// 			cudaMemcpy(img_host_ptr, accumulate_dev_ptr, width*height*sizeof(optix::float4), cudaMemcpyDeviceToHost);
+			// Copy everything to host and accumulate here
+			optix::float4* host_buffers[num_devices];
+			for(int i=0;i<num_devices;i++) {
+				host_buffers[i] = (optix::float4*) malloc(width*height*sizeof(optix::float4));
+				cudaMemcpy(host_buffers[i], imgs_ptr[i], width*height*sizeof(optix::float4), cudaMemcpyDeviceToHost);
+			}
+			// Acumulate
+			for(int i=0;i<width*height;i++) {
+				img_host_ptr[i] = make_float4(0, 0, 0, 0);
+				for(int j=0;j<num_devices;j++) {
+					img_host_ptr[i].x += host_buffers[j][i].x;
+					img_host_ptr[i].y += host_buffers[j][i].y;
+					img_host_ptr[i].z += host_buffers[j][i].z;
+					img_host_ptr[i].w += host_buffers[j][i].w;
+				}
+			}
+			for(int i=0;i<num_devices;i++) {
+				free(host_buffers[i]);
+			}
+		}
+		saveToPPMFile(sbuffer, img_host_ptr, width, height);
+		free(img_host_ptr);
 		printf("Image outputed!\n");
 	}
-
 	#ifdef PHOTON_MPI
 		// Teardown MPI
 		MPI::Finalize();	

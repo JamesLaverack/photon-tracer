@@ -55,7 +55,7 @@ RT_PROGRAM void closest_hit() {
 	// Construct our bounce vector, this is our actual refraction.
 	float4 bounce = optix::make_float4( ray.direction.x, ray.direction.y, ray.direction.z, 0);
 	// Do some rotation
-	optix::Matrix4x4 rot1 = optix::Matrix4x4::rotate(theta, axis_of_rotation);
+	optix::Matrix4x4 rot1 = optix::Matrix4x4::rotate(-theta, axis_of_rotation);
 	bounce = bounce*rot1;
 
 	// Get needed values

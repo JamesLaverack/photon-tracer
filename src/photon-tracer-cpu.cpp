@@ -102,6 +102,10 @@ int main(int argc, char* argv[]) {
 	spherer->setPosition(25, -40, 120);
 	spherer->radius = 10;
 
+	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(green);
+	sphereg->setPosition(-25, -40, 60);
+	sphereg->radius = 10;
+
 	// YOLO walls
 
 	photonCPU::PlaneObject* floor = new photonCPU::PlaneObject(white);
@@ -147,17 +151,22 @@ int main(int argc, char* argv[]) {
 		//s->addLight(lighting_rig[i]);
 	}
 
+
+
 	s->addLight(light);
+
 	s->addObject(floor);
 	s->addObject(top);
 	s->addObject(right);
 	s->addObject(left);
 	s->addObject(back);
-	//s->addObject(front);
-	//s->addObject(apature);
-	//s->addObject(sphere);
-	//s->addObject(sphere2);
-	//s->addObject(spherer);
+
+       	s->addObject(front);
+       	s->addObject(apature);
+	s->addObject(sphere);
+	s->addObject(sphere2);
+	s->addObject(spherer);
+	s->addObject(sphereg);
 
 	// Create our renderer
 	photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s, 1000, 1000, modifier);
