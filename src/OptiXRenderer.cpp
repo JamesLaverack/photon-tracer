@@ -135,6 +135,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context["scene_bounce_limit"]->setUint( 10u );
 	context["scene_epsilon"]->setFloat( 1.e-4f );
 	context["iterations"]->setUint(iterations_on_device);
+	context["follow_photon"]->setInt(4000);
 
 	// Convert our existing scene into an OptiX one
 	convertToOptiXScene(context, width, height);
@@ -427,7 +428,6 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 	printf("SUM colour value is %f\n", biggest);
 	biggest = biggest/(width*height*3);
 	printf("Avg colour value is %f\n", biggest);
-	biggest = 1;
 	// BUild file
 	f = fopen(filename, "w");
 	int maxVal = 65535;
