@@ -63,19 +63,23 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Report!
-	printf("****************************************\n");
-	printf("              PHOTON TRACER             \n");
+	printf("########################################\n");
+	printf("#                                      #\n");
+	printf("#        PHOTON TRACER RENDERER        #\n");
+	printf("#                                      #\n");
 	#ifdef PHOTON_MPI
-	printf("               MPI:    ON               \n");
+	printf("#             MPI:      ON             #\n");
 	#else
-	printf("               MPI:    OFF              \n");
+	printf("#             MPI:     OFF             #\n");
 	#endif
+	printf("#                                      #\n");
 	#ifdef PHOTON_OPTIX
-	printf("               OPTIX:  ON               \n");
+	printf("#             OPTIX:    ON             #\n");
 	#else
-	printf("               OPTIX:  OFF              \n");
+	printf("#             OPTIX:   OFF             #\n");
 	#endif
-	printf("****************************************\n");
+	printf("#                                      #\n");
+	printf("########################################\n");
 	
 	// Report values used
 	if (time_run) printf("Timing run.\n");
@@ -87,7 +91,9 @@ int main(int argc, char* argv[]) {
 	red->std = 6;
 	photonCPU::ColourMaterial* blue = new photonCPU::ColourMaterial(450.0f, 475.0f);
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
+	trans_in->debug_id = 4;
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
+	trans_out->debug_id = 5;
 	photonCPU::RadiusMaskMaterial* mask = new photonCPU::RadiusMaskMaterial();
 	photonCPU::RadiusMaskMaterial* mask_apature = new photonCPU::RadiusMaskMaterial();
 	mask_apature->radius = 1;
