@@ -56,9 +56,9 @@ Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Ve
 	if(std::abs(hitLocation->z)>20) {
 			index = 1;
 	}
-	/*if(std::sqrt(hitLocation->x*hitLocation->x + hitLocation->y*hitLocation->y) > radius) {
+	if(std::sqrt(hitLocation->x*hitLocation->x + hitLocation->y*hitLocation->y) > radius) {
 			return 0;
-	}*/
+	}
 	if(angle_in < pi/2) {
 		// We are coming from the material out
 		index = 1/index;
@@ -68,9 +68,9 @@ Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Ve
 	}
 
 	float angle_out = std::asin(std::sin(angle_in)/index);
-	float theta = angle_in - angle_out;
+	float theta = -std::abs(angle_out - angle_in);
 	//printf("in %f, out %f, theta %f, index %f\n",angle_in, angle_out, theta, index);
-	vec = angle->rotate(&axis, -theta);
+	vec = angle->rotate(&axis, theta);
 
 	// Return new ray object
 	Ray* r = new Ray();

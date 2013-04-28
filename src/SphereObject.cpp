@@ -42,12 +42,17 @@ float SphereObject::intersects(photonCPU::Ray* r) {
 	float tmax = -posDotDir+root;
 	float tmin = -posDotDir-root;
 
-	if(tmax < tmin) {
-		return tmax;
-	} else {
-		return tmin;
-	}
+
+        if(tmax < 0) {
+                return -1;
+        } else if( tmin < 0) {
+                return tmax;
+        } else {
+                return tmin;
+        }
+
 }
+
 Vector3D SphereObject::getIntersectionPoint(photonCPU::Ray* r) {
 	return (r->getPosition())+(r->getDirection())*intersects(r);
 }
