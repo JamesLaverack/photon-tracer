@@ -14,6 +14,7 @@ rtBuffer<curandState, 1>              states;
 
 // Photon ray datatype
 rtDeclareVariable(PerRayData_photon, prd_photon, rtPayload, );
+rtDeclareVariable(int, follow_photon, , );
 
 // Current Ray & Intersection
 rtDeclareVariable(optix::Ray, ray,          rtCurrentRay, );
@@ -74,6 +75,15 @@ RT_PROGRAM void closest_hit() {
 	float3 hitpoint = ray.origin + t_hit * ray.direction;
 	// Fire new ray!
 	optix::Ray new_ray = optix::make_Ray(hitpoint, bounce_direction, photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
+
+        if( launch_index == follow_photon ) {                                                                                         
+                rtPrintf("[%d] (colour) parametric t      %f\n", launch_index, t_hit);                                                         
+                rtPrintf("[%d] (colour) depth             %d\n", launch_index, prd_photon.depth);                                              
+                rtPrintf("[%d] (colour) ray origin        <%f, %f, %f>\n", launch_index, ray.origin.x, ray.origin.y, ray.origin.z);            
+                rtPrintf("[%d] (colour) hit point         <%f, %f, %f>\n", launch_index, hitpoint.x, hitpoint.y, hitpoint.z);                  
+                rtPrintf("[%d] (colour) Orginal Direction <%f, %f, %f>\n", launch_index, ray.direction.x, ray.direction.y, ray.direction.z);   
+                rtPrintf("[%d] (colour) Normal            <%f, %f, %f>\n", launch_index, geometric_normal.x, geometric_normal.y, geometric_normal.z);                                                                                                                                
+        }  
 
 	PerRayData_photon prd_bounce;
 	prd_bounce.importance = 1.f;
