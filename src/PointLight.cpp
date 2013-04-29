@@ -51,7 +51,9 @@ Ray* PointLight::getRandomRayFromLight() {
 
 #ifdef PHOTON_OPTIX
 optix::Program PointLight::getOptiXLight(optix::Context context) {
-	return context->createProgramFromPTXFile( "ptx/PointLight.ptx", "light" );
+	optix::Program prog = context->createProgramFromPTXFile( "ptx/PointLight.ptx", "light" );
+	prog["location"]->setFloat( mPosition->x, mPosition->y, mPosition->z);
+	return prog;
 }
 #endif
 
