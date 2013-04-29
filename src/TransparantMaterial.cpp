@@ -12,7 +12,7 @@ namespace photonCPU {
 TransparantMaterial::TransparantMaterial() {
 	// Glass
 	index_of_refraction = 1.52f;
-	radius = 10;
+	radius = 40;
 }
 
 TransparantMaterial::~TransparantMaterial() {
@@ -40,6 +40,11 @@ Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Ve
 	// Some defintions
 	const float pi = 3.141;
 
+	bool report = false;
+	if( (angle->x-0.584472) + (angle->y-0.009688) + (angle->z-0.811356) < 0.00001 ) {
+		report = true;
+	}
+	report = false;
 
 	// Calculate axis of rotation
 	Vector3D axis = angle->crossProduct(*normal);
@@ -57,7 +62,7 @@ Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Ve
 			index = 1;
 	}
 	if(std::sqrt(hitLocation->x*hitLocation->x + hitLocation->y*hitLocation->y) > radius) {
-			return 0;
+			index = 1;
 	}
 	if(angle_in < pi/2) {
 		// We are coming from the material out
@@ -66,11 +71,25 @@ Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Ve
 		// From the outside into the material
 		angle_in = pi - angle_in;
 	}
-
+	
 	float angle_out = std::asin(std::sin(angle_in)/index);
 	float theta = -std::abs(angle_out - angle_in);
 	//printf("in %f, out %f, theta %f, index %f\n",angle_in, angle_out, theta, index);
 	vec = angle->rotate(&axis, theta);
+
+	if(report) {
+		printf("***\n");
+		printf("axis ");
+		axis.print();
+		printf("angle in %f\n", angle_in);
+		printf("angle out %f\n", angle_out);
+		printf("theta %f\n", theta);
+		printf("orginal direction ");
+		angle->print();
+		printf("current r %f\n", index);
+		printf("bounce direction ");
+		vec.print();
+	}
 
 	// Return new ray object
 	Ray* r = new Ray();
