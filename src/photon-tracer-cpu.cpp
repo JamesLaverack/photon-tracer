@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
 
 	// Balls
 	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(red);
-	spherer->setPosition(25, -40, 120);
+	spherer->setPosition(0, 0, 120);
 	spherer->radius = 10;
 
 	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(mirror);
@@ -139,7 +139,7 @@ int main(int argc, char* argv[]) {
 	left->setNormal(1, 0, 0);
 	left->setPosition(-50, 0, 0);
 
-	photonCPU::PointLight* light = new photonCPU::PointLight(0, 45, 50);
+	photonCPU::PointLight* light = new photonCPU::PointLight(40, 40, 100);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
@@ -157,19 +157,10 @@ int main(int argc, char* argv[]) {
 
 
 	s->addLight(light);
-
-	s->addObject(floor);
-	s->addObject(top);
-	s->addObject(right);
-	s->addObject(left);
-	s->addObject(back);
-
-       	s->addObject(front);
-       	s->addObject(apature);
+	s->addObject(front);
 	s->addObject(sphere);
 	s->addObject(sphere2);
 	s->addObject(spherer);
-	s->addObject(sphereg);
 
 	// Create our renderer
 	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000, modifier);
