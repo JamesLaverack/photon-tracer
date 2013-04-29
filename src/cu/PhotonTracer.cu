@@ -7,5 +7,10 @@ RT_PROGRAM void miss()
 
 RT_PROGRAM void exception()
 {
-	// Do nothing
+	const unsigned int code = rtGetExceptionCode();
+	if( code == RT_EXCEPTION_STACK_OVERFLOW ) {
+		rtPrintf("### Stack overflow exception! ###\n");
+	} else {
+		rtPrintf("### Unknown exception! ###\n");
+	}
 }
