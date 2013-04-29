@@ -67,7 +67,7 @@ Ray* SphereObject::transmitRay(Ray* r) {
 	getTextureCordsAtPoint(&(intersect), &u, &v, &w);
 	// Get our reflected ray
 	Vector3D dir = r->getDirection();
-	Vector3D normal = *(position)-intersect;
+	Vector3D normal = intersect-*(position);
 	normal.normaliseSelf();
 	/*
 	printf("sphere strike at (%f, %f, %f)\n", intersect.x, intersect.y, intersect.z );
