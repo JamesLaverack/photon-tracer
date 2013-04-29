@@ -126,6 +126,13 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		printf("    Device #%d [%s]\n", enabled_devices[i], context->getDeviceName(enabled_devices[i]).c_str());
 	}
 
+	// Set some OptiX variables
+	context->setStackSize(4096);
+
+	// Report OptiX infomation
+	int stack_size_in_bytes = context->getStackSize();
+	printf("Optix stack size is %d bytes (~%d KB).\n.", stack_size_in_bytes, stack_size_in_bytes/1024);
+
 	// Declare some variables
 	int threads = 5000000; //20000000;
 	unsigned int iterations_on_device = 1;
