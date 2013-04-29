@@ -63,18 +63,17 @@ RT_PROGRAM void closest_hit() {
 	float theta = cappedNormalRandom(reflect_angle);
 	float phi   = cappedNormalRandom(0);
 	// Construct our bounce vector, this is our actual reflection.
-	float4 bounce = optix::make_float4( geometric_normal.x, geometric_normal.y, geometric_normal.z, 0);
+	float4 bounce = optix::make_float4( geometric_normal.x, geometric_normal.y, geometric_normal.z, 1);
 	// Do some rotation
-	optix::Matrix4x4 rot1 = optix::Matrix4x4::rotate(theta, v_vec);
+	optix::Matrix4x4 rot1 = optix::Matrix4x4::rotate(phi  , u_vec);
 	bounce = bounce*rot1;
-	optix::Matrix4x4 rot2 = optix::Matrix4x4::rotate(phi  , u_vec);
+	optix::Matrix4x4 rot2 = optix::Matrix4x4::rotate(theta, v_vec);
 	bounce = bounce*rot2;
 	// Get needed values
-	float3 bounce_direction = optix::normalize( optix::make_float3(bounce.x, bounce.y, bounce.z) );
+	float3 bounce_direction = optix::normalize( optix::make_float3(bounce) );
 	float3 hitpoint = ray.origin + t_hit * ray.direction;
 	// Fire new ray!
 	optix::Ray new_ray = optix::make_Ray(hitpoint, bounce_direction, photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
-
         if( launch_index == follow_photon ) {
                 rtPrintf("[%d] (colour) parametric t      %f\n", launch_index, t_hit);
                 rtPrintf("[%d] (colour) depth             %d\n", launch_index, prd_photon.depth);
