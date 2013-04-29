@@ -108,7 +108,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context->setRayTypeCount( 1 );
 
 	// Debug, this will make everything SLOOOOOW
-	context->setPrintEnabled(false);
+	context->setPrintEnabled(true);
 
 	// Set some CUDA flags
 	cudaSetDeviceFlags(cudaDeviceMapHost | cudaDeviceLmemResizeToMax);
@@ -135,7 +135,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context["scene_bounce_limit"]->setUint( 10u );
 	context["scene_epsilon"]->setFloat( 1.e-4f );
 	context["iterations"]->setUint(iterations_on_device);
-	context["follow_photon"]->setInt(4000);
+	context["follow_photon"]->setInt(66752);
 
 	// Convert our existing scene into an OptiX one
 	convertToOptiXScene(context, width, height);

@@ -13,6 +13,7 @@ TransparantMaterial::TransparantMaterial() {
 	// Glass
 	index_of_refraction = 1.52f;
 	radius = 10;
+	debug_id = -1;
 }
 
 TransparantMaterial::~TransparantMaterial() {
@@ -39,6 +40,7 @@ optix::Material TransparantMaterial::getOptiXMaterial(optix::Context context) {
 	mat["index_of_refraction"]->setFloat(index_of_refraction);
 	mat["hack_lens_depth"]->setFloat(20);
 	mat["hack_lens_radius"]->setFloat(40);
+	mat["debug_id"]->setInt(debug_id);
 	mat->setClosestHitProgram(0, chp);
 	return mat;
 }
@@ -88,7 +90,7 @@ Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Ve
 	float theta = angle_in - angle_out;
 	//printf("in %f, out %f, theta %f, index %f\n",angle_in, angle_out, theta, index);
 	vec = angle->rotate(&axis, -theta);
-
+	vec.print();
 	// Return new ray object
 	Ray* r = new Ray();
 	r->setPosition(hitLocation);

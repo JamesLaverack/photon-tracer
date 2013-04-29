@@ -17,6 +17,7 @@ private:
 	float index_of_refraction;
 public:
 	float radius;
+	int debug_id;
 	TransparantMaterial();
 	virtual ~TransparantMaterial();
 	Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength);

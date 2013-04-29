@@ -8,6 +8,8 @@ rtDeclareVariable(float,         scene_epsilon, , );
 rtDeclareVariable(unsigned int,  photon_ray_type, , );
 rtDeclareVariable(unsigned int,  scene_bounce_limit, , );
 rtDeclareVariable(rtObject,      top_object, , );
+rtDeclareVariable(uint,      launch_index, rtLaunchIndex, );
+rtDeclareVariable(int, follow_photon, , );
 
 // Photon ray datatype
 rtDeclareVariable(PerRayData_photon, prd_photon, rtPayload, );
@@ -22,43 +24,46 @@ rtDeclareVariable(float3, shading_normal,   attribute shading_normal, );
 rtDeclareVariable(float, index_of_refraction, , );
 rtDeclareVariable(float, hack_lens_depth, , );
 rtDeclareVariable(float, hack_lens_radius, , );
+rtDeclareVariable(int, debug_id, , );
 
 RT_PROGRAM void closest_hit() {
+	float3 hitpoint = ray.origin + t_hit * ray.direction;
+	// Report!
+	if( launch_index == follow_photon ) {
+		rtPrintf("[%d] debug_number      %d\n", launch_index, debug_id);
+		rtPrintf("[%d] parametric t      %f\n", launch_index, t_hit);
+		rtPrintf("[%d] depth             %d\n", launch_index, prd_photon.depth);
+		rtPrintf("[%d] r (orginal)       %f\n", launch_index, index_of_refraction);
+		rtPrintf("[%d] ray origin        <%f, %f, %f>\n", launch_index, ray.origin.x, ray.origin.y, ray.origin.z);
+		rtPrintf("[%d] hit point         <%f, %f, %f>\n", launch_index, hitpoint.x, hitpoint.y, hitpoint.z);
+		rtPrintf("[%d] Orginal Direction <%f, %f, %f>\n", launch_index, ray.direction.x, ray.direction.y, ray.direction.z);
+		rtPrintf("[%d] Normal            <%f, %f, %f>\n", launch_index, geometric_normal.x, geometric_normal.y, geometric_normal.z);
+	}
 	const float pi = 3.141;
 	// Do we absorb this?
 	if(prd_photon.depth >= scene_bounce_limit) return;
 
 	float r_index = index_of_refraction;
 	// Ugly lens hack
-	float3 hitpoint = ray.origin + t_hit * ray.direction;
 	if(std::abs(hitpoint.z)>hack_lens_depth) {
-			r_index = 1;
+  			r_index = 1;
 	}
 	if((hitpoint.x)*(hitpoint.x) + (hitpoint.y)*(hitpoint.y) > (hack_lens_radius*hack_lens_radius)) {
-			r_index = 1;
+  			r_index = 1;
 	}
-
-	float3 axis_of_rotation = optix::cross(ray.direction, geometric_normal);
 
 	float angle_in = std::acos(optix::dot(ray.direction, geometric_normal));
-	// Which side are we coming from?
-	if(angle_in < pi/2) {
-		// We are coming from the material out
-		r_index = 1/r_index;
-	} else {
-		// From the outside into the material
-		angle_in = pi - angle_in;
-	}
-	float angle_out = std::asin(std::sin(angle_in)/r_index);
-	float theta = angle_in - angle_out;
-	// Construct our bounce vector, this is our actual refraction.
-	float4 bounce = optix::make_float4( ray.direction.x, ray.direction.y, ray.direction.z, 0);
-	// Do some rotation
-	optix::Matrix4x4 rot1 = optix::Matrix4x4::rotate(-theta, axis_of_rotation);
-	bounce = bounce*rot1;
 
 	// Get needed values
-	float3 bounce_direction = optix::normalize( optix::make_float3(bounce.x, bounce.y, bounce.z) );
+	float3 bounce_direction;// = optix::normalize( optix::make_float3(bounce.x, bounce.y, bounce.z) );
+
+	optix::refract(bounce_direction, ray.direction, geometric_normal, r_index);
+	
+	if( launch_index == follow_photon ) {
+		rtPrintf("[%d] r (current)       %f\n", launch_index, r_index);
+		rtPrintf("[%d] Bounce Direction  <%f, %f, %f>\n", launch_index, bounce_direction.x, bounce_direction.y, bounce_direction.z);
+	}
+
 	// Fire new ray!
 	optix::Ray new_ray = optix::make_Ray(hitpoint, bounce_direction, photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 
