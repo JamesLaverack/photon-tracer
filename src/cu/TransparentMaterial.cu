@@ -17,8 +17,8 @@ rtDeclareVariable(PerRayData_photon, prd_photon, rtPayload, );
 // Current Ray & Intersection
 rtDeclareVariable(optix::Ray, ray,          rtCurrentRay, );
 rtDeclareVariable(float,      t_hit,        rtIntersectionDistance, );
-rtDeclareVariable(float3, geometric_normal, attribute geometric_normal, ); 
-rtDeclareVariable(float3, shading_normal,   attribute shading_normal, ); 
+rtDeclareVariable(float3, geometric_normal, attribute geometric_normal, );
+rtDeclareVariable(float3, shading_normal,   attribute shading_normal, );
 
 // Object spesific
 rtDeclareVariable(float, index_of_refraction, , );
@@ -46,19 +46,33 @@ RT_PROGRAM void closest_hit() {
 	float r_index = index_of_refraction;
 	// Ugly lens hack
 	if(std::abs(hitpoint.z)>hack_lens_depth) {
-  			r_index = 1;
+		r_index = 1;
 	}
 	if((hitpoint.x)*(hitpoint.x) + (hitpoint.y)*(hitpoint.y) > (hack_lens_radius*hack_lens_radius)) {
-  			r_index = 1;
+		r_index = 1;
 	}
 
 	float angle_in = std::acos(optix::dot(ray.direction, geometric_normal));
+	float3 axis = optix::normalize( optix::cross( ray.direction, geometric_normal));
+	if(angle_in < pi/2) {
+                // We are coming from the material out
+                r_index = 1/r_index;
+        } else {
+                // From the outside into the material
+                angle_in = pi - angle_in;
+        }
+
+	float angle_out = std::asin(std::sin(angle_in)/r_index);
+	float theta = std::abs( angle_out - angle_in );
+
+	float4 bounce = optix::make_float4( ray.direction.x, ray.direction.y, ray.direction.z, 1);
+	// Do some rotation
+	optix::Matrix4x4 rot1 = optix::Matrix4x4::rotate(theta, axis);
+	bounce = bounce*rot1;
 
 	// Get needed values
-	float3 bounce_direction;// = optix::normalize( optix::make_float3(bounce.x, bounce.y, bounce.z) );
+	float3 bounce_direction = optix::normalize( optix::make_float3(bounce) );
 
-	optix::refract(bounce_direction, ray.direction, geometric_normal, r_index);
-	
 	if( launch_index == follow_photon ) {
 		rtPrintf("[%d] r (current)       %f\n", launch_index, r_index);
 		rtPrintf("[%d] Bounce Direction  <%f, %f, %f>\n", launch_index, bounce_direction.x, bounce_direction.y, bounce_direction.z);
