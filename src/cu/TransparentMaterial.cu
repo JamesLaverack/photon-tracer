@@ -25,6 +25,16 @@ rtDeclareVariable(float, index_of_refraction, , );
 rtDeclareVariable(float, hack_lens_depth, , );
 rtDeclareVariable(float, hack_lens_radius, , );
 rtDeclareVariable(int, debug_id, , );
+rtDeclareVariable(float3, b_vals, , );
+rtDeclareVariable(float3, c_vals, , );
+
+__device__ __inline__ float refractive_index(const float wavelength) {
+	// We take in our wavelength in nm, so convert to µm.
+	float lambda = wavelength/1000;
+        float lambda_2 = lambda*lambda;
+	float3 i = (lambda_2*b_vals)/(lambda_2-c_vals);
+	return std::sqrt(1 + i.x + i.y + i.z);
+}
 
 RT_PROGRAM void closest_hit() {
 	float3 hitpoint = ray.origin + t_hit * ray.direction;
@@ -43,7 +53,7 @@ RT_PROGRAM void closest_hit() {
 	// Do we absorb this?
 	if(prd_photon.depth >= scene_bounce_limit) return;
 
-	float r_index = index_of_refraction;
+	float r_index = refractive_index(prd_photon.wavelength);//index_of_refraction;
 	// Ugly lens hack
 	if(std::abs(hitpoint.z)>hack_lens_depth) {
 		r_index = 1;

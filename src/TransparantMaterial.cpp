@@ -14,6 +14,8 @@ TransparantMaterial::TransparantMaterial() {
 	index_of_refraction = 1.52f;
 	radius = 10;
 	debug_id = -1;
+	lens_hack_radius = 10000;
+	lens_hack_depth = 10000;
 }
 
 TransparantMaterial::~TransparantMaterial() {
@@ -38,8 +40,10 @@ optix::Material TransparantMaterial::getOptiXMaterial(optix::Context context) {
 	optix::Program chp = context->createProgramFromPTXFile( "ptx/TransparentMaterial.ptx", "closest_hit" );
 	optix::Material mat = context->createMaterial();
 	mat["index_of_refraction"]->setFloat(index_of_refraction);
-	mat["hack_lens_depth"]->setFloat(20);
-	mat["hack_lens_radius"]->setFloat(40);
+	mat["hack_lens_depth"]->setFloat(lens_hack_depth);
+	mat["hack_lens_radius"]->setFloat(lens_hack_radius);
+	mat["b_vals"]->setFloat(1.03961212f, 0.231792344f, 1.01046945f);
+	mat["c_vals"]->setFloat(6.00069867e-3f, 2.00179144e-2f, 1.03560653e2f);
 	mat["debug_id"]->setInt(debug_id);
 	mat->setClosestHitProgram(0, chp);
 	return mat;
