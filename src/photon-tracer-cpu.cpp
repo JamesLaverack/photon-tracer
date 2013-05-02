@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
 	left->setNormal(1, 0, 0);
 	left->setPosition(-50, 0, 0+lens_shift);
 
-	photonCPU::PointLight* light = new photonCPU::PointLight(0, 45, 50+lens_shift);
+	photonCPU::PointLight* light = new photonCPU::PointLight(0, 0, 50+lens_shift);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 

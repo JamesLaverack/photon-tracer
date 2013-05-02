@@ -50,7 +50,7 @@ void OptiXRenderer::convertToOptiXScene(optix::Context context, int width, int h
 	}
 
 	// Create Camera
-	// 
+	//
 	mCameraMat = new CameraMaterial(width, height, 1);
 	PlaneObject* plane = new PlaneObject(mCameraMat);
 	plane->setPosition(0, 0, film_location); //-65
@@ -115,7 +115,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 
 	// Set used devices
 	int tmp[] = { 1, 0 };
-	std::vector<int> v( tmp, tmp+2 ); 
+	std::vector<int> v( tmp, tmp+2 );
 	context->setDevices(v.begin(), v.end());
 
 	// Report device usage
@@ -404,7 +404,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	}
 	#ifdef PHOTON_MPI
 		// Teardown MPI
-		MPI::Finalize();	
+		MPI::Finalize();
 	#endif /* MPI */
 }
 
@@ -418,6 +418,117 @@ int OptiXRenderer::toColourInt(float f, int maxVal) {
 	return int(f*maxVal);
 }
 
+void hsl2rgb(const float h, const float sl, const float l, float* r, float* g, float* b)
+{
+    float v;
+
+    *r = l;   // default to gray
+    *g = l;
+    *b = l;
+    v = (l <= 0.5) ? (l * (1.0 + sl)) : (l + sl - l * sl);
+    if (v > 0)
+    {
+            float m;
+            float sv;
+            int sextant;
+            float fract, vsf, mid1, mid2;
+	    float h2;
+
+            m = l + l - v;
+            sv = (v - m ) / v;
+            h2 = h * 6.0;
+            sextant = (int)h2;
+            fract = h2 - sextant;
+            vsf = v * sv * fract;
+            mid1 = m + vsf;
+            mid2 = v - vsf;
+            switch (sextant)
+            {
+                case 0:
+                        *r = v;
+                        *g = mid1;
+                        *b = m;
+                        break;
+                case 1:
+                        *r = mid2;
+                        *g = v;
+                        *b = m;
+                        break;
+                case 2:
+                        *r = m;
+                        *g = v;
+                        *b = mid1;
+                        break;
+                case 3:
+                        *r = m;
+                        *g = mid2;
+                        *b = v;
+                        break;
+                case 4:
+                        *r = mid1;
+                        *g = m;
+                        *b = v;
+                        break;
+                case 5:
+                        *r = v;
+                        *g = m;
+                        *b = mid2;
+                        break;
+            }
+    }
+}
+
+void rgb2hsl(const float r, const float g, const float b, float* h, float* s, float* l)
+{
+    float v;
+    float m;
+    float vm;
+    float r2, g2, b2;
+
+    *h = 0; // default to black
+    *s = 0;
+    *l = 0;
+    v = std::max(r, g);
+    v = std::max(v, b);
+    m = std::min(r, g);
+    m = std::min(m, b);
+    *l = (m + v) / 2.0;
+    if (*l <= 0.0)
+    {
+            return;
+    }
+    vm = v - m;
+    *s = vm;
+    if (*s > 0.0)
+    {
+            *s /= (*l <= 0.5) ? (v + m ) : (2.0 - v - m) ;
+    }
+    else
+    {
+            return;
+    }
+    r2 = (v - r) / vm;
+    g2 = (v - g) / vm;
+    b2 = (v - b) / vm;
+    if (r == v)
+    {
+            *h = (g == m ? 5.0 + b2 : 1.0 - g2);
+    }
+    else if (g == v)
+    {
+            *h = (b == m ? 1.0 + r2 : 3.0 - b2);
+    }
+    else
+    {
+            *h = (r == m ? 3.0 + g2 : 5.0 - r2);
+    }
+    *h /= 6.0;
+}
+
+float munge(float val) {
+	return std::log(val) + 1;
+}
+
 void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int width, int height) {
 	FILE* f;
 	/*
@@ -426,39 +537,65 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 	fileid++;
 	*/
 	// Find highest value
+	float magic_number = 0;
 	float biggest = 0;
 	for(int i=0;i<width*height;i++) {
 		if(image[i].x>biggest) biggest = image[i].x;
 		if(image[i].y>biggest) biggest = image[i].y;
 		if(image[i].z>biggest) biggest = image[i].z;
 	}
+	printf("Biggest value is %f\n", biggest);
+	float biggest_munge = munge(biggest);
 	float max_hits = 0;
 	for(int i=0;i<width*height;i++) {
 		if(image[i].w>max_hits) max_hits = image[i].w;
-	}	
-	printf("SUM colour value is %f\n", biggest);
-	printf("Avg colour value is %f\n", biggest);
+	}
+	printf("Maximum hits is %d\n", max_hits);
+	float sum = 0;
+	for(int i=0;i<width*height;i++) {
+		sum += image[i].x;
+		sum += image[i].y;
+		sum += image[i].z;
+	}
+	printf("SUM colour value is %f\n", sum);
+	float average = sum/(width*height*3);
+	printf("Avg colour value is %f\n", average);
 	// BUild file
 	f = fopen(filename, "w");
-	int maxVal = 65535;
+	int maxVal = 255;
 	fprintf(f, "P3\n");
 	fprintf(f, "%d %d\n", width, height);
 	fprintf(f, "%d\n", maxVal);
 	fprintf(f, "\n");
 	for(int i=0;i<width;i++){
 		for(int j=height-1;j>=0;j--){
+			// Get our pixel
 			optix::float4 pixel = image[index(i, j, width)];
+			// Do some calculation
 			float pixel_high = 0.00000000000000001;
 			if(pixel.x>pixel_high) pixel_high = pixel.x;
 			if(pixel.y>pixel_high) pixel_high = pixel.y;
 			if(pixel.z>pixel_high) pixel_high = pixel.z;
-			float brightness = 3;//(pixel.w/max_hits)*0.5+0.5;
-			fprintf(f,
-					" %d %d %d \n",
-					toColourInt(pixel.x, maxVal),
-					toColourInt(pixel.y, maxVal),
-					toColourInt(pixel.z, maxVal)
-			       );
+			//float brightness = 3;//(pixel.w/max_hits)*0.5+0.5;
+			float avg_pixel_brightness = ((pixel.x+pixel.y+pixel.z)/3);
+			// Get RGB values
+			float r, g, b; // 0.0f-1.0f
+			float  h, s, l; // 0.0f-1.0f
+			float mod = avg_pixel_brightness/average;
+			r = pixel.x/pixel_high*mod;///biggest_munge;
+			g = pixel.y/pixel_high*mod;///biggest_munge;
+			b = pixel.z/pixel_high*mod;///biggest_munge;
+			// I whip my colours back and forth
+	//		rgb2hsl(r, g, b, &h, &s, &l);
+	//		//l = (munge(pixel.w)/munge(max_hits));
+	//		r = g = b = 0;
+	//		hsl2rgb(h, s, l, &r, &g, &b);	
+			// Write to file
+			fprintf(f," %d %d %d \n", 
+				toColourInt(r, maxVal),
+				toColourInt(g, maxVal),
+				toColourInt(b, maxVal)
+			);
 		}
 	}
 	fclose(f);

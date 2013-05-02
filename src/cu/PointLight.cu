@@ -34,7 +34,7 @@ RT_PROGRAM void light() {
 		float x, y, z;
 		// Rotate<1, 0, 0> by theta around the y axis
 		x = (float) std::sin(theta)*std::cos(phi);
-		z = (float) std::sin(theta)*std::sin(phi);
+		z = (float) std::abs(std::sin(theta)*std::sin(phi));
 		y = (float) std::cos(theta);
 
 		float3 ray_direction = make_float3(x, y, z);
