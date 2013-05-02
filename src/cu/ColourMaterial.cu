@@ -48,6 +48,7 @@ RT_PROGRAM void closest_hit() {
 	if(prd_photon.wavelength>max_wavelength) return;
 	if(prd_photon.wavelength<min_wavelength) return;
 	if(prd_photon.depth >= scene_bounce_limit) return;
+	float const pi = 3.141;
 
 	float3 reverse_normal = (geometric_normal)*-1;
 	float reflect_angle = std::acos(optix::dot(ray.direction, reverse_normal));
@@ -60,8 +61,8 @@ RT_PROGRAM void closest_hit() {
 	reflect_angle = -reflect_angle;
 	// get theta, which is the angle between our bounce and the normal in the u direction.
 	// Also get phi, the angle between our bounce and the normal in the v direction.
-	float theta = cappedNormalRandom(reflect_angle);
-	float phi   = cappedNormalRandom(0);
+	float theta = curand_uniform(&states[launch_index])*pi-pi/2;//cappedNormalRandom(0);
+	float phi   = curand_uniform(&states[launch_index])*pi-pi/2;
 	// Construct our bounce vector, this is our actual reflection.
 	float4 bounce = optix::make_float4( geometric_normal.x, geometric_normal.y, geometric_normal.z, 1);
 	// Do some rotation

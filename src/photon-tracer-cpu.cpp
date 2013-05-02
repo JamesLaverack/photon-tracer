@@ -32,6 +32,7 @@ int main(int argc, char* argv[]) {
 	long long int num_photons = 5000000;
 	bool time_run = false;
 	float modifier = 0.005f;
+	float shift = 100;
 	timeval tic, toc;
 
 	// Parse inputs
@@ -55,6 +56,15 @@ int main(int argc, char* argv[]) {
 				return(1);
 			} else {
 				modifier = atof(argv[i]);
+			}
+		} else if (!strcmp(arg, "--shift")) {
+			// Set the camera modifier
+			i++;
+			if(i==argc) {
+				printf("Not enough arguments to --shift.\n");
+				return(1);
+			} else {
+				shift = atof(argv[i]);
 			}
 		} else if (!strcmp(arg, "--time")){
 			// Do we time the run?
@@ -90,19 +100,29 @@ int main(int argc, char* argv[]) {
 	photonCPU::ColourMaterial* red = new photonCPU::ColourMaterial(630.0f, 740.0f);
 	red->std = 6;
 	photonCPU::ColourMaterial* blue = new photonCPU::ColourMaterial(450.0f, 475.0f);
+	blue->std = 1;
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
 	trans_in->debug_id = 4;
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
 	trans_out->debug_id = 5;
+	photonCPU::TransparantMaterial* trans = new photonCPU::TransparantMaterial();
 	photonCPU::RadiusMaskMaterial* mask = new photonCPU::RadiusMaskMaterial();
 	photonCPU::RadiusMaskMaterial* mask_apature = new photonCPU::RadiusMaskMaterial();
-	mask_apature->radius = 1;
+	mask_apature->radius = shift;
 
-	float R = 50;
+	float R = 140;
 	float d = 20;
 
+	trans_in->lens_hack_depth = d;
+	trans_out->lens_hack_depth = d;
+
+	float film_distance = 250;//170;//12.5f;
+	float lens_shift = film_distance-50;
 	float radi = std::sqrt(R*R - (R-d)*(R-d));
-	//printf("Apature size %f\n", radi);
+
+	trans_in->lens_hack_radius = radi;
+	trans_out->lens_hack_radius = radi;
+	printf("Apature size %f\n", radi);
 	trans_in->radius = radi;
 	trans_out->radius = radi;
 	mask->radius = radi;
@@ -115,46 +135,46 @@ int main(int argc, char* argv[]) {
 	sphere2->setPosition(0, 0, -R+d);
 	sphere2->radius = R;
 
-	// Balls
-	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(red);
-	spherer->setPosition(25, -40, 120);
-	spherer->radius = 10;
-
-	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(green);
-	sphereg->setPosition(-25, -40, 60);
-	sphereg->radius = 10;
-
-	// YOLO walls
-
-	photonCPU::PlaneObject* floor = new photonCPU::PlaneObject(white);
-	floor->setNormal(0, 1, 0);
-	floor->setPosition(0, -50, 0);
-
-	photonCPU::PlaneObject* top = new photonCPU::PlaneObject(white);
-	top->setNormal(0, -1, 0);
-	top->setPosition(0, 50, 0);
-
-	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(white);
-	back->setNormal(0, 0, -1);
-	back->setPosition(0, 0, 120);
-
 	photonCPU::PlaneObject* front = new photonCPU::PlaneObject(mask);
 	front->setNormal(0, 0, 1);
 	front->setPosition(0, 0, 0);
 
 	photonCPU::PlaneObject* apature = new photonCPU::PlaneObject(mask_apature);
 	apature->setNormal(0, 0, 1);
-	apature->setPosition(0, 0, -38);
+	apature->setPosition(0, 0, 0);
 
-	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(green);
+	// Balls
+	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(blue);
+	spherer->setPosition(25, -40, 80+lens_shift);
+	spherer->radius = 10;
+
+	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(trans);
+	sphereg->setPosition(-25, -40, 80+lens_shift);
+	sphereg->radius = 10;
+
+	// YOLO walls
+
+	photonCPU::PlaneObject* floor = new photonCPU::PlaneObject(white);
+	floor->setNormal(0, 1, 0);
+	floor->setPosition(0, -50, 0+lens_shift);
+
+	photonCPU::PlaneObject* top = new photonCPU::PlaneObject(white);
+	top->setNormal(0, -1, 0);
+	top->setPosition(0, 50, 0+lens_shift);
+
+	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(white);
+	back->setNormal(0, 0, -1);
+	back->setPosition(0, 0, 100+lens_shift);
+
+	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(red);
 	right->setNormal(-1, 0, 0);
-	right->setPosition(50, 0, 0);
+	right->setPosition(50, 0, 0+lens_shift);
 
-	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(blue);
+	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(green);
 	left->setNormal(1, 0, 0);
-	left->setPosition(-50, 0, 0);
+	left->setPosition(-50, 0, 0+lens_shift);
 
-	photonCPU::PointLight* light = new photonCPU::PointLight(0, 45, 50);
+	photonCPU::PointLight* light = new photonCPU::PointLight(0, 45, 50+lens_shift);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
@@ -169,29 +189,26 @@ int main(int argc, char* argv[]) {
 		//s->addLight(lighting_rig[i]);
 	}
 
-
-
 	s->addLight(light);
+       	s->addObject(front);
+	s->addObject(sphere);
+	s->addObject(sphere2);
+
+	s->addObject(apature);
 
 	s->addObject(floor);
 	s->addObject(top);
 	s->addObject(right);
 	s->addObject(left);
 	s->addObject(back);
-
-       	s->addObject(front);
-       	s->addObject(apature);
-	s->addObject(sphere);
-	s->addObject(sphere2);
 	s->addObject(spherer);
 	s->addObject(sphereg);
-
 	// Create our renderer
 	photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s);
 
 	// Perform the render iself, and do some timing
 	gettimeofday(&tic, NULL);
-	render->performRender(num_photons, argc, argv, 1000, 1000);
+	render->performRender(num_photons, argc, argv, 1000, 1000, -film_distance);
 	gettimeofday(&toc, NULL);
 
 	// Report how fast we were, perhaps
@@ -210,7 +227,6 @@ int main(int argc, char* argv[]) {
 	delete floor;
 	delete back;
 	delete front;
-	delete apature;
 	delete right;
 	delete left;
 	delete top;

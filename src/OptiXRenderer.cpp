@@ -22,7 +22,7 @@ OptiXRenderer::~OptiXRenderer() {
 
 }
 
-void OptiXRenderer::convertToOptiXScene(optix::Context context, int width, int height) {
+void OptiXRenderer::convertToOptiXScene(optix::Context context, int width, int height, float film_location) {
 	// Setup lighting
 	// TODO For now, we assume just one light
 	context->setEntryPointCount( 1 );
@@ -53,7 +53,7 @@ void OptiXRenderer::convertToOptiXScene(optix::Context context, int width, int h
 	// 
 	mCameraMat = new CameraMaterial(width, height, 1);
 	PlaneObject* plane = new PlaneObject(mCameraMat);
-	plane->setPosition(0, 0, -110);
+	plane->setPosition(0, 0, film_location); //-65
 	mCameraObject = plane;
 	// Convert to OptiX
 	optix::GeometryInstance gi = context->createGeometryInstance();
@@ -99,7 +99,7 @@ void done(timeval start_time) {
 /**
  * This function does what it says on the tin.
  */
-void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* argv_mpi[], int width, int height) {
+void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* argv_mpi[], int width, int height, float film_location) {
 	// Keep track of time
 	timeval tic;
 
@@ -108,7 +108,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context->setRayTypeCount( 1 );
 
 	// Debug, this will make everything SLOOOOOW
-	context->setPrintEnabled(true);
+	context->setPrintEnabled(false);
 
 	// Set some CUDA flags
 	cudaSetDeviceFlags(cudaDeviceMapHost | cudaDeviceLmemResizeToMax);
@@ -134,7 +134,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	printf("Optix stack size is %d bytes (~%d KB).\n.", stack_size_in_bytes, stack_size_in_bytes/1024);
 
 	// Declare some variables
-	int threads = 5000000; //20000000;
+	int threads = 500000; //20000000;
 	unsigned int iterations_on_device = 1;
 
 	// Set some scene-wide variables
@@ -145,7 +145,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context["follow_photon"]->setInt(66752);
 
 	// Convert our existing scene into an OptiX one
-	convertToOptiXScene(context, width, height);
+	convertToOptiXScene(context, width, height, film_location);
 
 	// Report infomation
 	printf("Rendering with:\n");
@@ -428,12 +428,15 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 	// Find highest value
 	float biggest = 0;
 	for(int i=0;i<width*height;i++) {
-		biggest += image[i].x;
-		biggest += image[i].y;
-		biggest += image[i].z;
+		if(image[i].x>biggest) biggest = image[i].x;
+		if(image[i].y>biggest) biggest = image[i].y;
+		if(image[i].z>biggest) biggest = image[i].z;
 	}
+	float max_hits = 0;
+	for(int i=0;i<width*height;i++) {
+		if(image[i].w>max_hits) max_hits = image[i].w;
+	}	
 	printf("SUM colour value is %f\n", biggest);
-	biggest = biggest/(width*height*3);
 	printf("Avg colour value is %f\n", biggest);
 	// BUild file
 	f = fopen(filename, "w");
@@ -442,14 +445,19 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 	fprintf(f, "%d %d\n", width, height);
 	fprintf(f, "%d\n", maxVal);
 	fprintf(f, "\n");
-	for(int i=width-1;i>=0;i--){
-		for(int j=0;j<height;j++){
+	for(int i=0;i<width;i++){
+		for(int j=height-1;j>=0;j--){
 			optix::float4 pixel = image[index(i, j, width)];
+			float pixel_high = 0.00000000000000001;
+			if(pixel.x>pixel_high) pixel_high = pixel.x;
+			if(pixel.y>pixel_high) pixel_high = pixel.y;
+			if(pixel.z>pixel_high) pixel_high = pixel.z;
+			float brightness = 3;//(pixel.w/max_hits)*0.5+0.5;
 			fprintf(f,
 					" %d %d %d \n",
-					toColourInt(pixel.x/biggest, maxVal),
-					toColourInt(pixel.y/biggest, maxVal),
-					toColourInt(pixel.z/biggest, maxVal)
+					toColourInt(pixel.x, maxVal),
+					toColourInt(pixel.y, maxVal),
+					toColourInt(pixel.z, maxVal)
 			       );
 		}
 	}

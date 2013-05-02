@@ -35,14 +35,14 @@ private:
 	optix::Material mCameraMatOptiX;
 	RenderObject* mCameraObject;
 	Scene* mScene;
-	void convertToOptiXScene(optix::Context context, int width, int height);
+	void convertToOptiXScene(optix::Context context, int width, int height, float film_location);
 	void saveToPPMFile(char* filename, optix::float4* image, int width, int height);
 	int index(int x, int y, int width);
 	int toColourInt(float f, int maxVal);
 public:
 	OptiXRenderer(Scene* pScene);
 	virtual ~OptiXRenderer();
-	void performRender(long long int photons, int argc_mpi, char* argv_mpi[], int width, int height);
+	void performRender(long long int photons, int argc_mpi, char* argv_mpi[], int width, int height, float film_location);
 	void doRenderPass(long long int photons);
 };
 
