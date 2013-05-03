@@ -9,7 +9,7 @@
 
 namespace photonCPU {
 
-AreaLight::AreaLight(ector3D* pPosition, Vector3D* pNormal, Vector3D* pUp, Vector3D* pRight, float pWidth, float pHeight) {
+AreaLight::AreaLight(Vector3D* pPosition, Vector3D* pNormal, Vector3D* pUp, Vector3D* pRight, float pWidth, float pHeight) {
 	mPosition = new Vector3D(pPosition);
         mNormal   = new Vector3D(pNormal);
         mUp       = new Vector3D(pUp);
@@ -20,7 +20,7 @@ AreaLight::AreaLight(ector3D* pPosition, Vector3D* pNormal, Vector3D* pUp, Vecto
 
 AreaLight::~AreaLight() {
 	delete mPosition;
-        delete mNormal
+        delete mNormal;
         delete mUp;
         delete mRight;
 }
@@ -29,15 +29,15 @@ Ray* AreaLight::getRandomRayFromLight() {
 	// Point light, so always emmit from 1 place
 	const float pi = 3.141;
 
-        Vector3D position
+        Vector3D position;
         position.setTo(mPosition);
-        position += (randFloat()*width)*mRight;
-        position += (randFloat()*height)*mUp;
+        position += (*mRight)*(randFloat()*mWidth);
+        position += (*mUp)*(randFloat()*mHeight);
 
         Vector3D bounce;
         float phi = randFloat()*pi - pi/2;
         float theta = randFloat()*pi - pi/2;
-        bounce.setTo(pNormal);
+        bounce.setTo(mNormal);
         bounce = bounce.rotate(mUp, phi);
         bounce = bounce.rotate(mRight, theta);
         bounce.normaliseSelf();

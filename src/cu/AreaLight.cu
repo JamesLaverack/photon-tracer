@@ -35,7 +35,7 @@ RT_PROGRAM void light() {
 		pos += up*curand_uniform(&states[launch_index])*height;
 		pos += right*curand_uniform(&states[launch_index])*width;
 	
-		float3 ray_direction = normal;
+		float4 ray_direction = make_float4(normal);
 		float phi = curand_uniform(&states[launch_index]);
 		float theta = curand_uniform(&states[launch_index]);
 		optix::Matrix4x4 rot1 = optix::Matrix4x4::rotate(phi  , up);
@@ -43,7 +43,7 @@ RT_PROGRAM void light() {
 		optix::Matrix4x4 rot2 = optix::Matrix4x4::rotate(theta, right);
 		ray_direction = ray_direction*rot2;
 		
-		optix::Ray ray = optix::make_Ray(pos, ray_direction, photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
+		optix::Ray ray = optix::make_Ray(pos, make_float3(ray_direction), photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 
 		PerRayData_photon prd;
 		prd.importance = 1.f;

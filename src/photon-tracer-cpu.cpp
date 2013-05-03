@@ -23,6 +23,7 @@
 #include "ColourMaterial.h"
 #include "TransparantMaterial.h"
 #include "RadiusMaskMaterial.h"
+#include "AreaLight.h"
 using photonCPU::Vector3D;
 using photonCPU::PointLight;
 
@@ -177,9 +178,9 @@ int main(int argc, char* argv[]) {
 	// Make an area light
 	Vector3D l_pos    = new Vector3D(0, 50, 50+lens_shift);
 	Vector3D l_normal = new Vector3D(0, -1, 0);
-	Vectot3D l_up     = new Vector3D(0, 0, 1);
+	Vector3D l_up     = new Vector3D(0, 0, 1);
 	Vector3D l_right  = new Vector3D(-1, 0, 0);
-	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, width, height);
+	photonCPU::AreaLight* light = new photonCPU::AreaLight(&l_pos, &l_normal, &l_up, &l_right, 100, 100);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
@@ -235,11 +236,6 @@ int main(int argc, char* argv[]) {
 
 	// Delete light
 	delete light;
-
-	// Delete lighting rig
-	for(int i=0;i<numLights;i++) {
-		delete lighting_rig[i];
-	}
 
 	return EXIT_SUCCESS;
 }
