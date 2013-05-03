@@ -43,7 +43,7 @@ RT_PROGRAM void light() {
 		optix::Matrix4x4 rot2 = optix::Matrix4x4::rotate(theta, right);
 		ray_direction = ray_direction*rot2;
 		
-		optix::Ray ray = optix::make_Ray(pos, make_float3(ray_direction), photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
+		optix::Ray ray = optix::make_Ray(pos, make_float3(0, 0, -1), photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 
 		PerRayData_photon prd;
 		prd.importance = 1.f;

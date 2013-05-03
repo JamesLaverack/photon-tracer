@@ -176,11 +176,12 @@ int main(int argc, char* argv[]) {
 	left->setPosition(-50, 0, 0+lens_shift);
 
 	// Make an area light
-	Vector3D l_pos    = new Vector3D(0, 50, 50+lens_shift);
-	Vector3D l_normal = new Vector3D(0, -1, 0);
-	Vector3D l_up     = new Vector3D(0, 0, 1);
-	Vector3D l_right  = new Vector3D(-1, 0, 0);
-	photonCPU::AreaLight* light = new photonCPU::AreaLight(&l_pos, &l_normal, &l_up, &l_right, 100, 100);
+	Vector3D* l_pos    = new Vector3D(-50, 50, 0+lens_shift);
+	Vector3D* l_normal = new Vector3D(0, -1, 0);
+	Vector3D* l_up     = new Vector3D(0, 0, 1);
+	Vector3D* l_right  = new Vector3D(1, 0, 0);
+	l_pos->print();
+	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, 100, 100);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 

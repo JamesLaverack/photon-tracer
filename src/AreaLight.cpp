@@ -16,6 +16,9 @@ AreaLight::AreaLight(Vector3D* pPosition, Vector3D* pNormal, Vector3D* pUp, Vect
         mRight    = new Vector3D(pRight);
         mWidth    = pWidth;
         mHeight   = pHeight;
+	pPosition->print();
+	printf("Created area light with position ");
+	mPosition->print();
 }
 
 AreaLight::~AreaLight() {
