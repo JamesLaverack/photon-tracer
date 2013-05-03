@@ -174,20 +174,14 @@ int main(int argc, char* argv[]) {
 	left->setNormal(1, 0, 0);
 	left->setPosition(-50, 0, 0+lens_shift);
 
-	photonCPU::PointLight* light = new photonCPU::PointLight(0, 0, 50+lens_shift);
+	// Make an area light
+	Vector3D l_pos    = new Vector3D(0, 50, 50+lens_shift);
+	Vector3D l_normal = new Vector3D(0, -1, 0);
+	Vectot3D l_up     = new Vector3D(0, 0, 1);
+	Vector3D l_right  = new Vector3D(-1, 0, 0);
+	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, width, height);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
-
-	// Make a lighting rig
-	int numLights = 5;
-	float radius = 10;
-	float height = 20;
-	PointLight** lighting_rig = new PointLight*[numLights];
-	for(int i=0;i<numLights;i++) {
-		float theta = (i/(numLights+1)) * 3.141 * 2;
-		lighting_rig[i] = new photonCPU::PointLight(radius*std::cos(theta), height, radius*std::sin(theta));
-		//s->addLight(lighting_rig[i]);
-	}
 
 	s->addLight(light);
        	s->addObject(front);
@@ -197,7 +191,6 @@ int main(int argc, char* argv[]) {
 	s->addObject(apature);
 
 	s->addObject(floor);
-	s->addObject(top);
 	s->addObject(right);
 	s->addObject(left);
 	s->addObject(back);
