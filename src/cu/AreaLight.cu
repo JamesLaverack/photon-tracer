@@ -19,14 +19,7 @@ rtDeclareVariable(float,            height, , );
 rtBuffer<curandState, 1>              states;
 
 RT_PROGRAM void light() {
-	// Point light, so always emmit from 1 place
-	//printf("HURF\n");
-	//r->getPosition().print();
-	//r->getPosition().print();
-	//printf("DURF\n");
-	// Randomise direction
-	//TODO Frame number?
-	/* Copy state to local memory for efficiency */
+	const float pi = 3.141;
 	int report = 0;
 	if(launch_index == 0) report = 1;
 
@@ -36,15 +29,14 @@ RT_PROGRAM void light() {
 		pos += right*curand_uniform(&states[launch_index])*width;
 	
 		float4 ray_direction = make_float4(normal);
-		float phi = curand_uniform(&states[launch_index]);
-		float theta = curand_uniform(&states[launch_index]);
+		float phi = curand_uniform(&states[launch_index])*pi - pi/2;
+		float theta = curand_uniform(&states[launch_index])*pi - pi/2;
 		optix::Matrix4x4 rot1 = optix::Matrix4x4::rotate(phi  , up);
 		ray_direction = ray_direction*rot1;
 		optix::Matrix4x4 rot2 = optix::Matrix4x4::rotate(theta, right);
 		ray_direction = ray_direction*rot2;
 		
-		optix::Ray ray = optix::make_Ray(pos, make_float3(0, 0, -1), photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
-
+		optix::Ray ray = optix::make_Ray(pos, make_float3(ray_direction), photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 		PerRayData_photon prd;
 		prd.importance = 1.f;
 		prd.depth = 0;

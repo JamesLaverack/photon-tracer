@@ -108,7 +108,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	context->setRayTypeCount( 1 );
 
 	// Debug, this will make everything SLOOOOOW
-	context->setPrintEnabled(true);
+	context->setPrintEnabled(false);
 
 	// Set some CUDA flags
 	cudaSetDeviceFlags(cudaDeviceMapHost | cudaDeviceLmemResizeToMax);
