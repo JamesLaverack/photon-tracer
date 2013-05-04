@@ -9,11 +9,12 @@
 
 namespace photonCPU {
 
-AreaLight::AreaLight(Vector3D* pPosition, Vector3D* pNormal, Vector3D* pUp, Vector3D* pRight, float pWidth, float pHeight) {
+AreaLight::AreaLight(Vector3D* pPosition, Vector3D* pNormal, Vector3D* pUp, Vector3D* pRight, float pWidth, float pHeight, float pVariance) {
 	mPosition = new Vector3D(pPosition);
         mNormal   = new Vector3D(pNormal);
         mUp       = new Vector3D(pUp);
         mRight    = new Vector3D(pRight);
+	mVariance = pVariance;
         mWidth    = pWidth;
         mHeight   = pHeight;
 	pPosition->print();
@@ -29,17 +30,14 @@ AreaLight::~AreaLight() {
 }
 
 Ray* AreaLight::getRandomRayFromLight() {
-	// Point light, so always emmit from 1 place
-	const float pi = 3.141;
-
         Vector3D position;
         position.setTo(mPosition);
         position += (*mRight)*(randFloat()*mWidth);
         position += (*mUp)*(randFloat()*mHeight);
 
         Vector3D bounce;
-        float phi = randFloat()*pi - pi/2;
-        float theta = randFloat()*pi - pi/2;
+        float phi = randFloat()*mVariance*2 - mVariance;
+        float theta = randFloat()*mVariance*2 - mVariance;
         bounce.setTo(mNormal);
         bounce = bounce.rotate(mUp, phi);
         bounce = bounce.rotate(mRight, theta);
@@ -60,6 +58,7 @@ optix::Program AreaLight::getOptiXLight(optix::Context context) {
         prog["normal"]->setFloat( mNormal->x, mNormal->y, mNormal->z);
         prog["up"]->setFloat( mUp->x, mUp->y, mUp->z);
         prog["right"]->setFloat( mRight->x, mRight->y, mRight->z);
+	prog["variance"]->setFloat(mVariance);
         prog["width"]->setFloat(mWidth);
         prog["height"]->setFloat(mHeight);
 	return prog;

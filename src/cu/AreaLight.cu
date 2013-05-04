@@ -16,10 +16,10 @@ rtDeclareVariable(float3,            up, , );
 rtDeclareVariable(float3,            right, , );
 rtDeclareVariable(float,            width, , );
 rtDeclareVariable(float,            height, , );
+rtDeclareVariable(float,            variance, , );
 rtBuffer<curandState, 1>              states;
 
 RT_PROGRAM void light() {
-	const float pi = 3.141;
 	int report = 0;
 	if(launch_index == 0) report = 1;
 
@@ -29,8 +29,8 @@ RT_PROGRAM void light() {
 		pos += right*curand_uniform(&states[launch_index])*width;
 	
 		float4 ray_direction = make_float4(normal);
-		float phi = curand_uniform(&states[launch_index])*pi - pi/2;
-		float theta = curand_uniform(&states[launch_index])*pi - pi/2;
+		float phi = curand_uniform(&states[launch_index])*variance*2 - variance;
+		float theta = curand_uniform(&states[launch_index])*variance*2 - variance;
 		optix::Matrix4x4 rot1 = optix::Matrix4x4::rotate(phi  , up);
 		ray_direction = ray_direction*rot1;
 		optix::Matrix4x4 rot2 = optix::Matrix4x4::rotate(theta, right);

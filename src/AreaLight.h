@@ -19,10 +19,11 @@ private:
         Vector3D* mNormal;
         Vector3D* mUp;
         Vector3D* mRight;
+	float mVariance;
         float mWidth, mHeight;
 	float randFloat();
 public:
-	AreaLight(Vector3D* pPosition, Vector3D* pNormal, Vector3D* pUp, Vector3D* pRight, float pWidth, float pHeight);
+	AreaLight(Vector3D* pPosition, Vector3D* pNormal, Vector3D* pUp, Vector3D* pRight, float pWidth, float pHeight, float pVaraince);
 	virtual ~AreaLight();
 	virtual Ray* getRandomRayFromLight();
 	#ifdef PHOTON_OPTIX
