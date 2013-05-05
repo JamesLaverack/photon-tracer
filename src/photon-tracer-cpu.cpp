@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
 	Vector3D* l_up     = new Vector3D(0, 0, 1);
 	Vector3D* l_right  = new Vector3D(1, 0, 0);
 	l_pos->print();
-	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, 100, 100);
+	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, 100, 100, 3.141/2);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
