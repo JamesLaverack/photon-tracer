@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	long long int num_photons = 5000000;
 	bool time_run = false;
 	float modifier = 0.005f;
-	float shift = 100;
+	float shift = 279;
 	timeval tic, toc;
 
 	// Parse inputs
@@ -109,15 +109,15 @@ int main(int argc, char* argv[]) {
 	photonCPU::TransparantMaterial* trans = new photonCPU::TransparantMaterial();
 	photonCPU::RadiusMaskMaterial* mask = new photonCPU::RadiusMaskMaterial();
 	photonCPU::RadiusMaskMaterial* mask_apature = new photonCPU::RadiusMaskMaterial();
-	mask_apature->radius = shift;
+	mask_apature->radius = 100;
 
-	float R = 140;
+	float R = 150;
 	float d = 20;
 
 	trans_in->lens_hack_depth = d;
 	trans_out->lens_hack_depth = d;
 
-	float film_distance = 250;//170;//12.5f;
+	float film_distance = shift;//170;//12.5f;
 	float lens_shift = film_distance-50;
 	float radi = std::sqrt(R*R - (R-d)*(R-d));
 
@@ -176,12 +176,12 @@ int main(int argc, char* argv[]) {
 	left->setPosition(-50, 0, 0+lens_shift);
 
 	// Make an area light
-	Vector3D* l_pos    = new Vector3D(-50, 50, 0+lens_shift);
+	Vector3D* l_pos    = new Vector3D(-50, 100, 0+lens_shift);
 	Vector3D* l_normal = new Vector3D(0, -1, 0);
 	Vector3D* l_up     = new Vector3D(0, 0, 1);
 	Vector3D* l_right  = new Vector3D(1, 0, 0);
 	l_pos->print();
-	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, 100, 100, 3.141/2);
+	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, 100, 100, 3.141/4);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
