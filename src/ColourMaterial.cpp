@@ -13,7 +13,7 @@ ColourMaterial::ColourMaterial(float pColourWavelengthMin, float pColourWaveleng
 	mColourWavelengthMax = pColourWavelengthMax;
 	mColourWavelengthMin = pColourWavelengthMin;
 	mRand = new photonCPU::NormalRandomGenerator();
-	this->std = 6;
+	this->std = 0.25;
 }
 
 ColourMaterial::~ColourMaterial() {

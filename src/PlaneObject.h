@@ -17,13 +17,13 @@ class PlaneObject: public photonCPU::RenderObject {
 private:
 	Vector3D* position;
 	Vector3D* normal;
-	Vector3D* up;
-	Vector3D* right;
 	float focal_length;
 	Vector3D focal_point;
 	int height;
 	int width;
 public:
+	Vector3D* up;
+	Vector3D* right;
 	PlaneObject(AbstractMaterial* pMaterial);
 	virtual ~PlaneObject();
 	void setPosition(Vector3D* pos);

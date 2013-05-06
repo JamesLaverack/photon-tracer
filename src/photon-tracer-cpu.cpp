@@ -96,12 +96,12 @@ int main(int argc, char* argv[]) {
 	if (time_run) printf("Timing run.\n");
 
 	// Begin setup
-	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 1000.0f);
-	photonCPU::ColourMaterial* green = new photonCPU::ColourMaterial(495.0f, 570.0f);
-	photonCPU::ColourMaterial* red = new photonCPU::ColourMaterial(630.0f, 740.0f);
-	red->std = 6;
-	photonCPU::ColourMaterial* blue = new photonCPU::ColourMaterial(450.0f, 475.0f);
-	blue->std = 1;
+	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 700.0f);
+	photonCPU::ColourMaterial* green  = new photonCPU::ColourMaterial(490.0f, 560.0f);
+	photonCPU::ColourMaterial* red    = new photonCPU::ColourMaterial(635.0f, 700.0f);
+	photonCPU::ColourMaterial* blue   = new photonCPU::ColourMaterial(450.0f, 490.0f);
+	photonCPU::ColourMaterial* mirror = new photonCPU::ColourMaterial(300.0f, 1000.0f);
+	mirror->std = 0.001;
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
 	trans_in->debug_id = 4;
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
 	trans_out->lens_hack_depth = d;
 
 	float film_distance = shift;//170;//12.5f;
-	float lens_shift = film_distance-50;
+	float lens_shift = shift-50;
 	float radi = std::sqrt(R*R - (R-d)*(R-d));
 
 	trans_in->lens_hack_radius = radi;
@@ -140,12 +140,14 @@ int main(int argc, char* argv[]) {
 	front->setNormal(0, 0, 1);
 	front->setPosition(0, 0, 0);
 
-	photonCPU::PlaneObject* apature = new photonCPU::PlaneObject(mask_apature);
-	apature->setNormal(0, 0, 1);
-	apature->setPosition(0, 0, 0);
+	photonCPU::PlaneObject* apature = new photonCPU::PlaneObject(trans);
+	apature->setNormal(0, 0, -1);
+	apature->up->setTo(0, 1, 0);
+	apature->right->setTo(1, 0, 0);
+	apature->setPosition(0, 0, -d);
 
 	// Balls
-	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(blue);
+	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(mirror);
 	spherer->setPosition(25, -40, 80+lens_shift);
 	spherer->radius = 10;
 
@@ -157,23 +159,33 @@ int main(int argc, char* argv[]) {
 
 	photonCPU::PlaneObject* floor = new photonCPU::PlaneObject(white);
 	floor->setNormal(0, 1, 0);
-	floor->setPosition(0, -50, 0+lens_shift);
+	floor->up->setTo(0, 0, 1);
+	floor->right->setTo(1, 0, 0);
+	floor->setPosition(0, -50, 50+lens_shift);
 
 	photonCPU::PlaneObject* top = new photonCPU::PlaneObject(white);
 	top->setNormal(0, -1, 0);
-	top->setPosition(0, 50, 0+lens_shift);
+	top->up->setTo(0, 0, 1);
+	top->up->setTo(1, 0, 0);
+	top->setPosition(0, 50, 50+lens_shift);
 
 	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(white);
 	back->setNormal(0, 0, -1);
+	back->up->setTo(0, 1, 0);
+	back->right->setTo(1, 0, 0);
 	back->setPosition(0, 0, 100+lens_shift);
 
 	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(red);
 	right->setNormal(-1, 0, 0);
-	right->setPosition(50, 0, 0+lens_shift);
+	right->up->setTo(0, 1, 0);
+	right->right->setTo(0, 0, 1);
+	right->setPosition(50, 0, 50+lens_shift);
 
 	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(green);
 	left->setNormal(1, 0, 0);
-	left->setPosition(-50, 0, 0+lens_shift);
+	left->up->setTo(0, 1, 0);
+	left->right->setTo(0, 0, 1);
+	left->setPosition(-50, 0, 50+lens_shift);
 
 	// Make an area light
 	Vector3D* l_pos    = new Vector3D(-50, 100, 0+lens_shift);

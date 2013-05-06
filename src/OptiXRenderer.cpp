@@ -37,7 +37,7 @@ void OptiXRenderer::convertToOptiXScene(optix::Context context, int width, int h
 	// Geometry group
 	optix::GeometryGroup geometrygroup = context->createGeometryGroup();
 	geometrygroup->setChildCount( mScene->mObjects.size() + 1 );
-	geometrygroup->setAcceleration( context->createAcceleration("NoAccel","NoAccel") );
+	geometrygroup->setAcceleration( context->createAcceleration("Bvh","Bvh") );
 
 	// Add objects
 	for(std::vector<RenderObject*>::size_type i = 0; i != mScene->mObjects.size(); i++) {

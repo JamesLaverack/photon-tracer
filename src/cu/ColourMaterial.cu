@@ -49,9 +49,17 @@ RT_PROGRAM void closest_hit() {
 	if(prd_photon.wavelength<min_wavelength) return;
 	if(prd_photon.depth >= scene_bounce_limit) return;
 	float const pi = 3.141;
+	float const ideal_range = 60;
+
+	float range = max_wavelength - min_wavelength;
+	if(curand_uniform(&states[launch_index]) > ideal_range/range) return;
+	
 
 	float3 reverse_normal = (geometric_normal)*-1;
 	float reflect_angle = std::acos(optix::dot(ray.direction, reverse_normal));
+	if(reflect_angle>pi/2) {
+		reflect_angle = pi - reflect_angle;
+	}
 	// project our incident ray onto the plane defined by
 	// < hitLocation, normal > and make sure it's a unit vector, this becomes u.
 	float m = optix::dot(geometric_normal, ray.direction);
