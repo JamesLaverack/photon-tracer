@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	long long int num_photons = 5000000;
 	bool time_run = false;
 	float modifier = 0.005f;
-	float shift = 279;
+	float shift = 120.0f;
 	timeval tic, toc;
 
 	// Parse inputs
@@ -111,8 +111,8 @@ int main(int argc, char* argv[]) {
 	photonCPU::RadiusMaskMaterial* mask_apature = new photonCPU::RadiusMaskMaterial();
 	mask_apature->radius = 100;
 
-	float R = 150;
-	float d = 20;
+	float R = 59.3f;
+	float d = 7.2f;
 
 	trans_in->lens_hack_depth = d;
 	trans_out->lens_hack_depth = d;
@@ -120,10 +120,11 @@ int main(int argc, char* argv[]) {
 	float film_distance = shift;//170;//12.5f;
 	float lens_shift = shift-50;
 	float radi = std::sqrt(R*R - (R-d)*(R-d));
+	printf("Apature size (radius) %f\n, setting to 40.", radi);
+	radi = 25.4;
 
 	trans_in->lens_hack_radius = radi;
 	trans_out->lens_hack_radius = radi;
-	printf("Apature size %f\n", radi);
 	trans_in->radius = radi;
 	trans_out->radius = radi;
 	mask->radius = radi;
@@ -138,7 +139,7 @@ int main(int argc, char* argv[]) {
 
 	photonCPU::PlaneObject* front = new photonCPU::PlaneObject(mask);
 	front->setNormal(0, 0, 1);
-	front->setPosition(0, 0, 0);
+	front->setPosition(0, 0, d);
 
 	photonCPU::PlaneObject* apature = new photonCPU::PlaneObject(trans);
 	apature->setNormal(0, 0, -1);
@@ -201,8 +202,6 @@ int main(int argc, char* argv[]) {
        	s->addObject(front);
 	s->addObject(sphere);
 	s->addObject(sphere2);
-
-	s->addObject(apature);
 
 	s->addObject(floor);
 	s->addObject(right);
