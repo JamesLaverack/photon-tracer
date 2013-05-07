@@ -33,8 +33,16 @@ int main(int argc, char* argv[]) {
 	long long int num_photons = 5000000;
 	bool time_run = false;
 	float modifier = 0.005f;
-	float shift = 96.8f*2;
 	timeval tic, toc;
+
+	// Some lens stuff
+	float R = 101.4f;
+	float ct = 9.5f;
+	float focal_length = 96.8f;
+	float lens_diam = 50.8f;
+
+	// General purpse input
+	float shift = focal_length*2;
 
 	// Parse inputs
 	for(int i=1;i<argc;i++) {
@@ -111,8 +119,7 @@ int main(int argc, char* argv[]) {
 	photonCPU::RadiusMaskMaterial* mask_apature = new photonCPU::RadiusMaskMaterial();
 	mask_apature->radius = 100;
 
-	float R = 101.4f;
-	float d = 4.75f;
+	float d = ct/2;
 
 	trans_in->lens_hack_depth = d;
 	trans_out->lens_hack_depth = d;
@@ -121,7 +128,7 @@ int main(int argc, char* argv[]) {
 	float lens_shift = shift-50;
 	float radi = std::sqrt(R*R - (R-d)*(R-d));
 	printf("Apature size (radius) %f\n, setting to 40.", radi);
-	radi = 25.4;
+	radi = lens_diam/2;
 
 	trans_in->lens_hack_radius = radi;
 	trans_out->lens_hack_radius = radi;
