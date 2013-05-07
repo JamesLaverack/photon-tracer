@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	long long int num_photons = 5000000;
 	bool time_run = false;
 	float modifier = 0.005f;
-	float shift = 120.0f;
+	float shift = 96.8f*2;
 	timeval tic, toc;
 
 	// Parse inputs
@@ -111,8 +111,8 @@ int main(int argc, char* argv[]) {
 	photonCPU::RadiusMaskMaterial* mask_apature = new photonCPU::RadiusMaskMaterial();
 	mask_apature->radius = 100;
 
-	float R = 59.3f;
-	float d = 7.2f;
+	float R = 101.4f;
+	float d = 4.75f;
 
 	trans_in->lens_hack_depth = d;
 	trans_out->lens_hack_depth = d;
@@ -148,11 +148,11 @@ int main(int argc, char* argv[]) {
 	apature->setPosition(0, 0, -d);
 
 	// Balls
-	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(mirror);
+	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(white);
 	spherer->setPosition(25, -40, 80+lens_shift);
 	spherer->radius = 10;
 
-	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(trans);
+	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(white);
 	sphereg->setPosition(-25, -40, 80+lens_shift);
 	sphereg->radius = 10;
 
@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
 	left->setPosition(-50, 0, 50+lens_shift);
 
 	// Make an area light
-	Vector3D* l_pos    = new Vector3D(-50, 100, 0+lens_shift);
+	Vector3D* l_pos    = new Vector3D(-50, 50, 0+lens_shift);
 	Vector3D* l_normal = new Vector3D(0, -1, 0);
 	Vector3D* l_up     = new Vector3D(0, 0, 1);
 	Vector3D* l_right  = new Vector3D(1, 0, 0);
