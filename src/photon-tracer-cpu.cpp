@@ -226,7 +226,7 @@ int main(int argc, char* argv[]) {
 	#ifdef PHOTON_OPTIX
 		photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s);
 	#else
-		photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000, 0.05);
+		photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000, -film_distance);
 	#endif
 	// Perform the render iself, and do some timing
 	gettimeofday(&tic, NULL);

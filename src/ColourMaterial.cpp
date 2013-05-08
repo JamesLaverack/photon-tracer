@@ -32,6 +32,10 @@ optix::Material ColourMaterial::getOptiXMaterial(optix::Context context) {
 }
 #endif
 
+float ColourMaterial::randFloat() {                                                                                                 
+	return (float)(rand()/((float)RAND_MAX));                                                                                       
+}  
+
 Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	// We don't care where we hit this material in terms of textures
 	(void)u;
@@ -42,7 +46,9 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	// Do we absorb this?
 	if(wavelength>mColourWavelengthMax) return 0;
 	if(wavelength<mColourWavelengthMin) return 0;
-
+	float const ideal_range = 60;
+	float range = mColourWavelengthMax - mColourWavelengthMin;
+	if(randFloat()> ideal_range/range) return 0;
 	// Create new ray
 	Ray* r = new Ray();
 	r->setPosition(hitLocation);

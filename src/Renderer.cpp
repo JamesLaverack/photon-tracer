@@ -9,12 +9,12 @@
 
 namespace photonCPU {
 
-Renderer::Renderer(Scene* pScene, int width, int height, float modifier) {
+Renderer::Renderer(Scene* pScene, int width, int height, float film_distance) {
 	mScene = pScene;
 	// Add a camera to the scene
-	mCameraMat = new CameraMaterial(width, height, modifier);
+	mCameraMat = new CameraMaterial(width, height, 10);
 	PlaneObject* plane = new PlaneObject(mCameraMat);
-	plane->setPosition(0, 0, -110);
+	plane->setPosition(0, 0, film_distance);
 	mCameraObject = plane;
 	mScene->addObject(mCameraObject);
 }

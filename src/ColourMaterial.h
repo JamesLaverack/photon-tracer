@@ -18,6 +18,7 @@ private:
 	float mColourWavelengthMin;
 	float mColourWavelengthMax;
 	photonCPU::NormalRandomGenerator* mRand;
+	float randFloat();
 public:
 	float std;
 	ColourMaterial(float pColorWavelengthMin, float pColourWavelengthMax);

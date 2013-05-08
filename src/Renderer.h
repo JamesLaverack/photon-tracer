@@ -24,7 +24,7 @@ private:
 	RenderObject* mCameraObject;
 	Scene* mScene;
 public:
-	Renderer(Scene* pScene, int width, int height, float modifier);
+	Renderer(Scene* pScene, int width, int height, float film_distance);
 	virtual ~Renderer();
 	void performRender(long long int photons, int argc_mpi, char* argv_mpi[]);
 	void doRenderPass(long long int photons);
