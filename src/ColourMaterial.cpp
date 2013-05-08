@@ -32,9 +32,9 @@ optix::Material ColourMaterial::getOptiXMaterial(optix::Context context) {
 }
 #endif
 
-float ColourMaterial::randFloat() {                                                                                                 
-	return (float)(rand()/((float)RAND_MAX));                                                                                       
-}  
+float ColourMaterial::randFloat() {
+	return (float)(rand()/((float)RAND_MAX));
+}
 
 Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	// We don't care where we hit this material in terms of textures

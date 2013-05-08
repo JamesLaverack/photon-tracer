@@ -54,7 +54,6 @@ RT_PROGRAM void closest_hit() {
 	if(prd_photon.depth >= scene_bounce_limit) return;
 
 	float r_index = refractive_index(prd_photon.wavelength);
-//	float r_index = index_of_refraction;
 
 	// Ugly lens hack
 	if(std::abs(hitpoint.z)>hack_lens_depth) {

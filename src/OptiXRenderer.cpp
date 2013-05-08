@@ -562,7 +562,7 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 	printf("Avg colour value is %f\n", average);
 	// BUild file
 	f = fopen(filename, "w");
-	int maxVal = 255;
+	int maxVal = 65535;
 	fprintf(f, "P3\n");
 	fprintf(f, "%d %d\n", width, height);
 	fprintf(f, "%d\n", maxVal);
@@ -582,9 +582,9 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 			float r, g, b; // 0.0f-1.0f
 			float  h, s, l; // 0.0f-1.0f
 			float mod = avg_pixel_brightness/average;
-			r = pixel.x/pixel_high*mod;///biggest_munge;
-			g = pixel.y/pixel_high*mod;///biggest_munge;
-			b = pixel.z/pixel_high*mod;///biggest_munge;
+			r = pixel.x/average;
+			g = pixel.y/average;
+			b = pixel.z/average;
 			// I whip my colours back and forth
 	//		rgb2hsl(r, g, b, &h, &s, &l);
 	//		//l = (munge(pixel.w)/munge(max_hits));

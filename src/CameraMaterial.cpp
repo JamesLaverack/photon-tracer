@@ -39,7 +39,7 @@ optix::Material CameraMaterial::getOptiXMaterial(optix::Context context) {
 	mat["camera_size"]->setFloat(actualWidth, actualHeight);
 	mat["image_size"]->setInt(imageWidth, imageHeight);
 	mat["max_intensity"]->setInt(1);
-	mat["gamma"]->setFloat(1.0f);
+	mat["camera_gamma"]->setFloat(1.0f);
 	return mat;
 }
 #endif
