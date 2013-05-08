@@ -23,6 +23,9 @@ CUDIRS := $(shell find . -name '*.$(CUEXT)' -exec dirname {} \; | uniq)
 PTXS   := $(CUS:$(CUDIR)%=$(PTXDIR)%)
 PTXS   := $(PTXS:.cu=.ptx)
 
+CUDA_ONLY := obj/src/CUDAWrapper.o obj/src/OptiXRenderer.o
+OBJS_S   := $(filter-out $(CUDA_ONLY), $(OBJS))
+
 DEBUG       = -g
 PERFORMANCE = -O3
 WARNINGS    = -Wall -W -Wextra
@@ -30,17 +33,18 @@ INCLUDES    = -I./inc -I/usr/local/optix/include -I/usr/local/cuda-5.0/include
 MPIFLAGS    =
 CXX         = g++
 CXXFLAGS    = -fmessage-length=0 -c $(DEBUG) $(INCLUDES) $(PERFORMANCE) $(WARNINGS) $(MPIFLAGS)
-LDFLAGS     = -L/usr/local/optix/lib64 -L/usr/local/cuda/lib64 -lcuda -loptix -lcudart
 NVCC        = nvcc
 NVCCFLAGS   = $(INCLUDES) $(LDFLAGS) -arch sm_20
 
 .PHONY: all clean distclean
 
-all: $(BINDIR)/$(APP) clean
+mpi: mpi-set-cxx app clean
 
-mpi: mpi-set-cxx all
+serial: app-serial clean
 
-optix: optix-set-cxx all $(PTXS)
+optix: optix-set-cxx app $(PTXS) clean
+
+optix-mpi: optix-set-cxx mpi-set-cxx app $(PTXS) clean
 
 mpi-set-cxx:
 	$(eval CXX = mpicxx)
@@ -50,14 +54,20 @@ mpi-set-cxx:
 ptx: buildrepo $(PTXS)
 
 optix-set-cxx:
-	$(eval CXXFLAGS = $(CXXFLAGS) -D PHOTON_OPTIX)
+	$(eval CXXFLAGS  = $(CXXFLAGS) -D PHOTON_OPTIX)
 	$(eval NVCCFLAGS = $(NVCCFLAGS) -D PHOTON_OPTIX)
+	$(eval LDFLAGS   = -L/usr/local/optix/lib64 -L/usr/local/cuda/lib64 -lcuda -loptix -lcudart)
 	@echo "Set to Optix"
 
-$(BINDIR)/$(APP): buildrepo $(OBJS)
+app: buildrepo $(OBJS)
 	@mkdir -p `dirname $@`
 	@echo "Linking $@..."
-	$(CXX) $(OBJS) $(LDFLAGS) -o $@
+	$(CXX) $(OBJS) $(LDFLAGS) -o $(BINDIR)/$(APP)
+
+app-serial: buildrepo $(OBJS_S)
+	@mkdir -p `dirname $@`
+	@echo "Linking $@..."
+	$(CXX) $(OBJS_S) $(LDFLAGS) -o $(BINDIR)/$(APP)
 
 $(OBJDIR)/%.o: %.$(SRCEXT)
 	@echo "Generating dependencies for $<..."

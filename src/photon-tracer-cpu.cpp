@@ -17,13 +17,16 @@
 #include "PlaneObject.h"
 #include "SphereObject.h"
 #include "PerfectMirrorMaterial.h"
-#include "OptiXRenderer.h"
+#include "Renderer.h"
 #include "PointLight.h"
 #include "AbstractMaterial.h"
 #include "ColourMaterial.h"
 #include "TransparantMaterial.h"
 #include "RadiusMaskMaterial.h"
 #include "AreaLight.h"
+#ifdef PHOTON_OPTIX
+#include "OptiXRenderer.h"
+#endif
 using photonCPU::Vector3D;
 using photonCPU::PointLight;
 
@@ -220,11 +223,18 @@ int main(int argc, char* argv[]) {
 	s->addObject(spherer);
 	s->addObject(sphereg);
 	// Create our renderer
-	photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s);
-
+	#ifdef PHOTON_OPTIX
+		photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s);
+	#else
+		photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000, 0.05);
+	#endif
 	// Perform the render iself, and do some timing
 	gettimeofday(&tic, NULL);
-	render->performRender(num_photons, argc, argv, 1000, 1000, -film_distance);
+	#ifdef PHOTON_OPTIX
+		render->performRender(num_photons, argc, argv, 1000, 1000, -film_distance);
+	#else
+		render->performRender(num_photons, argc, argv);
+	#endif
 	gettimeofday(&toc, NULL);
 
 	// Report how fast we were, perhaps
