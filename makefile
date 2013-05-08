@@ -38,7 +38,7 @@ NVCCFLAGS   = $(INCLUDES) $(LDFLAGS) -arch sm_20
 
 .PHONY: all clean distclean
 
-mpi: mpi-set-cxx app clean
+mpi: mpi-set-cxx app-serial clean
 
 serial: app-serial clean
 
