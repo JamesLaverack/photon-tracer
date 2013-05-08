@@ -36,13 +36,14 @@ int main(int argc, char* argv[]) {
 	timeval tic, toc;
 
 	// Some lens stuff
-	float R = 101.4f;
-	float ct = 9.5f;
-	float focal_length = 96.8f;
-	float lens_diam = 50.8f;
+	float R = 91.575f;
+	float ct = 3.8;
+	float focal_length = 87.64f + ct/2;
+	float lens_diam = 25.0f;
 
 	// General purpse input
 	float shift = focal_length*2;
+	printf("Shift is set to %f.\n", shift);
 
 	// Parse inputs
 	for(int i=1;i<argc;i++) {
@@ -80,6 +81,8 @@ int main(int argc, char* argv[]) {
 			time_run = true;
 		}
 	}
+	shift = 150;
+	printf("shift is now %f\n", shift);
 
 	// Report!
 	printf("########################################\n");
@@ -177,13 +180,13 @@ int main(int argc, char* argv[]) {
 	top->up->setTo(1, 0, 0);
 	top->setPosition(0, 50, 50+lens_shift);
 
-	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(white);
+	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(red);
 	back->setNormal(0, 0, -1);
 	back->up->setTo(0, 1, 0);
 	back->right->setTo(1, 0, 0);
 	back->setPosition(0, 0, 100+lens_shift);
 
-	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(red);
+	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(white);
 	right->setNormal(-1, 0, 0);
 	right->up->setTo(0, 1, 0);
 	right->right->setTo(0, 0, 1);
@@ -201,7 +204,7 @@ int main(int argc, char* argv[]) {
 	Vector3D* l_up     = new Vector3D(0, 0, 1);
 	Vector3D* l_right  = new Vector3D(1, 0, 0);
 	l_pos->print();
-	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, 100, 100, 3.141/4);
+	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, 100, 100, 3.141/2);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
