@@ -2,8 +2,11 @@ APP      = photon-tracer-cpu
 
 SRCEXT   = cpp
 SRCDIR   = src
+CUDIR	 = src/cu
+CUEXT    = cu
 OBJDIR   = obj
 BINDIR   = bin
+PTXDIR   = bin/ptx
 IMGDIR   = img
 OUTDIR   = output
 
@@ -11,40 +14,73 @@ QSUB_QUEUE = veryshort
 QSUB_CC    = qsub
 QSUB_FILE  = qsub_4core
 
-SRCS    := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
-SRCDIRS := $(shell find . -name '*.$(SRCEXT)' -exec dirname {} \; | uniq)
-OBJS    := $(patsubst %.$(SRCEXT),$(OBJDIR)/%.o,$(SRCS))
+SRCS     := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
+SRCDIRS  := $(shell find . -name '*.$(SRCEXT)' -exec dirname {} \; | uniq)
+OBJS     := $(patsubst %.$(SRCEXT),$(OBJDIR)/%.o,$(SRCS))
+
+CUS    := $(shell find $(CUDIR) -name '*.$(CUEXT)')
+CUDIRS := $(shell find . -name '*.$(CUEXT)' -exec dirname {} \; | uniq)
+PTXS   := $(CUS:$(CUDIR)%=$(PTXDIR)%)
+PTXS   := $(PTXS:.cu=.ptx)
+
+CUDA_ONLY := obj/src/CUDAWrapper.o obj/src/OptiXRenderer.o
+OBJS_S   := $(filter-out $(CUDA_ONLY), $(OBJS))
 
 DEBUG       = -g
 PERFORMANCE = -O3
 WARNINGS    = -Wall -W -Wextra
-INCLUDES    = -I./inc
+INCLUDES    = -I./inc -I/usr/local/optix/include -I/usr/local/cuda-5.0/include
 MPIFLAGS    =
 CXX         = g++
 CXXFLAGS    = -fmessage-length=0 -c $(DEBUG) $(INCLUDES) $(PERFORMANCE) $(WARNINGS) $(MPIFLAGS)
-LDFLAGS     =
+NVCC        = nvcc
+NVCCFLAGS   = $(INCLUDES) $(LDFLAGS) -arch sm_20
 
 .PHONY: all clean distclean
 
-all: $(BINDIR)/$(APP) clean
+mpi: mpi-set-cxx app clean
 
-mpi: mpi-set-cxx all
+serial: app-serial clean
+
+optix: optix-set-cxx app $(PTXS) clean
+
+optix-mpi: optix-set-cxx mpi-set-cxx app $(PTXS) clean
 
 mpi-set-cxx:
 	$(eval CXX = mpicxx)
 	$(eval MPIFLAGS = -D PHOTON_MPI)
 	@echo "Set to MPI"
 
-$(BINDIR)/$(APP): buildrepo $(OBJS)
+ptx: buildrepo $(PTXS)
+
+optix-set-cxx:
+	$(eval CXXFLAGS  = $(CXXFLAGS) -D PHOTON_OPTIX)
+	$(eval NVCCFLAGS = $(NVCCFLAGS) -D PHOTON_OPTIX)
+	$(eval LDFLAGS   = -L/usr/local/optix/lib64 -L/usr/local/cuda/lib64 -lcuda -loptix -lcudart)
+	@echo "Set to Optix"
+
+app: buildrepo $(OBJS)
 	@mkdir -p `dirname $@`
 	@echo "Linking $@..."
-	$(CXX) $(OBJS) $(LDFLAGS) -o $@
+	$(CXX) $(OBJS) $(LDFLAGS) -o $(BINDIR)/$(APP)
+
+app-serial: buildrepo $(OBJS_S)
+	@mkdir -p `dirname $@`
+	@echo "Linking $@..."
+	$(CXX) $(OBJS_S) $(LDFLAGS) -o $(BINDIR)/$(APP)
 
 $(OBJDIR)/%.o: %.$(SRCEXT)
 	@echo "Generating dependencies for $<..."
 	@$(call make-depend,$<,$@,$(subst .o,.d,$@))
 	@echo "Compiling $<..."
-	$(CXX) $(CXXFLAGS) $< -o $@
+	$(if $(findstring Wrapper,$<),   \
+                $(NVCC) $(NVCCFLAGS) -x=cu -c $< -o $@,  \
+                $(CXX)  $(CXXFLAGS) $< -o $@)
+
+
+$(PTXDIR)/%.ptx: $(CUDIR)/%.$(CUEXT)
+	@echo "Compiling $< to PTX..."
+	$(NVCC) $(NVCCFLAGS) -ptx $< -o $@
 
 submit:
 	@$(RM) $(OUTDIR)/*
@@ -66,6 +102,7 @@ buildrepo:
 	@$(call make-repo)
 	@mkdir -p $(IMGDIR)
 	@mkdir -p $(OUTDIR) 
+	@mkdir -p $(PTXDIR)
 
 define make-repo
    for dir in $(SRCDIRS); \

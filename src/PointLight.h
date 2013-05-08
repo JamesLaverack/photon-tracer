@@ -22,6 +22,9 @@ public:
 	PointLight(float px, float py, float pz);
 	virtual ~PointLight();
 	virtual Ray* getRandomRayFromLight();
+	#ifdef PHOTON_OPTIX
+		virtual optix::Program getOptiXLight(optix::Context context);
+	#endif
 };
 
 } /* namespace photonCPU */

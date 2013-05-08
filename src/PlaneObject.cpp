@@ -77,6 +77,28 @@ Vector3D PlaneObject::getIntersectionPoint(photonCPU::Ray* r) {
 	return 0;
 }
 
+#ifdef PHOTON_OPTIX
+optix::Geometry PlaneObject::getOptiXGeometry(optix::Context context) {
+	optix::Geometry parallelogram = context->createGeometry();
+	parallelogram->setPrimitiveCount( 1u );
+	parallelogram->setBoundingBoxProgram( context->createProgramFromPTXFile("ptx/PlaneObject.ptx", "bounds" ) );
+	parallelogram->setIntersectionProgram( context->createProgramFromPTXFile("ptx/PlaneObject.ptx", "intersect" ) );
+	parallelogram["plane"]->setFloat(    normal->x,       normal->y,       normal->z, normal->dotProduct(position));
+	// Move the anchor point
+	Vector3D anchor = *position;
+	anchor = anchor + (*up)*(-height/2);
+	anchor = anchor + (*right)*(-width/2);
+	parallelogram["anchor"]->setFloat( anchor.x,     anchor.y,     anchor.z );
+	Vector3D v1 = *up*width;
+	Vector3D v2 = *right*height;
+	v1 = v1 * (1/(v1.dotProduct(&v1)));
+	v2 = v2 * (1/(v2.dotProduct(&v2)));
+	parallelogram["v1"]->setFloat(v1.x, v1.y, v1.z );
+	parallelogram["v2"]->setFloat(v2.x, v2.y, v2.z );
+	return parallelogram;
+}
+#endif
+
 void PlaneObject::getTextureCordsAtPoint(photonCPU::Vector3D* point, float* u, float* v, float* w) {
 	// Project onto our plane and take that, this should account for rounding errors
 	// that result in points just off of our plane.

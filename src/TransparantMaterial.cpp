@@ -12,7 +12,10 @@ namespace photonCPU {
 TransparantMaterial::TransparantMaterial() {
 	// Glass
 	index_of_refraction = 1.52f;
-	radius = 40;
+	radius = 10;
+	debug_id = -1;
+	lens_hack_radius = 10000;
+	lens_hack_depth = 10000;
 }
 
 TransparantMaterial::~TransparantMaterial() {
@@ -31,6 +34,22 @@ Vector3D refract(Vector3D* angle, Vector3D* normal, Vector3D* axis, float index)
 	return r;
 }
 */
+
+#ifdef PHOTON_OPTIX
+optix::Material TransparantMaterial::getOptiXMaterial(optix::Context context) {
+	optix::Program chp = context->createProgramFromPTXFile( "ptx/TransparentMaterial.ptx", "closest_hit" );
+	optix::Material mat = context->createMaterial();
+	mat["index_of_refraction"]->setFloat(index_of_refraction);
+	mat["hack_lens_depth"]->setFloat(lens_hack_depth);
+	mat["hack_lens_radius"]->setFloat(lens_hack_radius);
+	mat["b_vals"]->setFloat(1.03961212f, 0.231792344f, 1.01046945f);
+	mat["c_vals"]->setFloat(6.00069867e-3f, 2.00179144e-2f, 1.03560653e2f);
+	mat["debug_id"]->setInt(debug_id);
+	mat->setClosestHitProgram(0, chp);
+	return mat;
+}
+#endif
+
 Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	(void)perspective_normal;
 	(void)u;
@@ -64,6 +83,7 @@ Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Ve
 	if(std::sqrt(hitLocation->x*hitLocation->x + hitLocation->y*hitLocation->y) > radius) {
 			index = 1;
 	}
+
 	if(angle_in < pi/2) {
 		// We are coming from the material out
 		index = 1/index;
@@ -90,7 +110,6 @@ Ray* TransparantMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Ve
 		printf("bounce direction ");
 		vec.print();
 	}
-
 	// Return new ray object
 	Ray* r = new Ray();
 	r->setPosition(hitLocation);

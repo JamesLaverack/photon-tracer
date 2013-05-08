@@ -61,6 +61,16 @@ void SphereObject::getTextureCordsAtPoint(photonCPU::Vector3D* point, float* u, 
 	*v = 0;
 	*w = 0;
 }
+#ifdef PHOTON_OPTIX
+optix::Geometry SphereObject::getOptiXGeometry(optix::Context context) {
+	optix::Geometry sphere = context->createGeometry();
+	sphere->setPrimitiveCount( 1u );
+	sphere->setBoundingBoxProgram( context->createProgramFromPTXFile("ptx/SphereObject.ptx", "bounds" ) );
+	sphere->setIntersectionProgram( context->createProgramFromPTXFile("ptx/SphereObject.ptx", "robust_intersect" ) );
+	sphere["sphere"]->setFloat( position->x, position->y, position->z, radius );
+	return sphere;
+}
+#endif
 Ray* SphereObject::transmitRay(Ray* r) {
 	float u, v, w;
 	Vector3D intersect = getIntersectionPoint(r);

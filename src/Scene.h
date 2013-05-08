@@ -18,10 +18,9 @@
 namespace photonCPU {
 
 class Scene {
-private:
+public:
 	std::vector<RenderObject*> mObjects;
 	std::vector<AbstractLight*> mLights;
-public:
 	Scene();
 	virtual ~Scene();
 	void addObject(RenderObject* obj);

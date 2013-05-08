@@ -13,12 +13,24 @@ ColourMaterial::ColourMaterial(float pColourWavelengthMin, float pColourWaveleng
 	mColourWavelengthMax = pColourWavelengthMax;
 	mColourWavelengthMin = pColourWavelengthMin;
 	mRand = new photonCPU::NormalRandomGenerator();
-	this->std = 6;
+	this->std = 10;//25;
 }
 
 ColourMaterial::~ColourMaterial() {
 	delete mRand;
 }
+
+#ifdef PHOTON_OPTIX
+optix::Material ColourMaterial::getOptiXMaterial(optix::Context context) {
+	optix::Program chp = context->createProgramFromPTXFile( "ptx/ColourMaterial.ptx", "closest_hit" );
+	optix::Material mat = context->createMaterial();
+	mat->setClosestHitProgram(0, chp);
+	mat["max_wavelength"]->setFloat(mColourWavelengthMax);
+	mat["min_wavelength"]->setFloat(mColourWavelengthMin);
+	mat["standard_deviation"]->setFloat(std);
+	return mat;
+}
+#endif
 
 Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	// We don't care where we hit this material in terms of textures

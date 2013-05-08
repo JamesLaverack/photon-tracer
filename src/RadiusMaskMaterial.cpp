@@ -18,6 +18,16 @@ RadiusMaskMaterial::~RadiusMaskMaterial() {
 	// TODO Auto-generated destructor stub
 }
 
+#ifdef PHOTON_OPTIX
+optix::Material RadiusMaskMaterial::getOptiXMaterial(optix::Context context) {
+	optix::Program chp = context->createProgramFromPTXFile( "ptx/RadiusMaskMaterial.ptx", "closest_hit" );
+	optix::Material mat = context->createMaterial();
+	mat->setClosestHitProgram(0, chp);
+	mat["radius"]->setFloat(radius);
+	return mat;
+}
+#endif
+
 Ray* RadiusMaskMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	(void)normal;
 	(void)perspective_normal;

@@ -17,23 +17,36 @@
 #include "PlaneObject.h"
 #include "SphereObject.h"
 #include "PerfectMirrorMaterial.h"
-#include "PerfectMattMaterial.h"
 #include "Renderer.h"
 #include "PointLight.h"
 #include "AbstractMaterial.h"
 #include "ColourMaterial.h"
 #include "TransparantMaterial.h"
 #include "RadiusMaskMaterial.h"
+#include "AreaLight.h"
+#ifdef PHOTON_OPTIX
+#include "OptiXRenderer.h"
+#endif
 using photonCPU::Vector3D;
 using photonCPU::PointLight;
 
 int main(int argc, char* argv[]) {
 	// Set Varaibles to defaults
 	const long long int million = 1000000;
-	long long int num_photons = 50*million;
+	long long int num_photons = 5000000;
 	bool time_run = false;
 	float modifier = 0.005f;
 	timeval tic, toc;
+
+	// Some lens stuff
+	float R = 91.575f;
+	float ct = 3.8;
+	float focal_length = 87.64f + ct/2;
+	float lens_diam = 25.0f;
+
+	// General purpse input
+	float shift = focal_length*2;
+	printf("Shift is set to %f.\n", shift);
 
 	// Parse inputs
 	for(int i=1;i<argc;i++) {
@@ -57,37 +70,74 @@ int main(int argc, char* argv[]) {
 			} else {
 				modifier = atof(argv[i]);
 			}
+		} else if (!strcmp(arg, "--shift")) {
+			// Set the camera modifier
+			i++;
+			if(i==argc) {
+				printf("Not enough arguments to --shift.\n");
+				return(1);
+			} else {
+				shift = atof(argv[i]);
+			}
 		} else if (!strcmp(arg, "--time")){
 			// Do we time the run?
 			time_run = true;
 		}
 	}
+	shift = 150;
+	printf("shift is now %f\n", shift);
 
+	// Report!
+	printf("########################################\n");
+	printf("#                                      #\n");
+	printf("#        PHOTON TRACER RENDERER        #\n");
+	printf("#                                      #\n");
+	#ifdef PHOTON_MPI
+	printf("#             MPI:      ON             #\n");
+	#else
+	printf("#             MPI:     OFF             #\n");
+	#endif
+	printf("#                                      #\n");
+	#ifdef PHOTON_OPTIX
+	printf("#             OPTIX:    ON             #\n");
+	#else
+	printf("#             OPTIX:   OFF             #\n");
+	#endif
+	printf("#                                      #\n");
+	printf("########################################\n");
+	
 	// Report values used
-	printf("Firing %ld photons.\n", num_photons);
 	if (time_run) printf("Timing run.\n");
 
 	// Begin setup
-	printf("D.A.N.C.E.\n");
-
-	photonCPU::AbstractMaterial* mirror = new photonCPU::PerfectMirrorMaterial();
-	photonCPU::PerfectMattMaterial* matt = new photonCPU::PerfectMattMaterial();
-	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 1000.0f);
-	photonCPU::ColourMaterial* green = new photonCPU::ColourMaterial(495.0f, 570.0f);
-	photonCPU::ColourMaterial* red = new photonCPU::ColourMaterial(630.0f, 740.0f);
-	red->std = 6;
-	photonCPU::ColourMaterial* blue = new photonCPU::ColourMaterial(450.0f, 475.0f);
+	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 700.0f);
+	photonCPU::ColourMaterial* green  = new photonCPU::ColourMaterial(490.0f, 560.0f);
+	photonCPU::ColourMaterial* red    = new photonCPU::ColourMaterial(635.0f, 700.0f);
+	photonCPU::ColourMaterial* blue   = new photonCPU::ColourMaterial(450.0f, 490.0f);
+	photonCPU::ColourMaterial* mirror = new photonCPU::ColourMaterial(300.0f, 1000.0f);
+	mirror->std = 0.001;
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
+	trans_in->debug_id = 4;
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
+	trans_out->debug_id = 5;
+	photonCPU::TransparantMaterial* trans = new photonCPU::TransparantMaterial();
 	photonCPU::RadiusMaskMaterial* mask = new photonCPU::RadiusMaskMaterial();
 	photonCPU::RadiusMaskMaterial* mask_apature = new photonCPU::RadiusMaskMaterial();
-	mask_apature->radius = 1;
+	mask_apature->radius = 100;
 
-	float R = 50;
-	float d = 20;
+	float d = ct/2;
 
+	trans_in->lens_hack_depth = d;
+	trans_out->lens_hack_depth = d;
+
+	float film_distance = shift;//170;//12.5f;
+	float lens_shift = shift-50;
 	float radi = std::sqrt(R*R - (R-d)*(R-d));
-	printf("Apature size %f\n", radi);
+	printf("Apature size (radius) %f\n, setting to 40.", radi);
+	radi = lens_diam/2;
+
+	trans_in->lens_hack_radius = radi;
+	trans_out->lens_hack_radius = radi;
 	trans_in->radius = radi;
 	trans_out->radius = radi;
 	mask->radius = radi;
@@ -100,83 +150,91 @@ int main(int argc, char* argv[]) {
 	sphere2->setPosition(0, 0, -R+d);
 	sphere2->radius = R;
 
+	photonCPU::PlaneObject* front = new photonCPU::PlaneObject(mask);
+	front->setNormal(0, 0, 1);
+	front->setPosition(0, 0, d);
+
+	photonCPU::PlaneObject* apature = new photonCPU::PlaneObject(trans);
+	apature->setNormal(0, 0, -1);
+	apature->up->setTo(0, 1, 0);
+	apature->right->setTo(1, 0, 0);
+	apature->setPosition(0, 0, -d);
+
 	// Balls
-	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(red);
-	spherer->setPosition(25, -40, 120);
+	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(white);
+	spherer->setPosition(25, -40, 80+lens_shift);
 	spherer->radius = 10;
 
-	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(mirror);
-	sphereg->setPosition(-25, -40, 60);
+	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(white);
+	sphereg->setPosition(-25, -40, 80+lens_shift);
 	sphereg->radius = 10;
 
 	// YOLO walls
 
 	photonCPU::PlaneObject* floor = new photonCPU::PlaneObject(white);
 	floor->setNormal(0, 1, 0);
-	floor->setPosition(0, -50, 0);
+	floor->up->setTo(0, 0, 1);
+	floor->right->setTo(1, 0, 0);
+	floor->setPosition(0, -50, 50+lens_shift);
 
 	photonCPU::PlaneObject* top = new photonCPU::PlaneObject(white);
 	top->setNormal(0, -1, 0);
-	top->setPosition(0, 50, 0);
+	top->up->setTo(0, 0, 1);
+	top->up->setTo(1, 0, 0);
+	top->setPosition(0, 50, 50+lens_shift);
 
-	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(white);
+	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(red);
 	back->setNormal(0, 0, -1);
-	back->setPosition(0, 0, 120);
+	back->up->setTo(0, 1, 0);
+	back->right->setTo(1, 0, 0);
+	back->setPosition(0, 0, 100+lens_shift);
 
-	photonCPU::PlaneObject* front = new photonCPU::PlaneObject(mask);
-	front->setNormal(0, 0, 1);
-	front->setPosition(0, 0, 0);
-
-	photonCPU::PlaneObject* apature = new photonCPU::PlaneObject(mask_apature);
-	apature->setNormal(0, 0, 1);
-	apature->setPosition(0, 0, -38);
-
-	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(green);
+	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(white);
 	right->setNormal(-1, 0, 0);
-	right->setPosition(50, 0, 0);
+	right->up->setTo(0, 1, 0);
+	right->right->setTo(0, 0, 1);
+	right->setPosition(50, 0, 50+lens_shift);
 
-	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(blue);
+	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(green);
 	left->setNormal(1, 0, 0);
-	left->setPosition(-50, 0, 0);
+	left->up->setTo(0, 1, 0);
+	left->right->setTo(0, 0, 1);
+	left->setPosition(-50, 0, 50+lens_shift);
 
-	photonCPU::PointLight* light = new photonCPU::PointLight(0, 45, 50);
+	// Make an area light
+	Vector3D* l_pos    = new Vector3D(-50, 50, 0+lens_shift);
+	Vector3D* l_normal = new Vector3D(0, -1, 0);
+	Vector3D* l_up     = new Vector3D(0, 0, 1);
+	Vector3D* l_right  = new Vector3D(1, 0, 0);
+	l_pos->print();
+	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, 100, 100, 3.141/2);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
-	// Make a lighting rig
-	int numLights = 5;
-	float radius = 10;
-	float height = 20;
-	PointLight** lighting_rig = new PointLight*[numLights];
-	for(int i=0;i<numLights;i++) {
-		float theta = (i/(numLights+1)) * 3.141 * 2;
-		lighting_rig[i] = new photonCPU::PointLight(radius*std::cos(theta), height, radius*std::sin(theta));
-		//s->addLight(lighting_rig[i]);
-	}
-
-
-
 	s->addLight(light);
+       	s->addObject(front);
+	s->addObject(sphere);
+	s->addObject(sphere2);
 
 	s->addObject(floor);
-	s->addObject(top);
 	s->addObject(right);
 	s->addObject(left);
 	s->addObject(back);
-
-       	s->addObject(front);
-       	s->addObject(apature);
-	s->addObject(sphere);
-	s->addObject(sphere2);
 	s->addObject(spherer);
 	s->addObject(sphereg);
-
 	// Create our renderer
-	photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000, modifier);
-
+	#ifdef PHOTON_OPTIX
+		photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s);
+	#else
+		photonCPU::Renderer* render = new photonCPU::Renderer(s, 1000, 1000, 0.05);
+	#endif
 	// Perform the render iself, and do some timing
 	gettimeofday(&tic, NULL);
-	render->performRender(num_photons, argc, argv);
+	#ifdef PHOTON_OPTIX
+		render->performRender(num_photons, argc, argv, 1000, 1000, -film_distance);
+	#else
+		render->performRender(num_photons, argc, argv);
+	#endif
 	gettimeofday(&toc, NULL);
 
 	// Report how fast we were, perhaps
@@ -192,11 +250,9 @@ int main(int argc, char* argv[]) {
 	delete sphere;
 	delete sphere2;
 	delete spherer;
-	delete sphereg;
 	delete floor;
 	delete back;
 	delete front;
-	delete apature;
 	delete right;
 	delete left;
 	delete top;
@@ -204,8 +260,6 @@ int main(int argc, char* argv[]) {
 	// Delete materials
 	delete mask;
 	delete mask_apature;
-	delete mirror;
-	delete matt;
 	delete green;
 	delete white;
 	delete red;
@@ -214,11 +268,6 @@ int main(int argc, char* argv[]) {
 
 	// Delete light
 	delete light;
-
-	// Delete lighting rig
-	for(int i=0;i<numLights;i++) {
-		delete lighting_rig[i];
-	}
 
 	return EXIT_SUCCESS;
 }

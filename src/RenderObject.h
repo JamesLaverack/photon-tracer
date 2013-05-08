@@ -10,6 +10,9 @@
 
 #include "Ray.h"
 #include "AbstractMaterial.h"
+#ifdef PHOTON_OPTIX
+	#include <optixu/optixpp_namespace.h>
+#endif
 
 namespace photonCPU {
 
@@ -24,6 +27,10 @@ public:
 	virtual Vector3D getIntersectionPoint(photonCPU::Ray* r) = 0;
 	virtual void getTextureCordsAtPoint(photonCPU::Vector3D* point, float* u, float* v, float* w) = 0;
 	virtual Ray* transmitRay(Ray* r) = 0;
+	#ifdef PHOTON_OPTIX
+	    virtual optix::Geometry getOptiXGeometry(optix::Context context) = 0;
+	    optix::Material getOptiXMaterial(optix::Context context);
+	#endif
 };
 
 } /* namespace photonCPU */

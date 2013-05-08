@@ -24,15 +24,25 @@ CameraMaterial::CameraMaterial(int width, int height, float modifier) {
 	fileid = 0;
 	this->modifier = modifier;
 	img = new photonCPU::Image(width, height);
-	printf("DEBUG vdiff %d, udiff %d\n", vdiff, udiff);
-	printf("DEBUG imageWidth %d, imageHeight %d\n", imageWidth, imageHeight);
-	printf("DEBUG actualWidth %f, actualHeight %f\n", actualWidth, actualHeight);
 }
 
 CameraMaterial::~CameraMaterial() {
 	delete img;
 	delete converter;
 }
+
+#ifdef PHOTON_OPTIX
+optix::Material CameraMaterial::getOptiXMaterial(optix::Context context) {
+	optix::Program chp = context->createProgramFromPTXFile( "ptx/CameraMaterial.ptx", "closest_hit" );
+	optix::Material mat = context->createMaterial();
+	mat->setClosestHitProgram(0, chp);
+	mat["camera_size"]->setFloat(actualWidth, actualHeight);
+	mat["image_size"]->setInt(imageWidth, imageHeight);
+	mat["max_intensity"]->setInt(1);
+	mat["gamma"]->setFloat(1.0f);
+	return mat;
+}
+#endif
 
 Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength) {
 	// We don't use the 3rd texture cordinate
@@ -45,7 +55,6 @@ Ray* CameraMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	if(wavelength>0) {
 		//printf("STRIKE");
 	}
-
 
 	// Are we in the renderable bit?
 	int tu = u*(imageWidth/actualWidth)+udiff;

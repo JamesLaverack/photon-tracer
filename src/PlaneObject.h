@@ -17,13 +17,13 @@ class PlaneObject: public photonCPU::RenderObject {
 private:
 	Vector3D* position;
 	Vector3D* normal;
-	Vector3D* up;
-	Vector3D* right;
 	float focal_length;
 	Vector3D focal_point;
 	int height;
 	int width;
 public:
+	Vector3D* up;
+	Vector3D* right;
 	PlaneObject(AbstractMaterial* pMaterial);
 	virtual ~PlaneObject();
 	void setPosition(Vector3D* pos);
@@ -34,6 +34,9 @@ public:
 	virtual Vector3D getIntersectionPoint(photonCPU::Ray* r);
 	virtual void getTextureCordsAtPoint(photonCPU::Vector3D* point, float* u, float* v, float* w);
 	virtual Ray* transmitRay(Ray* r);
+	#ifdef PHOTON_OPTIX
+	    virtual optix::Geometry getOptiXGeometry(optix::Context context);
+	#endif
 };
 
 } /* namespace photonCPU */

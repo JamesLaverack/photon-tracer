@@ -18,6 +18,9 @@ public:
 	PerfectMirrorMaterial();
 	virtual ~PerfectMirrorMaterial();
 	Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength);
+	#ifdef PHOTON_OPTIX
+	    virtual optix::Material getOptiXMaterial(optix::Context context);
+	#endif
 };
 
 } /* namespace photonCPU */
