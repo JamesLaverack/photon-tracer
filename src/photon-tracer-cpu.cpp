@@ -161,13 +161,13 @@ int main(int argc, char* argv[]) {
 	apature->setPosition(0, 0, -d);
 
 	// Balls
-	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(white);
-	spherer->setPosition(25, -40, 80+lens_shift);
-	spherer->radius = 10;
+	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(trans);
+	spherer->setPosition(25, -35, 80+lens_shift);
+	spherer->radius = 15;
 
-	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(white);
-	sphereg->setPosition(-25, -40, 80+lens_shift);
-	sphereg->radius = 10;
+	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(mirror);
+	sphereg->setPosition(-25, -35, 80+lens_shift);
+	sphereg->radius = 15;
 
 	// YOLO walls
 
@@ -183,19 +183,19 @@ int main(int argc, char* argv[]) {
 	top->up->setTo(1, 0, 0);
 	top->setPosition(0, 50, 50+lens_shift);
 
-	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(red);
+	photonCPU::PlaneObject* back = new photonCPU::PlaneObject(white);
 	back->setNormal(0, 0, -1);
 	back->up->setTo(0, 1, 0);
 	back->right->setTo(1, 0, 0);
 	back->setPosition(0, 0, 100+lens_shift);
 
-	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(white);
+	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(green);
 	right->setNormal(-1, 0, 0);
 	right->up->setTo(0, 1, 0);
 	right->right->setTo(0, 0, 1);
 	right->setPosition(50, 0, 50+lens_shift);
 
-	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(green);
+	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(red);
 	left->setNormal(1, 0, 0);
 	left->up->setTo(0, 1, 0);
 	left->right->setTo(0, 0, 1);

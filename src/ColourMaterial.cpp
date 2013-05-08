@@ -43,6 +43,7 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	(void)w;
 	(void)perspective_normal;
 
+	const float pi = 3.141;
 	// Do we absorb this?
 	if(wavelength>mColourWavelengthMax) return 0;
 	if(wavelength<mColourWavelengthMin) return 0;
@@ -60,6 +61,9 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	Vector3D reverse_normal = (*normal)*-1;
 	float reflect_angle = std::acos(angle->dotProduct(&reverse_normal));
 	//	reflect_angle = reflect_angle - 3.141/2; // DEBUG CODE ONLY
+	if(reflect_angle>pi/2) {
+		reflect_angle = pi - reflect_angle;
+	}
 	//printf("Reflection angle %f\n", reflect_angle);
 	//reflect_angle = -reflect_angle;
 	// project our incident ray onto the plane defined by

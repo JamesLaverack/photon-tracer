@@ -58,7 +58,7 @@ RT_PROGRAM void closest_hit() {
 	float3 reverse_normal = (geometric_normal)*-1;
 	float reflect_angle = std::acos(optix::dot(ray.direction, reverse_normal));
 	if(reflect_angle>pi/2) {
-//		reflect_angle = pi - reflect_angle;
+		reflect_angle = pi - reflect_angle;
 	}
 	// project our incident ray onto the plane defined by
 	// < hitLocation, normal > and make sure it's a unit vector, this becomes u.
