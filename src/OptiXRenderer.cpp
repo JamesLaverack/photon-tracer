@@ -529,6 +529,69 @@ float munge(float val) {
 	return std::log(val) + 1;
 }
 
+__device__ void rgb2hsv(const float r, const float g, const float b, float* h, float* s, float* v)
+{
+	float M = 0.0f;
+	float m = 100.0f;
+	float c = 0.0f;
+	if(r>M) M=r;
+	if(g>M) M=g;
+	if(b>M) M=b;
+	if(r<m) m=r;
+	if(g<m) m=g;
+	if(b<m) m=b;
+	c = M - m;
+	*v = M;
+	*h = 0.0f;
+	*s = 0.0f;
+	if (c != 0.0f) {
+		if (M == r) {
+			*h = fmod(((g - b) / c), 6.0);
+		} else if (M == g) {
+			*h = (b - r) / c + 2.0;
+		} else /*if(M==b)*/ {
+			*h = (r - g) / c + 4.0;
+		}
+		*h *= 6.0;
+		*s = c / *v;
+	}
+}
+
+__device__ void hsv2rgb(const float h, const float s, const float v, float* r, float* g, float* b) {
+	int i = (int) floor(h * 6);
+	float f = h * 6 - floor(h * 6);
+	float p = v * (1 - s);
+	float q = v * (1 - f * s);
+	float t = v * (1 - (1 - f) * s);
+
+	float bees = (i % 6);
+	if(bees == 0) {
+		*r = v;
+		*g = t;
+		*b = p;
+	} else if(bees == 1) {
+		*r = q;
+		*g = v;
+		*b = p;
+	} else if(bees == 2) {
+		*r = p;
+		*g = v;
+		*b = t;
+	} else if(bees == 3) {
+		*r = p;
+		*g = q;
+		*b = v;
+	} else if(bees == 4) {
+		*r = t;
+		*g = p;
+		*b = v;
+	} else if(bees == 5) {
+		*r = v;
+		*g = p;
+		*b = q;
+	}
+}
+
 void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int width, int height) {
 	FILE* f;
 	/*
@@ -587,18 +650,18 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 			float avg_pixel_brightness = ((pixel.x+pixel.y+pixel.z)/3);
 			// Get RGB values
 			float r, g, b; // 0.0f-1.0f
-			float  h, s, l; // 0.0f-1.0f
+			float  h, s, v; // 0.0f-1.0f
 			float mod = avg_pixel_brightness/average;
-			r = pixel.x/avgr;
-			g = pixel.y/avgg;
-			b = pixel.z/avgb;
+			r = pixel.x/pixel_high;
+			g = pixel.y/pixel_high;
+			b = pixel.z/pixel_high;
 			// I whip my colours back and forth
-	//		rgb2hsl(r, g, b, &h, &s, &l);
-	//		//l = (munge(pixel.w)/munge(max_hits));
-	//		r = g = b = 0;
-	//		hsl2rgb(h, s, l, &r, &g, &b);	
+			rgb2hsv(r, g, b, &h, &s, &v);
+			if(r > 0.0f && g > 0.0f && b > 0.0f) printf("RGB %f, %f, %f becomes HSV %f, %f, %f\n", r, g, b, h, s, v);
+			r = g = b = 0;
+			hsv2rgb(h, s, v, &r, &g, &b);
 			// Write to file
-			fprintf(f," %d %d %d \n", 
+			fprintf(f," %d %d %d \n",
 				toColourInt(r, maxVal),
 				toColourInt(g, maxVal),
 				toColourInt(b, maxVal)

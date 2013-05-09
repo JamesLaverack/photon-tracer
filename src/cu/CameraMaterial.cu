@@ -77,9 +77,45 @@ __device__ void convert(float wavelength, float* r, float* g, float* b){
 	}else{
 		Factor = 0.0;
 	}
-	*r = Red*0.1;//*Factor;
+	*r = Red;//*Factor;
 	*g = Green;//*Factor*0.1;
-	*b = Blue*0.1;//*Factor;
+	*b = Blue;//*Factor;
+}
+
+__device__ void hsv2rgb(const float h, const float s, const float v, float* r, float* g, float* b) {
+	int i = (int) floor(h * 6);
+	float f = h * 6 - floor(h * 6);
+	float p = v * (1 - s);
+	float q = v * (1 - f * s);
+	float t = v * (1 - (1 - f) * s);
+
+	float bees = (i % 6);
+	if(bees == 0) {
+		*r = v;
+		*g = t;
+		*b = p;
+	} else if(bees == 1) {
+		*r = q;
+		*g = v;
+		*b = p;
+	} else if(bees == 2) {
+		*r = p;
+		*g = v;
+		*b = t;
+	} else if(bees == 3) {
+		*r = p;
+		*g = q;
+		*b = v;
+	} else if(bees == 4) {
+		*r = t;
+		*g = p;
+		*b = v;
+	} else if(bees == 5) {
+		*r = v;
+		*g = p;
+		*b = q;
+	}
+
 }
 
 RT_PROGRAM void closest_hit() {
@@ -102,6 +138,7 @@ RT_PROGRAM void closest_hit() {
 	
 	// Record in buffer
 	float r, g, b;
+	//hsv2rgb(prd_photon.wavelength/400 - 300, 1, 1, &r, &g, &b);
 	convert(prd_photon.wavelength, &r, &g, &b);
 	uint2 address = make_uint2(adj_x, adj_y);
 	atomicAdd(&(output_buffer[address].x), r);
