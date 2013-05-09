@@ -114,8 +114,7 @@ int main(int argc, char* argv[]) {
 	photonCPU::ColourMaterial* green  = new photonCPU::ColourMaterial(490.0f, 560.0f);
 	photonCPU::ColourMaterial* red    = new photonCPU::ColourMaterial(635.0f, 700.0f);
 	photonCPU::ColourMaterial* blue   = new photonCPU::ColourMaterial(450.0f, 490.0f);
-	photonCPU::ColourMaterial* mirror = new photonCPU::ColourMaterial(300.0f, 1000.0f);
-	mirror->std = 0.001;
+	photonCPU::PerfectMirrorMaterial* mirror = new photonCPU::PerfectMirrorMaterial();
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
 	trans_in->debug_id = 4;
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
@@ -166,7 +165,7 @@ int main(int argc, char* argv[]) {
 	spherer->radius = 15;
 
 	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(mirror);
-	sphereg->setPosition(-25, -35, 80+lens_shift);
+	sphereg->setPosition(-25, -35, 60+lens_shift);
 	sphereg->radius = 15;
 
 	// YOLO walls

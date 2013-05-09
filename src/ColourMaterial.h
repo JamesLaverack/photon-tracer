@@ -21,6 +21,7 @@ private:
 	float randFloat();
 public:
 	float std;
+	float ideal_range;
 	ColourMaterial(float pColorWavelengthMin, float pColourWavelengthMax);
 	virtual ~ColourMaterial();
 	Ray* transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3D* normal, Vector3D* perspective_normal, float u, float v, float w, float wavelength);

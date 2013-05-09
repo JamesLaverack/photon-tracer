@@ -13,7 +13,8 @@ ColourMaterial::ColourMaterial(float pColourWavelengthMin, float pColourWaveleng
 	mColourWavelengthMax = pColourWavelengthMax;
 	mColourWavelengthMin = pColourWavelengthMin;
 	mRand = new photonCPU::NormalRandomGenerator();
-	this->std = 10;//25;
+	this->std = 0.75;//25;
+	this->ideal_range = 60;
 }
 
 ColourMaterial::~ColourMaterial() {
@@ -28,6 +29,7 @@ optix::Material ColourMaterial::getOptiXMaterial(optix::Context context) {
 	mat["max_wavelength"]->setFloat(mColourWavelengthMax);
 	mat["min_wavelength"]->setFloat(mColourWavelengthMin);
 	mat["standard_deviation"]->setFloat(std);
+	mat["ideal_range"]->setFloat(ideal_range);
 	return mat;
 }
 #endif
@@ -47,7 +49,6 @@ Ray* ColourMaterial::transmitRay(Vector3D* hitLocation, Vector3D* angle, Vector3
 	// Do we absorb this?
 	if(wavelength>mColourWavelengthMax) return 0;
 	if(wavelength<mColourWavelengthMin) return 0;
-	float const ideal_range = 60;
 	float range = mColourWavelengthMax - mColourWavelengthMin;
 	if(randFloat()> ideal_range/range) return 0;
 	// Create new ray

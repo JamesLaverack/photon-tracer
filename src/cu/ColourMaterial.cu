@@ -26,6 +26,7 @@ rtDeclareVariable(float3, shading_normal,   attribute shading_normal, );
 rtDeclareVariable(float, max_wavelength, , );
 rtDeclareVariable(float, min_wavelength, , );
 rtDeclareVariable(float, standard_deviation, , );
+rtDeclareVariable(float, ideal_range, , );
 
 /** Get a random number between */
 __device__ __inline__ float cappedNormalRandom(float mean) {
@@ -49,7 +50,6 @@ RT_PROGRAM void closest_hit() {
 	if(prd_photon.wavelength<min_wavelength) return;
 	if(prd_photon.depth >= scene_bounce_limit) return;
 	float const pi = 3.141;
-	float const ideal_range = 60;
 
 	float range = max_wavelength - min_wavelength;
 	if(curand_uniform(&states[launch_index]) > ideal_range/range) return;
