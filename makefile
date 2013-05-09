@@ -29,7 +29,7 @@ OBJS_S   := $(filter-out $(CUDA_ONLY), $(OBJS))
 DEBUG       = -g
 PERFORMANCE = -O3
 WARNINGS    = -Wall -W -Wextra
-INCLUDES    = -I./inc -I/usr/local/optix/include -I/usr/local/cuda-5.0/include
+INCLUDES    = -I./inc -I/home/bristol/eisbr052/NVIDIA-OptiX-SDK-3.0.0-linux64/include -I/apps/cuda/5.0.35/cuda/include
 MPIFLAGS    =
 CXX         = g++
 CXXFLAGS    = -fmessage-length=0 -c $(DEBUG) $(INCLUDES) $(PERFORMANCE) $(WARNINGS) $(MPIFLAGS)
@@ -56,7 +56,7 @@ ptx: buildrepo $(PTXS)
 optix-set-cxx:
 	$(eval CXXFLAGS  = $(CXXFLAGS) -D PHOTON_OPTIX)
 	$(eval NVCCFLAGS = $(NVCCFLAGS) -D PHOTON_OPTIX)
-	$(eval LDFLAGS   = -L/usr/local/optix/lib64 -L/usr/local/cuda/lib64 -lcuda -loptix -lcudart)
+	$(eval LDFLAGS   = -L/home/bristol/eisbr052/NVIDIA-OptiX-SDK-3.0.0-linux64/lib64 -L/apps/cuda/5.0.35/cuda/lib64 -lcuda -loptix -lcudart)
 	@echo "Set to Optix"
 
 app: buildrepo $(OBJS)
