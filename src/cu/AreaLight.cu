@@ -40,7 +40,7 @@ RT_PROGRAM void light() {
 		PerRayData_photon prd;
 		prd.importance = 1.f;
 		prd.depth = 0;
-		prd.wavelength = curand_uniform(&states[launch_index])*400+380;
+		prd.wavelength = curand_uniform(&states[launch_index])*400+300;
 		rtTrace(top_object, ray, prd);
 	}
 	if(report) rtPrintf("Ran all iterations.\n");

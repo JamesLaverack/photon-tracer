@@ -26,11 +26,11 @@ rtDeclareVariable(int2,  image_size, , );
 rtDeclareVariable(int, max_intensity, , );
 rtDeclareVariable(float,  camera_gamma, , );
 
-__device__ int factorAdjust(float Color, float Factor){
+__device__ float factorAdjust(float Color, float Factor){
 	if(Color == 0.0){
 		return 0;
 	}else{
-		return (int) round(max_intensity * pow(Color * Factor, camera_gamma));
+		return max_intensity * pow(Color * Factor, camera_gamma);
 	}
 }
 
@@ -77,9 +77,9 @@ __device__ void convert(float wavelength, float* r, float* g, float* b){
 	}else{
 		Factor = 0.0;
 	}
-	*r = factorAdjust(Red, Factor);
-	*g = factorAdjust(Green, Factor);
-	*b = factorAdjust(Blue, Factor);
+	*r = Red*0.1;//*Factor;
+	*g = Green;//*Factor*0.1;
+	*b = Blue*0.1;//*Factor;
 }
 
 RT_PROGRAM void closest_hit() {

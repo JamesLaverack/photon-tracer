@@ -552,13 +552,20 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 	}
 	printf("Maximum hits is %d\n", max_hits);
 	float sum = 0;
+	float sumr, sumg, sumb;
 	for(int i=0;i<width*height;i++) {
 		sum += image[i].x;
+		sumr+= image[i].x;
 		sum += image[i].y;
+		sumg+= image[i].y;
 		sum += image[i].z;
+		sumb+= image[i].z;
 	}
 	printf("SUM colour value is %f\n", sum);
 	float average = sum/(width*height*3);
+	float avgr = sumr/(width*height);
+	float avgg = sumg/(width*height);
+	float avgb = sumb/(width*height);
 	printf("Avg colour value is %f\n", average);
 	// BUild file
 	f = fopen(filename, "w");
@@ -582,9 +589,9 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 			float r, g, b; // 0.0f-1.0f
 			float  h, s, l; // 0.0f-1.0f
 			float mod = avg_pixel_brightness/average;
-			r = pixel.x/average;
-			g = pixel.y/average;
-			b = pixel.z/average;
+			r = pixel.x/avgr;
+			g = pixel.y/avgg;
+			b = pixel.z/avgb;
 			// I whip my colours back and forth
 	//		rgb2hsl(r, g, b, &h, &s, &l);
 	//		//l = (munge(pixel.w)/munge(max_hits));
