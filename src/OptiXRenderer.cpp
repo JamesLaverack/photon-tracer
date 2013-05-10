@@ -418,178 +418,103 @@ int OptiXRenderer::toColourInt(float f, int maxVal) {
 	return int(f*maxVal);
 }
 
-void hsl2rgb(const float h, const float sl, const float l, float* r, float* g, float* b)
+// r,g,b values are from 0 to 1
+// h = [0,360], s = [0,1], v = [0,1]
+//		if s == 0, then h = -1 (undefined)
+
+void rgb2hsv( float r, float g, float b, float *h, float *s, float *v )
 {
-    float v;
+	float min, max, delta;
 
-    *r = l;   // default to gray
-    *g = l;
-    *b = l;
-    v = (l <= 0.5) ? (l * (1.0 + sl)) : (l + sl - l * sl);
-    if (v > 0)
-    {
-            float m;
-            float sv;
-            int sextant;
-            float fract, vsf, mid1, mid2;
-	    float h2;
+	min = 1.0f; //MIN( r, g, b );
+	if(r<min) min = r;
+	if(g<min) min = g;
+	if(b<min) min = b;
+	max = 0.0f; //MAX( r, g, b );
+	if(r>max) max = r;
+	if(g>max) max = g;
+	if(b>max) max = b;
+	*v = max;				// v
 
-            m = l + l - v;
-            sv = (v - m ) / v;
-            h2 = h * 6.0;
-            sextant = (int)h2;
-            fract = h2 - sextant;
-            vsf = v * sv * fract;
-            mid1 = m + vsf;
-            mid2 = v - vsf;
-            switch (sextant)
-            {
-                case 0:
-                        *r = v;
-                        *g = mid1;
-                        *b = m;
-                        break;
-                case 1:
-                        *r = mid2;
-                        *g = v;
-                        *b = m;
-                        break;
-                case 2:
-                        *r = m;
-                        *g = v;
-                        *b = mid1;
-                        break;
-                case 3:
-                        *r = m;
-                        *g = mid2;
-                        *b = v;
-                        break;
-                case 4:
-                        *r = mid1;
-                        *g = m;
-                        *b = v;
-                        break;
-                case 5:
-                        *r = v;
-                        *g = m;
-                        *b = mid2;
-                        break;
-            }
-    }
+	delta = max - min;
+
+	if( max != 0 )
+		*s = delta / max;		// s
+	else {
+		// r = g = b = 0		// s = 0, v is undefined
+		*s = 0;
+		*h = -1;
+		return;
+	}
+
+	if( r == max )
+		*h = ( g - b ) / delta;		// between yellow & magenta
+	else if( g == max )
+		*h = 2 + ( b - r ) / delta;	// between cyan & yellow
+	else
+		*h = 4 + ( r - g ) / delta;	// between magenta & cyan
+
+	*h *= 60;				// degrees
+	if( *h < 0 )
+		*h += 360;
+
 }
 
-void rgb2hsl(const float r, const float g, const float b, float* h, float* s, float* l)
+void hsv2rgb( float h, float s, float v, float* r, float* g, float* b )
 {
-    float v;
-    float m;
-    float vm;
-    float r2, g2, b2;
+	int i;
+	float f, p, q, t;
 
-    *h = 0; // default to black
-    *s = 0;
-    *l = 0;
-    v = std::max(r, g);
-    v = std::max(v, b);
-    m = std::min(r, g);
-    m = std::min(m, b);
-    *l = (m + v) / 2.0;
-    if (*l <= 0.0)
-    {
-            return;
-    }
-    vm = v - m;
-    *s = vm;
-    if (*s > 0.0)
-    {
-            *s /= (*l <= 0.5) ? (v + m ) : (2.0 - v - m) ;
-    }
-    else
-    {
-            return;
-    }
-    r2 = (v - r) / vm;
-    g2 = (v - g) / vm;
-    b2 = (v - b) / vm;
-    if (r == v)
-    {
-            *h = (g == m ? 5.0 + b2 : 1.0 - g2);
-    }
-    else if (g == v)
-    {
-            *h = (b == m ? 1.0 + r2 : 3.0 - b2);
-    }
-    else
-    {
-            *h = (r == m ? 3.0 + g2 : 5.0 - r2);
-    }
-    *h /= 6.0;
+	if( s == 0 ) {
+		// achromatic (grey)
+		*r = *g = *b = v;
+		return;
+	}
+
+	h /= 60;			// sector 0 to 5
+	i = floor( h );
+	f = h - i;			// factorial part of h
+	p = v * ( 1 - s );
+	q = v * ( 1 - s * f );
+	t = v * ( 1 - s * ( 1 - f ) );
+
+	switch( i ) {
+		case 0:
+			*r = v;
+			*g = t;
+			*b = p;
+			break;
+		case 1:
+			*r = q;
+			*g = v;
+			*b = p;
+			break;
+		case 2:
+			*r = p;
+			*g = v;
+			*b = t;
+			break;
+		case 3:
+			*r = p;
+			*g = q;
+			*b = v;
+			break;
+		case 4:
+			*r = t;
+			*g = p;
+			*b = v;
+			break;
+		default:		// case 5:
+			*r = v;
+			*g = p;
+			*b = q;
+			break;
+	}
+
 }
 
 float munge(float val) {
-	return std::log(val) + 1;
-}
-
-__device__ void rgb2hsv(const float r, const float g, const float b, float* h, float* s, float* v)
-{
-	float M = 0.0f;
-	float m = 100.0f;
-	float c = 0.0f;
-	if(r>M) M=r;
-	if(g>M) M=g;
-	if(b>M) M=b;
-	if(r<m) m=r;
-	if(g<m) m=g;
-	if(b<m) m=b;
-	c = M - m;
-	*v = M;
-	*h = 0.0f;
-	*s = 0.0f;
-	if (c != 0.0f) {
-		if (M == r) {
-			*h = fmod(((g - b) / c), 6.0);
-		} else if (M == g) {
-			*h = (b - r) / c + 2.0;
-		} else /*if(M==b)*/ {
-			*h = (r - g) / c + 4.0;
-		}
-		*h *= 6.0;
-		*s = c / *v;
-	}
-}
-
-__device__ void hsv2rgb(const float h, const float s, const float v, float* r, float* g, float* b) {
-	int i = (int) floor(h * 6);
-	float f = h * 6 - floor(h * 6);
-	float p = v * (1 - s);
-	float q = v * (1 - f * s);
-	float t = v * (1 - (1 - f) * s);
-
-	float bees = (i % 6);
-	if(bees == 0) {
-		*r = v;
-		*g = t;
-		*b = p;
-	} else if(bees == 1) {
-		*r = q;
-		*g = v;
-		*b = p;
-	} else if(bees == 2) {
-		*r = p;
-		*g = v;
-		*b = t;
-	} else if(bees == 3) {
-		*r = p;
-		*g = q;
-		*b = v;
-	} else if(bees == 4) {
-		*r = t;
-		*g = p;
-		*b = v;
-	} else if(bees == 5) {
-		*r = v;
-		*g = p;
-		*b = q;
-	}
+	return std::log(std::log(val)) + 10;
 }
 
 void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int width, int height) {
@@ -642,22 +567,35 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 			// Get our pixel
 			optix::float4 pixel = image[index(i, j, width)];
 			// Do some calculation
-			float pixel_high = 0.00000000000000001;
+			float pixel_high = 0.00000000000000001f;
 			if(pixel.x>pixel_high) pixel_high = pixel.x;
 			if(pixel.y>pixel_high) pixel_high = pixel.y;
 			if(pixel.z>pixel_high) pixel_high = pixel.z;
 			//float brightness = 3;//(pixel.w/max_hits)*0.5+0.5;
+			float pixel_low = 1000000000000000000000000.0f;
+			if(pixel.x<pixel_low) pixel_low = pixel.x;
+			if(pixel.y<pixel_low) pixel_low = pixel.y;
+			if(pixel.z<pixel_low) pixel_low = pixel.z;
 			float avg_pixel_brightness = ((pixel.x+pixel.y+pixel.z)/3);
 			// Get RGB values
 			float r, g, b; // 0.0f-1.0f
 			float  h, s, v; // 0.0f-1.0f
+			float  h2, s2, v2; // 0.0f-1.0f
 			float mod = avg_pixel_brightness/average;
 			r = pixel.x/pixel_high;
 			g = pixel.y/pixel_high;
 			b = pixel.z/pixel_high;
 			// I whip my colours back and forth
 			rgb2hsv(r, g, b, &h, &s, &v);
-			if(r > 0.0f && g > 0.0f && b > 0.0f) printf("RGB %f, %f, %f becomes HSV %f, %f, %f\n", r, g, b, h, s, v);
+			//v = pixel.w/max_hits;
+			//r = pixel.x/pixel_high*mod;
+			//g = pixel.y/pixel_high*mod;
+			//b = pixel.z/pixel_high*mod;
+			//rgb2hsv(r, g, b, &h2, &s2, &v2);
+			//if(v>1.0f) v = 1.0f;
+			const int factor = 3;
+			s = pow(pixel_high - pixel_low, factor)/pow(pixel_high, factor);
+			v = munge(pixel.w)/munge(max_hits);
 			r = g = b = 0;
 			hsv2rgb(h, s, v, &r, &g, &b);
 			// Write to file

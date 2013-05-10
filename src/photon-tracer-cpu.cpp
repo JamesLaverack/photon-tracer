@@ -211,6 +211,8 @@ int main(int argc, char* argv[]) {
 	back->setNormal(0, 0, -1);
 	back->up->setTo(0, 1, 0);
 	back->right->setTo(1, 0, 0);
+	back->width = 115;
+	back->height = 115;
 	back->setPosition(0, 0, 80+lens_shift);
 
 	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(white);
@@ -228,7 +230,7 @@ int main(int argc, char* argv[]) {
 	// Make an area light
 	float l_width = 0.5;
 	float l_height = l_width;
-	Vector3D* l_pos    = new Vector3D(-45, 25-18-l_height/2, 80+lens_shift-l_width/2);
+	Vector3D* l_pos    = new Vector3D(-50, 25-18-2.5-l_height/2, 80+lens_shift-l_width/2);
 	Vector3D* l_normal = new Vector3D(2, 1, 0);
 	l_normal->normaliseSelf();
 	Vector3D* l_up     = new Vector3D(0, 1, 0);
@@ -246,7 +248,6 @@ int main(int argc, char* argv[]) {
 	s->addObject(prisim_right);
 	s->addObject(prisim_left);
 
-	s->addObject(right);
 	s->addObject(back);
 	// Create our renderer
 	#ifdef PHOTON_OPTIX
