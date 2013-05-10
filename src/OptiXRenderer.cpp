@@ -514,7 +514,7 @@ void hsv2rgb( float h, float s, float v, float* r, float* g, float* b )
 }
 
 float munge(float val) {
-	return std::log(std::log(val)) + 10;
+	return std::log(val) + 1;
 }
 
 void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int width, int height) {

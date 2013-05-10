@@ -111,10 +111,11 @@ int main(int argc, char* argv[]) {
 
 	// Begin setup
 	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 700.0f);
+	photonCPU::ColourMaterial* mirror  = new photonCPU::ColourMaterial(300.0f, 700.0f);
+	mirror->std = 0.01;
 	photonCPU::ColourMaterial* green  = new photonCPU::ColourMaterial(490.0f, 560.0f);
 	photonCPU::ColourMaterial* red    = new photonCPU::ColourMaterial(635.0f, 700.0f);
 	photonCPU::ColourMaterial* blue   = new photonCPU::ColourMaterial(450.0f, 490.0f);
-	photonCPU::PerfectMirrorMaterial* mirror = new photonCPU::PerfectMirrorMaterial();
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
 	trans_in->debug_id = 4;
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
@@ -167,8 +168,8 @@ int main(int argc, char* argv[]) {
 	apature->setPosition(0, 0, -d);
 
 	// Balls
-	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(trans);
-	spherer->setPosition(0, 0, 80+lens_shift);
+	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(white);
+	spherer->setPosition(25, -35, 80+lens_shift);
 	spherer->radius = 15;
 
 	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(mirror);
@@ -213,30 +214,30 @@ int main(int argc, char* argv[]) {
 	back->right->setTo(1, 0, 0);
 	back->width = 115;
 	back->height = 115;
-	back->setPosition(0, 0, 80+lens_shift);
+	back->setPosition(0, 0, 100+lens_shift);
 
-	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(white);
+	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(green);
 	right->setNormal(-1, 0, 0);
 	right->up->setTo(0, 1, 0);
 	right->right->setTo(0, 0, 1);
 	right->setPosition(50, 0, 50+lens_shift);
 
-	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(white);
+	photonCPU::PlaneObject* left = new photonCPU::PlaneObject(red);
 	left->setNormal(1, 0, 0);
 	left->up->setTo(0, 1, 0);
 	left->right->setTo(0, 0, 1);
 	left->setPosition(-50, 0, 50+lens_shift);
 
 	// Make an area light
-	float l_width = 0.5;
+	float l_width = 100;
 	float l_height = l_width;
-	Vector3D* l_pos    = new Vector3D(-50, 25-18-2.5-l_height/2, 80+lens_shift-l_width/2);
-	Vector3D* l_normal = new Vector3D(2, 1, 0);
+	Vector3D* l_pos    = new Vector3D(-l_width/2, 50, 50+lens_shift-l_height/2);
+	Vector3D* l_normal = new Vector3D(0, -1, 0);
 	l_normal->normaliseSelf();
-	Vector3D* l_up     = new Vector3D(0, 1, 0);
-	Vector3D* l_right  = new Vector3D(0, 0, 1);
+	Vector3D* l_up     = new Vector3D(0, 0, 1);
+	Vector3D* l_right  = new Vector3D(1, 0, 0);
 	l_pos->print();
-	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, l_height, l_width, 3.141/512);
+	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, l_height, l_width, 3.141/2);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
@@ -245,10 +246,14 @@ int main(int argc, char* argv[]) {
 	s->addObject(sphere);
 	s->addObject(sphere2);
 
-	s->addObject(prisim_right);
-	s->addObject(prisim_left);
-
 	s->addObject(back);
+	s->addObject(right);
+	s->addObject(left);
+	s->addObject(top);
+	s->addObject(floor);
+	s->addObject(spherer);
+	s->addObject(sphereg);
+
 	// Create our renderer
 	#ifdef PHOTON_OPTIX
 		photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s);

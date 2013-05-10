@@ -66,7 +66,6 @@ RT_PROGRAM void closest_hit() {
 	float3 u_vec = optix::normalize( (ray.direction)-((geometric_normal)*m) );
 	// Calculate v from the cross product of u and normal
 	float3 v_vec = optix::normalize( optix::cross( u_vec, geometric_normal) );
-	reflect_angle = -reflect_angle;
 	// get theta, which is the angle between our bounce and the normal in the u direction.
 	// Also get phi, the angle between our bounce and the normal in the v direction.
 	float theta = cappedNormalRandom(reflect_angle);
