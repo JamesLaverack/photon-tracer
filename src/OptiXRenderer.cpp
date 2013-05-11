@@ -175,7 +175,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		cudaMalloc((void **)&states_ptr[i], memory_in_bytes);
 		done(tic);
 		CUDAWrapper executer;
-		executer.curand_setup(threads, (void **)&states_ptr[i], 1024, i);
+		executer.curand_setup(threads, (void **)&states_ptr[i], time(NULL), i);
 	}
 
 	// Set as buffer on context
