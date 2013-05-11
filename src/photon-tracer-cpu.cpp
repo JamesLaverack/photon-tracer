@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
 	apature->setPosition(0, 0, -d);
 
 	// Balls
-	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(white);
+	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(trans);
 	spherer->setPosition(25, -35, 80+lens_shift);
 	spherer->radius = 15;
 
