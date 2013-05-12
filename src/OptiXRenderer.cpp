@@ -170,7 +170,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 		cudaMalloc((void **)&states_ptr[i], memory_in_bytes);
 		done(tic);
 		CUDAWrapper executer;
-		executer.curand_setup(threads, (void **)&states_ptr[i], 1024, i);
+		executer.curand_setup(threads, (void **)&states_ptr[i], time(NULL), i);
 	}
 
 	// Set as buffer on context
@@ -588,9 +588,11 @@ void OptiXRenderer::saveToPPMFile(char* filename, optix::float4* image, int widt
 			//b = pixel.z/pixel_high*mod;
 			//rgb2hsv(r, g, b, &h2, &s2, &v2);
 			//if(v>1.0f) v = 1.0f;
-			const int factor = 3;
+			const int factor = 2;
 			s = pow(pixel_high - pixel_low, factor)/pow(pixel_high, factor);
 			v = munge(pixel.w)/munge(max_hits);
+			v *= 2.0f;
+			if(v>1.0f) v = 1.0f;
 			r = g = b = 0;
 			hsv2rgb(h, s, v, &r, &g, &b);
 			// Write to file
