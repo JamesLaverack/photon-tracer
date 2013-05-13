@@ -1,0 +1,7 @@
+#BSUB -x
+#BSUB -J photon-tracer
+#BSUB -o /home/bristol/eisbr052/photon-tracer-cpu/output/%J.log
+#BSUB -e /home/bristol/eisbr052/photon-tracer-cpu/output/%J.err
+#BSUB -cwd /home/bristol/eisbr052/photon-tracer-cpu/bin 
+#BSUB -W 2:00
+./photon-tracer-cpu --num-photons 100000 --time
