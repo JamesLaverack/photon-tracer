@@ -111,15 +111,23 @@ int main(int argc, char* argv[]) {
 
 	// Begin setup
 	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 700.0f);
+	photonCPU::ColourMaterial* mirror  = new photonCPU::ColourMaterial(300.0f, 700.0f);
+	mirror->std = 0.01;
 	photonCPU::ColourMaterial* green  = new photonCPU::ColourMaterial(490.0f, 560.0f);
 	photonCPU::ColourMaterial* red    = new photonCPU::ColourMaterial(635.0f, 700.0f);
 	photonCPU::ColourMaterial* blue   = new photonCPU::ColourMaterial(450.0f, 490.0f);
-	photonCPU::PerfectMirrorMaterial* mirror = new photonCPU::PerfectMirrorMaterial();
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
 	trans_in->debug_id = 4;
 	photonCPU::TransparantMaterial* trans_out = new photonCPU::TransparantMaterial();
 	trans_out->debug_id = 5;
 	photonCPU::TransparantMaterial* trans = new photonCPU::TransparantMaterial();
+	// Values for SF11 glass
+	trans->b1 = 1.73759695;
+	trans->b2 = 0.313747346;
+	trans->b3 = 1.89878101;
+	trans->c1 = 0.013188707;
+	trans->c2 = 0.0623068142;
+	trans->c3 = 155.23629;
 	photonCPU::RadiusMaskMaterial* mask = new photonCPU::RadiusMaskMaterial();
 	photonCPU::RadiusMaskMaterial* mask_apature = new photonCPU::RadiusMaskMaterial();
 	mask_apature->radius = 100;
@@ -168,6 +176,24 @@ int main(int argc, char* argv[]) {
 	sphereg->setPosition(-25, -35, 60+lens_shift);
 	sphereg->radius = 15;
 
+	// Prisim
+	photonCPU::PlaneObject* prisim_left = new photonCPU::PlaneObject(trans);
+	prisim_left->setNormal(-0.866, 0.5, 0);
+	prisim_left->up->setTo(0.5, 0.866, 0);
+	prisim_left->up->normaliseSelf();
+	prisim_left->right->setTo(0, 0, 1);
+	prisim_left->width  = 40;
+	prisim_left->height = 40;
+	prisim_left->setPosition(-prisim_left->height/4, 25, 80+lens_shift);
+
+	photonCPU::PlaneObject* prisim_right = new photonCPU::PlaneObject(trans);
+	prisim_right->setNormal(0.866, 0.5, 0);
+	prisim_right->up->setTo(-0.5, 0.866, 0);
+	prisim_right->up->normaliseSelf();
+	prisim_right->right->setTo(0, 0, 1);
+	prisim_right->width  = 40;
+	prisim_right->height = 40;
+	prisim_right->setPosition(prisim_right->height/4, 25, 80+lens_shift);
 	// YOLO walls
 
 	photonCPU::PlaneObject* floor = new photonCPU::PlaneObject(white);
@@ -186,6 +212,8 @@ int main(int argc, char* argv[]) {
 	back->setNormal(0, 0, -1);
 	back->up->setTo(0, 1, 0);
 	back->right->setTo(1, 0, 0);
+	back->width = 115;
+	back->height = 115;
 	back->setPosition(0, 0, 100+lens_shift);
 
 	photonCPU::PlaneObject* right = new photonCPU::PlaneObject(green);
@@ -201,12 +229,15 @@ int main(int argc, char* argv[]) {
 	left->setPosition(-50, 0, 50+lens_shift);
 
 	// Make an area light
-	Vector3D* l_pos    = new Vector3D(-50, 50, 0+lens_shift);
+	float l_width = 100;
+	float l_height = l_width;
+	Vector3D* l_pos    = new Vector3D(-l_width/2, 50, 50+lens_shift-l_height/2);
 	Vector3D* l_normal = new Vector3D(0, -1, 0);
+	l_normal->normaliseSelf();
 	Vector3D* l_up     = new Vector3D(0, 0, 1);
 	Vector3D* l_right  = new Vector3D(1, 0, 0);
 	l_pos->print();
-	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, 100, 100, 3.141/2);
+	photonCPU::AreaLight* light = new photonCPU::AreaLight(l_pos, l_normal, l_up, l_right, l_height, l_width, 3.141/2);
 
 	photonCPU::Scene* s = new photonCPU::Scene();
 
@@ -215,12 +246,14 @@ int main(int argc, char* argv[]) {
 	s->addObject(sphere);
 	s->addObject(sphere2);
 
-	s->addObject(floor);
+	s->addObject(back);
 	s->addObject(right);
 	s->addObject(left);
-	s->addObject(back);
+	s->addObject(top);
+	s->addObject(floor);
 	s->addObject(spherer);
 	s->addObject(sphereg);
+
 	// Create our renderer
 	#ifdef PHOTON_OPTIX
 		photonCPU::OptiXRenderer* render = new photonCPU::OptiXRenderer(s);

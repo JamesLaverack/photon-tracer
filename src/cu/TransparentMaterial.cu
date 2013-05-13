@@ -39,58 +39,38 @@ __device__ __inline__ float refractive_index(const float wavelength) {
 RT_PROGRAM void closest_hit() {
 	float3 hitpoint = ray.origin + t_hit * ray.direction;
 	// Report!
-	if( launch_index == follow_photon ) {
-		rtPrintf("[%d] debug_number      %d\n", launch_index, debug_id);
-		rtPrintf("[%d] parametric t      %f\n", launch_index, t_hit);
-		rtPrintf("[%d] depth             %d\n", launch_index, prd_photon.depth);
-		rtPrintf("[%d] r (orginal)       %f\n", launch_index, index_of_refraction);
-		rtPrintf("[%d] ray origin        <%f, %f, %f>\n", launch_index, ray.origin.x, ray.origin.y, ray.origin.z);
-		rtPrintf("[%d] hit point         <%f, %f, %f>\n", launch_index, hitpoint.x, hitpoint.y, hitpoint.z);
-		rtPrintf("[%d] Orginal Direction <%f, %f, %f>\n", launch_index, ray.direction.x, ray.direction.y, ray.direction.z);
-		rtPrintf("[%d] Normal            <%f, %f, %f>\n", launch_index, geometric_normal.x, geometric_normal.y, geometric_normal.z);
-	}
-	const float pi = 3.141;
+	const float pi = 3.141f;
 	// Do we absorb this?
 	if(prd_photon.depth >= scene_bounce_limit) return;
 
 	float r_index = refractive_index(prd_photon.wavelength);
-
 	// Ugly lens hack
 	if(std::abs(hitpoint.z)>hack_lens_depth) {
-		r_index = 1;
+		r_index = 1.f;
 	}
 	if((hitpoint.x)*(hitpoint.x) + (hitpoint.y)*(hitpoint.y) > (hack_lens_radius*hack_lens_radius)) {
-		r_index = 1;
+		r_index = 1.f;
 	}
-
-	float angle_in = std::acos(optix::dot(ray.direction, geometric_normal));
+	float angle_in = acosf(optix::dot(ray.direction, geometric_normal));
 	float3 axis = optix::normalize( optix::cross( ray.direction, geometric_normal));
-	if(angle_in < pi/2) {
+	if(angle_in < pi/2.f) {
                 // We are coming from the material out
-                r_index = 1/r_index;
+                r_index = 1.0f/r_index;
         } else {
                 // From the outside into the material
                 angle_in = pi - angle_in;
         }
 
-	float angle_out = std::asin(std::sin(angle_in)/r_index);
-	float theta = std::abs( angle_out - angle_in );
+	float angle_out = asinf(sinf(angle_in)/r_index);
+	float theta = abs( angle_out - angle_in );
 
 	float4 bounce = optix::make_float4( ray.direction.x, ray.direction.y, ray.direction.z, 1);
 	// Do some rotation
-	optix::Matrix4x4 rot1 = optix::Matrix4x4::rotate(theta, axis);
-	bounce = bounce*rot1;
+	bounce = bounce*optix::Matrix4x4::rotate(theta, axis);
 
 	// Get needed values
-	float3 bounce_direction = optix::normalize( optix::make_float3(bounce) );
-
-	if( launch_index == follow_photon ) {
-		rtPrintf("[%d] r (current)       %f\n", launch_index, r_index);
-		rtPrintf("[%d] Bounce Direction  <%f, %f, %f>\n", launch_index, bounce_direction.x, bounce_direction.y, bounce_direction.z);
-	}
-
 	// Fire new ray!
-	optix::Ray new_ray = optix::make_Ray(hitpoint, bounce_direction, photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
+	optix::Ray new_ray = optix::make_Ray(hitpoint, optix::normalize( optix::make_float3(bounce) ), photon_ray_type, scene_epsilon, RT_DEFAULT_MAX);
 
 	PerRayData_photon prd_bounce;
 	prd_bounce.importance = 1.f;

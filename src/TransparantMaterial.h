@@ -16,6 +16,8 @@ class TransparantMaterial: public photonCPU::AbstractMaterial {
 private:
 	float index_of_refraction;
 public:
+	float b1, b2, b3;
+	float c1, c2, c3;
 	float lens_hack_depth;
 	float lens_hack_radius;
 	float radius;

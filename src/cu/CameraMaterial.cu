@@ -26,11 +26,11 @@ rtDeclareVariable(int2,  image_size, , );
 rtDeclareVariable(int, max_intensity, , );
 rtDeclareVariable(float,  camera_gamma, , );
 
-__device__ int factorAdjust(float Color, float Factor){
+__device__ float factorAdjust(float Color, float Factor){
 	if(Color == 0.0){
 		return 0;
 	}else{
-		return (int) round(max_intensity * pow(Color * Factor, camera_gamma));
+		return max_intensity * pow(Color * Factor, camera_gamma);
 	}
 }
 
@@ -77,9 +77,45 @@ __device__ void convert(float wavelength, float* r, float* g, float* b){
 	}else{
 		Factor = 0.0;
 	}
-	*r = factorAdjust(Red, Factor);
-	*g = factorAdjust(Green, Factor);
-	*b = factorAdjust(Blue, Factor);
+	*r = Red;//*Factor;
+	*g = Green;//*Factor*0.1;
+	*b = Blue;//*Factor;
+}
+
+__device__ void hsv2rgb(const float h, const float s, const float v, float* r, float* g, float* b) {
+	int i = (int) floor(h * 6);
+	float f = h * 6 - floor(h * 6);
+	float p = v * (1 - s);
+	float q = v * (1 - f * s);
+	float t = v * (1 - (1 - f) * s);
+
+	float bees = (i % 6);
+	if(bees == 0) {
+		*r = v;
+		*g = t;
+		*b = p;
+	} else if(bees == 1) {
+		*r = q;
+		*g = v;
+		*b = p;
+	} else if(bees == 2) {
+		*r = p;
+		*g = v;
+		*b = t;
+	} else if(bees == 3) {
+		*r = p;
+		*g = q;
+		*b = v;
+	} else if(bees == 4) {
+		*r = t;
+		*g = p;
+		*b = v;
+	} else if(bees == 5) {
+		*r = v;
+		*g = p;
+		*b = q;
+	}
+
 }
 
 RT_PROGRAM void closest_hit() {
@@ -88,20 +124,19 @@ RT_PROGRAM void closest_hit() {
 	//output_buffer[make_uint2(5, 5)] = make_float4(1, 1, 1, 1);
 	
 	// Hit from the right side?
-	if(std::abs(std::acos(optix::dot(ray.direction, geometric_normal))) <= pi/2) return;
+	if(abs(acosf(optix::dot(ray.direction, geometric_normal))) <= pi/2) return;
 
 	// Adjusted cords
-	int adj_x = std::floor(texcoord.x*image_size.x);
-	int adj_y = std::floor(texcoord.y*image_size.x);
+	int adj_x = floor(texcoord.x*image_size.x);
+	int adj_y = floor(texcoord.y*image_size.x);
 	//if(prd_photon.depth == 0) return; //DEBUG CODE
 	//if(prd_photon.depth > 0 ) rtPrintf("hit depth %d\n", prd_photon.depth);
-	if(threadIdx.x >= 31 && threadIdx.y >= 15) {
 		//rtPrintf("Thread <%d, %d, %d> in block <%d, %d, %d>\n", threadIdx.x, threadIdx.y, threadIdx.z, blockIdx.x, blockIdx.y, blockIdx.z);
-	}
 	//rtPrintf("Block id y %d\n", blockIdx.y);
 	
 	// Record in buffer
 	float r, g, b;
+	//hsv2rgb(prd_photon.wavelength/400 - 300, 1, 1, &r, &g, &b);
 	convert(prd_photon.wavelength, &r, &g, &b);
 	uint2 address = make_uint2(adj_x, adj_y);
 	atomicAdd(&(output_buffer[address].x), r);

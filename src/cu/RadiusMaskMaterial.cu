@@ -26,8 +26,7 @@ RT_PROGRAM void closest_hit() {
 	// Do we absorb this?
 	if(prd_photon.depth >= scene_bounce_limit) return;
 	float3 hitpoint = ray.origin + t_hit * ray.direction;
-	float distance_squared = hitpoint.x*hitpoint.x + hitpoint.y*hitpoint.y;
-	if(distance_squared > radius*radius) return;
+	if(hitpoint.x*hitpoint.x + hitpoint.y*hitpoint.y > radius*radius) return;
 	// Create new ray
 
 	// Fire new ray!

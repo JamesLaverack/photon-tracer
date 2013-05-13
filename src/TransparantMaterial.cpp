@@ -16,6 +16,13 @@ TransparantMaterial::TransparantMaterial() {
 	debug_id = -1;
 	lens_hack_radius = 10000;
 	lens_hack_depth = 10000;
+
+	b1 = 1.03961212f;
+	b2 = 0.231792344f;
+	b3 = 1.01046945f;
+	c1 = 6.00069867e-3f;
+	c2 = 2.00179144e-2f;
+	c3 = 1.03560653e2f;
 }
 
 TransparantMaterial::~TransparantMaterial() {
@@ -42,8 +49,8 @@ optix::Material TransparantMaterial::getOptiXMaterial(optix::Context context) {
 	mat["index_of_refraction"]->setFloat(index_of_refraction);
 	mat["hack_lens_depth"]->setFloat(lens_hack_depth);
 	mat["hack_lens_radius"]->setFloat(lens_hack_radius);
-	mat["b_vals"]->setFloat(1.03961212f, 0.231792344f, 1.01046945f);
-	mat["c_vals"]->setFloat(6.00069867e-3f, 2.00179144e-2f, 1.03560653e2f);
+	mat["b_vals"]->setFloat(b1, b2, b3);
+	mat["c_vals"]->setFloat(c1, c2, c3);
 	mat["debug_id"]->setInt(debug_id);
 	mat->setClosestHitProgram(0, chp);
 	return mat;

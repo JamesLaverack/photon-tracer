@@ -19,9 +19,9 @@ private:
 	Vector3D* normal;
 	float focal_length;
 	Vector3D focal_point;
+public:
 	int height;
 	int width;
-public:
 	Vector3D* up;
 	Vector3D* right;
 	PlaneObject(AbstractMaterial* pMaterial);

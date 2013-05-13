@@ -46,7 +46,7 @@ Ray* AreaLight::getRandomRayFromLight() {
         Ray* r = new Ray();
         r->setPosition(&position);
 	r->setDirection(&bounce);
-	r->wavelength = randFloat()*400+380;
+	r->wavelength = randFloat()*400+300;
 
 	return r;
 }
