@@ -124,16 +124,14 @@ RT_PROGRAM void closest_hit() {
 	//output_buffer[make_uint2(5, 5)] = make_float4(1, 1, 1, 1);
 	
 	// Hit from the right side?
-	if(std::abs(std::acos(optix::dot(ray.direction, geometric_normal))) <= pi/2) return;
+	if(abs(acosf(optix::dot(ray.direction, geometric_normal))) <= pi/2) return;
 
 	// Adjusted cords
-	int adj_x = std::floor(texcoord.x*image_size.x);
-	int adj_y = std::floor(texcoord.y*image_size.x);
+	int adj_x = floor(texcoord.x*image_size.x);
+	int adj_y = floor(texcoord.y*image_size.x);
 	//if(prd_photon.depth == 0) return; //DEBUG CODE
 	//if(prd_photon.depth > 0 ) rtPrintf("hit depth %d\n", prd_photon.depth);
-	if(threadIdx.x >= 31 && threadIdx.y >= 15) {
 		//rtPrintf("Thread <%d, %d, %d> in block <%d, %d, %d>\n", threadIdx.x, threadIdx.y, threadIdx.z, blockIdx.x, blockIdx.y, blockIdx.z);
-	}
 	//rtPrintf("Block id y %d\n", blockIdx.y);
 	
 	// Record in buffer

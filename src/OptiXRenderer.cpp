@@ -113,6 +113,11 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	// Set some CUDA flags
 	cudaSetDeviceFlags(cudaDeviceMapHost | cudaDeviceLmemResizeToMax);
 
+	// Set used devices
+	int tmp[] = { 0 };
+	std::vector<int> v( tmp, tmp+2 );
+	context->setDevices(v.begin(), v.end());
+
 	// Report device usage
 	int num_devices = context->getEnabledDeviceCount();
 	printf("Using %d devices:\n", num_devices);
@@ -150,7 +155,7 @@ void OptiXRenderer::performRender(long long int photons, int argc_mpi, char* arg
 	int launches = (photons/threads)/iterations_on_device;
 	if(launches*threads*iterations_on_device<photons) {
 		launches++;
-		printf("    NOTE: You have asked for %lld photons, we are providing %d photons instead.\n", photons, launches*threads*iterations_on_device);
+		printf("    NOTE: You have asked for %lld photons, we are providing %lld photons instead.\n", photons, launches*threads*iterations_on_device);
 	}
 	printf("    %d optix launches.\n", launches);
 
