@@ -111,10 +111,12 @@ int main(int argc, char* argv[]) {
 
 	// Begin setup
 	photonCPU::ColourMaterial* white  = new photonCPU::ColourMaterial(300.0f, 700.0f);
-	photonCPU::ColourMaterial* mirror  = new photonCPU::ColourMaterial(300.0f, 700.0f);
-	mirror->std = 0.01;
-	photonCPU::ColourMaterial* green  = new photonCPU::ColourMaterial(490.0f, 560.0f);
-	photonCPU::ColourMaterial* red    = new photonCPU::ColourMaterial(635.0f, 700.0f);
+	photonCPU::ColourMaterial* shade_1  = new photonCPU::ColourMaterial(300.0f, 430.0f);
+	photonCPU::ColourMaterial* shade_2  = new photonCPU::ColourMaterial(430.0f, 500.0f);
+	photonCPU::ColourMaterial* shade_3  = new photonCPU::ColourMaterial(565.0f, 590.0f);
+	photonCPU::ColourMaterial* shade_4  = new photonCPU::ColourMaterial(590.0f, 625.0f);
+	photonCPU::ColourMaterial* green  = new photonCPU::ColourMaterial(520.0f, 565.0f);
+	photonCPU::ColourMaterial* red    = new photonCPU::ColourMaterial(625.0f, 700.0f);
 	photonCPU::ColourMaterial* blue   = new photonCPU::ColourMaterial(450.0f, 490.0f);
 	photonCPU::TransparantMaterial* trans_in = new photonCPU::TransparantMaterial();
 	trans_in->debug_id = 4;
@@ -149,13 +151,13 @@ int main(int argc, char* argv[]) {
 	trans_out->radius = radi;
 	mask->radius = radi;
 
-	photonCPU::SphereObject* sphere = new photonCPU::SphereObject(trans_out);
-	sphere->setPosition(0, 0, R-d);
-	sphere->radius = R;
+	photonCPU::SphereObject* lens = new photonCPU::SphereObject(trans_out);
+	lens->setPosition(0, 0, R-d);
+	lens->radius = R;
 
-	photonCPU::SphereObject* sphere2 = new photonCPU::SphereObject(trans_in);
-	sphere2->setPosition(0, 0, -R+d);
-	sphere2->radius = R;
+	photonCPU::SphereObject* lens2 = new photonCPU::SphereObject(trans_in);
+	lens2->setPosition(0, 0, -R+d);
+	lens2->radius = R;
 
 	photonCPU::PlaneObject* front = new photonCPU::PlaneObject(mask);
 	front->setNormal(0, 0, 1);
@@ -168,13 +170,21 @@ int main(int argc, char* argv[]) {
 	apature->setPosition(0, 0, -d);
 
 	// Balls
-	photonCPU::SphereObject* spherer = new photonCPU::SphereObject(trans);
-	spherer->setPosition(25, -35, 80+lens_shift);
-	spherer->radius = 15;
+	photonCPU::SphereObject* sphere1 = new photonCPU::SphereObject(shade_1);
+	sphere1->setPosition(-25, 25, 80+lens_shift);
+	sphere1->radius = 15;
 
-	photonCPU::SphereObject* sphereg = new photonCPU::SphereObject(mirror);
-	sphereg->setPosition(-25, -35, 60+lens_shift);
-	sphereg->radius = 15;
+	photonCPU::SphereObject* sphere2 = new photonCPU::SphereObject(shade_2);
+	sphere2->setPosition(25, 25, 80+lens_shift);
+	sphere2->radius = 15;
+
+	photonCPU::SphereObject* sphere3 = new photonCPU::SphereObject(shade_3);
+	sphere3->setPosition(25, -25, 80+lens_shift);
+	sphere3->radius = 15;
+
+	photonCPU::SphereObject* sphere4 = new photonCPU::SphereObject(shade_4);
+	sphere4->setPosition(-25, -25, 80+lens_shift);
+	sphere4->radius = 15;
 
 	// Prisim
 	photonCPU::PlaneObject* prisim_left = new photonCPU::PlaneObject(trans);
@@ -243,16 +253,18 @@ int main(int argc, char* argv[]) {
 
 	s->addLight(light);
        	s->addObject(front);
-	s->addObject(sphere);
-	s->addObject(sphere2);
+	s->addObject(lens);
+	s->addObject(lens2);
 
 	s->addObject(back);
 	s->addObject(right);
 	s->addObject(left);
 	s->addObject(top);
 	s->addObject(floor);
-	s->addObject(spherer);
-	s->addObject(sphereg);
+	s->addObject(sphere1);
+	s->addObject(sphere2);
+	s->addObject(sphere3);
+	s->addObject(sphere4);
 
 	// Create our renderer
 	#ifdef PHOTON_OPTIX
@@ -279,9 +291,6 @@ int main(int argc, char* argv[]) {
 	delete s;
 
 	// Delete objects
-	delete sphere;
-	delete sphere2;
-	delete spherer;
 	delete floor;
 	delete back;
 	delete front;
